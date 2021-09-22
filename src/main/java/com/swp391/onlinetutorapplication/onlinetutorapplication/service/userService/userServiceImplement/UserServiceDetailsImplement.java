@@ -197,5 +197,7 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
         return new MessageResponse("A token was sent to your email");
     }
 
-
+    public void checkCommit(){
+        System.out.println("Check commit cho nam branch");
+    }
 }
