@@ -198,6 +198,6 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
     }
 
     public void checkCommit(){
-        System.out.println("Check commit");
+        System.out.println("Check commit lan 2");
     }
 }
