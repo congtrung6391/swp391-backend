@@ -15,15 +15,6 @@ public interface UserRepository extends JpaRepository<User,Long> {
     List<User> findAllByRoles(String role);
     Boolean existsByEmail(String email);
     Boolean existsByUsername(String username);
-
-    @Transactional
-    @Modifying
-    @Query("update User u set u.activeStatus=true where u.activateToken=?1")
-    void activeUser(String activateToken);
-
-    @Transactional
-    @Modifying
-    @Query("update User u set u.password = ?1 where u.username=?2")
-    void changePassword(String username);
-
+    Optional<User> findByActivateToken(String token);
+    Optional<User> findByResetPasswordCode(Long code);
 }
