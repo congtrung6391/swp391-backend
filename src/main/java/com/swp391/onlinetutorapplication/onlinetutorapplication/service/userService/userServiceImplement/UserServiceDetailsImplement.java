@@ -4,6 +4,7 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.ERole
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.refreshToken.RefreshToken;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.resetPasswordRequest.ResetPasswordRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.utils.jwtUtils.JWTUtils;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.LoginRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.RegistrationRequest;
@@ -32,10 +33,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -101,10 +99,11 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
 
 
     @Override
-    public JwtResponse handleUserLogin(LoginRequest loginRequest) {
+    public JwtResponse handleUserLogin(LoginRequest loginRequest) throws Exception {
+        UserDetails user = loadUserByUsername(loginRequest.getUsername());
         boolean isActivated = userRepository.findByUsername(loginRequest.getUsername()).get().getActiveStatus();
         if(!isActivated){
-            return new JwtResponse("Error : Account must be activated!");
+            throw new Exception("User must be activated!");
         }
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
@@ -127,7 +126,6 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
                 userDetails.getEmail(),
                 roles
         );
-//        return null;
     }
 
     @Override
@@ -182,19 +180,39 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
 
     @Override
     public void activeAccount(String activateToken){
-        userRepository.activeUser(activateToken);
+        User user = userRepository.findByActivateToken(activateToken).get();
+        user.setActivateToken(null);
+        user.setActiveStatus(true);
+        userRepository.save(user);
     }
 
     @Override
-    public MessageResponse sendTokenForgetPassword(String email) throws MessagingException{
-        Boolean userExist = userRepository.existsByEmail(email);
-        if(!userExist){
-            return new MessageResponse("Error: Email is not found");
-        }
+    public void sendTokenForgetPassword(String email) throws MessagingException{
         User user = userRepository.findByEmail(email).get();
-        String tokenForgetPassword = user.getUsername()+TOKEN_FORGET_PASS+user.getEmail();
-        mailSenderService.sendEmailResetPassword(user.getUsername(),tokenForgetPassword,email);
-        return new MessageResponse("A token was sent to your email");
+        if(user == null){
+            throw new NoSuchElementException("Email not found");
+        }
+        Long resetCode = 100000+(long)(Math.random()*(999999-100000));
+        user.setResetPasswordCode(resetCode);
+        userRepository.save(user);
+        mailSenderService.sendEmailResetPassword(user.getUsername(), resetCode, user.getEmail());
     }
 
+    @Override
+    public User verifiedResetCode(Long resetCode) {
+        User user = userRepository.findByResetPasswordCode(resetCode).get();
+        if(user == null){
+            throw new NoSuchElementException("Reset code accepted");
+        }
+        return user;
+    }
+
+    @Override
+    public void resetPassword(Long resetCode, ResetPasswordRequest resetPasswordRequest){
+        User user = verifiedResetCode(resetCode);
+        String newPassword = encoder.encode(resetPasswordRequest.getNewPassword());
+        user.setPassword(newPassword);
+        user.setResetPasswordCode(null);
+        userRepository.save(user);
+    }
 }
