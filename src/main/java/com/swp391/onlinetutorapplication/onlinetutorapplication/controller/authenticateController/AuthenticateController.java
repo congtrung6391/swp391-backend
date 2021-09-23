@@ -2,6 +2,7 @@ package com.swp391.onlinetutorapplication.onlinetutorapplication.controller.auth
 
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.refreshToken.RefreshToken;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.exception.refreshTokenException.TokenRefreshException;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.resetPasswordRequest.ResetPasswordRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.utils.jwtUtils.JWTUtils;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.tokenRequest.RefreshTokenRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.LoginRequest;
@@ -13,12 +14,15 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userServ
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.tokenService.RefreshTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 
 import javax.mail.MessagingException;
 import javax.validation.Valid;
+import java.util.NoSuchElementException;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000/")
@@ -36,15 +40,16 @@ public class AuthenticateController {
     private UserServiceInterface userService;
 
     @PostMapping("/log-in")
-    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-        JwtResponse jwtResponse = userService.handleUserLogin(loginRequest);
-        if(jwtResponse.getErrorMessage()!=null){
-            //send bad request when login failed
-            return ResponseEntity.badRequest().body(jwtResponse);
-        }else {
-            //send status 200 when successful
-            return ResponseEntity.ok(jwtResponse);
+    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) throws Exception {
+        try {
+            JwtResponse jwtResponse = userService.handleUserLogin(loginRequest);
+            return ResponseEntity.ok().body(jwtResponse);
+        }catch (UsernameNotFoundException ex){
+            return ResponseEntity.internalServerError().body("UsernameNotFoundException : "+ex.getMessage());
+        }catch (Exception ex){
+            return ResponseEntity.internalServerError().body("Exception : "+ex.getMessage());
         }
+
     }
 
 
@@ -75,22 +80,30 @@ public class AuthenticateController {
     }
 
     @GetMapping("/activate")
-    public RedirectView activateUser(@RequestParam(name = "token") String token) {
+    public ResponseEntity activateUser(@RequestParam(name = "token") String token) {
         userService.activeAccount(token);
-        RedirectView redirectView = new RedirectView();
-        redirectView.setUrl("/api/auth/all");
-        return redirectView;
+        return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/send-forget-password/{email}")
-    public ResponseEntity<?> sendForgetPassword(@PathVariable String email) throws MessagingException{
-        MessageResponse messageResponse = userService.sendTokenForgetPassword(email);
-        if(messageResponse.getMessage().contains("Error")){
-            return ResponseEntity.badRequest().body(messageResponse);
-        }else{
-            return ResponseEntity.ok(messageResponse);
+    //Sau khi nhập xong email bấm enter thì chuyển tới trang nhập code thì
+    @PostMapping("/send-forget-password")
+    public ResponseEntity<?> sendForgetPassword(@RequestParam(name = "email") String email) throws MessagingException{
+        try {
+            userService.sendTokenForgetPassword(email);
+            return ResponseEntity.ok().build();
+        }catch (NoSuchElementException ex){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error 500 "+ex.getMessage());
         }
     }
 
-
+    //Nếu code đúng thì đi tới trang reset password
+    @PostMapping("/reset-password/{resetCode}")
+    public ResponseEntity<?> verifyResetCode(@PathVariable(name = "resetCode") Long resetCode, @RequestBody ResetPasswordRequest resetPasswordRequest){
+        try {
+            userService.resetPassword(resetCode,resetPasswordRequest);
+            return ResponseEntity.ok().body("Reset password successull");
+        }catch (NoSuchElementException ex){
+            return ResponseEntity.internalServerError().body("Error 500 "+ex.getMessage());
+        }
+    }
 }
