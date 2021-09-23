@@ -98,7 +98,7 @@ public class AuthenticateController {
 
     //Nếu code đúng thì đi tới trang reset password
     @PostMapping("/reset-password/{resetCode}")
-    public ResponseEntity<?> verifyResetCode(@PathVariable(name = "resetCode") Long resetCode, @RequestBody ResetPasswordRequest resetPasswordRequest){
+    public ResponseEntity<?> verifyResetCode(@PathVariable(name = "resetCode") Long resetCode, @Valid @RequestBody ResetPasswordRequest resetPasswordRequest){
         try {
             userService.resetPassword(resetCode,resetPasswordRequest);
             return ResponseEntity.ok().body("Reset password successull");

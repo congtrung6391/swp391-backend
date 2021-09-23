@@ -100,7 +100,7 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
 
     @Override
     public JwtResponse handleUserLogin(LoginRequest loginRequest) throws Exception {
-        UserDetails user = loadUserByUsername(loginRequest.getUsername());
+        loadUserByUsername(loginRequest.getUsername());
         boolean isActivated = userRepository.findByUsername(loginRequest.getUsername()).get().getActiveStatus();
         if(!isActivated){
             throw new Exception("User must be activated!");
@@ -174,7 +174,6 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
         user.setRoles(roles);
         userRepository.save(user);
         mailSenderService.sendEmailActivate(user.getUsername(), stringOfToken, user.getEmail());
-
         return new MessageResponse("User registered successfully!");
     }
 
