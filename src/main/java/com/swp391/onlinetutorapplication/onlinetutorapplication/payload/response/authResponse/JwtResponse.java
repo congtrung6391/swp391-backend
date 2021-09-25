@@ -18,11 +18,8 @@ public class JwtResponse {
     private String username;
     private String email;
     private List<String> roles;
-    private String errorMessage;
 
-    public JwtResponse(String errorMessage) {
-        this.errorMessage = errorMessage;
-    }
+
 
     public JwtResponse(String accessToken, String refresh_token, Long id, String username, String email, List<String> roles) {
         this.access_token = accessToken;
