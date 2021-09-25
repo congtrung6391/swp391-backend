@@ -20,6 +20,6 @@ public interface UserServiceInterface {
     MessageResponse handleUserRegistration(RegistrationRequest registrationRequest) throws MessagingException;
      void activeAccount(String activateToken);
      void sendTokenForgetPassword(String email) throws MessagingException;
-    User verifiedResetCode(Long resetCode);
-     void resetPassword(Long resetCode, ResetPasswordRequest resetPasswordRequest);
+     User verifiedResetCode(Long resetCode);
+     void resetPassword(ResetPasswordRequest resetPasswordRequest);
 }

@@ -201,14 +201,14 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
     public User verifiedResetCode(Long resetCode) {
         User user = userRepository.findByResetPasswordCode(resetCode).get();
         if(user == null){
-            throw new NoSuchElementException("Reset code accepted");
+            throw new NoSuchElementException("Reset code not accepted");
         }
         return user;
     }
 
     @Override
-    public void resetPassword(Long resetCode, ResetPasswordRequest resetPasswordRequest){
-        User user = verifiedResetCode(resetCode);
+    public void resetPassword(ResetPasswordRequest resetPasswordRequest){
+        User user = verifiedResetCode(resetPasswordRequest.getResetCode());
         String newPassword = encoder.encode(resetPasswordRequest.getNewPassword());
         user.setPassword(newPassword);
         user.setResetPasswordCode(null);
