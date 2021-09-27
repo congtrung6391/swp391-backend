@@ -22,7 +22,7 @@ public class AdminController {
     public ResponseEntity<?> changeRoleUser(@PathVariable String username, @RequestBody ChangeRoleUserRequest role){
         boolean result = userService.changeRole(username, role.getRole());
         if(result){
-            return ResponseEntity.ok(new StatusResponse("Update Sucess", HttpStatus.OK.toString()));
+            return ResponseEntity.ok(new StatusResponse("Update Successful", HttpStatus.OK.toString()));
         }else{
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new StatusResponse("Update Failed", HttpStatus.NOT_FOUND.toString()));
         }
