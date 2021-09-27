@@ -81,6 +81,9 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
     }
 
     @Override
+    public void saveUser(User user) { userRepository.save(user);}
+
+    @Override
     public List<User> getAllUser() {
         log.info("Fetching all users");
         return userRepository.findAll();

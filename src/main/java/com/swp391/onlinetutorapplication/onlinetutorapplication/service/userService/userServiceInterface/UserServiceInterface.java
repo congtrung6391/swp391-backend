@@ -14,6 +14,7 @@ import java.util.List;
 public interface UserServiceInterface {
     User getUser(String username);
     List<User> getAllUser();
+    void saveUser(User user);
     void createAccount(User user);
     void saveRole(Role role);
     JwtResponse handleUserLogin(LoginRequest loginRequest) throws Exception;
