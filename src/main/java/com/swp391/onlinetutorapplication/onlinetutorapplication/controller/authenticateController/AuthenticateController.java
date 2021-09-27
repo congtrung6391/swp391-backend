@@ -13,12 +13,10 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceInterface.UserServiceInterface;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.tokenService.RefreshTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.view.RedirectView;
 
 import javax.mail.MessagingException;
 import javax.validation.Valid;
@@ -45,13 +43,13 @@ public class AuthenticateController {
             JwtResponse jwtResponse = userService.handleUserLogin(loginRequest);
             return ResponseEntity.ok().body(jwtResponse);
         }catch (UsernameNotFoundException ex){
-            return ResponseEntity.internalServerError().body("UsernameNotFoundException : "+ex.getMessage());
-        }catch (Exception ex){
-            return ResponseEntity.internalServerError().body("Exception : "+ex.getMessage());
+            return ResponseEntity.badRequest().body("UsernameNotFoundException : "+ex.getMessage());
+        }
+        catch (Exception ex){
+            return ResponseEntity.badRequest().body("Exception : "+ex.getMessage());
         }
 
     }
-
 
 
     @PostMapping("/signup")
@@ -86,24 +84,34 @@ public class AuthenticateController {
     }
 
     //Sau khi nhập xong email bấm enter thì chuyển tới trang nhập code thì
-    @PostMapping("/send-forget-password")
+    @PostMapping("/send-forgot-password")
     public ResponseEntity<?> sendForgetPassword(@RequestParam(name = "email") String email) throws MessagingException{
         try {
             userService.sendTokenForgetPassword(email);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok().body("Reset code sent to your email");
         }catch (NoSuchElementException ex){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error 500 "+ex.getMessage());
+            return ResponseEntity.badRequest().body("Error 500 "+ex.getMessage());
+        }
+    }
+
+    @GetMapping("/reset-code")
+    public ResponseEntity<?> verifyResetCode(@RequestParam(name = "resetCode") Long resetCode){
+        try{
+            userService.verifiedResetCode(resetCode);
+            return ResponseEntity.ok().body("resetCode :"+ resetCode);
+        }catch (NoSuchElementException ex){
+            return ResponseEntity.badRequest().body("Reset code is not existed");
         }
     }
 
     //Nếu code đúng thì đi tới trang reset password
-    @PostMapping("/reset-password/{resetCode}")
-    public ResponseEntity<?> verifyResetCode(@PathVariable(name = "resetCode") Long resetCode, @RequestBody ResetPasswordRequest resetPasswordRequest){
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@Valid @RequestBody ResetPasswordRequest resetPasswordRequest){
         try {
-            userService.resetPassword(resetCode,resetPasswordRequest);
-            return ResponseEntity.ok().body("Reset password successull");
+            userService.resetPassword(resetPasswordRequest);
+            return ResponseEntity.ok().build();
         }catch (NoSuchElementException ex){
-            return ResponseEntity.internalServerError().body("Error 500 "+ex.getMessage());
+            return ResponseEntity.badRequest().body(ex.getMessage());
         }
     }
 }

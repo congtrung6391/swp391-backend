@@ -10,7 +10,8 @@ import javax.validation.constraints.Size;
 @Getter
 @Setter
 public class ResetPasswordRequest {
+    private Long resetCode;
     @NotBlank
     @Size(min = 6, max = 30)
-    String newPassword;
+    private String newPassword;
 }

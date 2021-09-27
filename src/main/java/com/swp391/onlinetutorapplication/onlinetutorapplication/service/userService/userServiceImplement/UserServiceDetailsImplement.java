@@ -100,7 +100,7 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
 
     @Override
     public JwtResponse handleUserLogin(LoginRequest loginRequest) throws Exception {
-        UserDetails user = loadUserByUsername(loginRequest.getUsername());
+        loadUserByUsername(loginRequest.getUsername());
         boolean isActivated = userRepository.findByUsername(loginRequest.getUsername()).get().getActiveStatus();
         if(!isActivated){
             throw new Exception("User must be activated!");
@@ -174,7 +174,6 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
         user.setRoles(roles);
         userRepository.save(user);
         mailSenderService.sendEmailActivate(user.getUsername(), stringOfToken, user.getEmail());
-
         return new MessageResponse("User registered successfully!");
     }
 
@@ -202,14 +201,14 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
     public User verifiedResetCode(Long resetCode) {
         User user = userRepository.findByResetPasswordCode(resetCode).get();
         if(user == null){
-            throw new NoSuchElementException("Reset code accepted");
+            throw new NoSuchElementException("Reset code not accepted");
         }
         return user;
     }
 
     @Override
-    public void resetPassword(Long resetCode, ResetPasswordRequest resetPasswordRequest){
-        User user = verifiedResetCode(resetCode);
+    public void resetPassword(ResetPasswordRequest resetPasswordRequest){
+        User user = verifiedResetCode(resetPasswordRequest.getResetCode());
         String newPassword = encoder.encode(resetPasswordRequest.getNewPassword());
         user.setPassword(newPassword);
         user.setResetPasswordCode(null);
