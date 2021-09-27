@@ -30,6 +30,7 @@ public class User {
     private String password;
     private String activateToken;
     private Boolean activeStatus = false;
+    private Long resetPasswordCode;
     @ManyToMany(fetch = EAGER)
     @JoinTable(	name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),

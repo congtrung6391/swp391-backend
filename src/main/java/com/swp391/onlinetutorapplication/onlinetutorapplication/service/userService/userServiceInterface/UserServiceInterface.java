@@ -2,6 +2,7 @@ package com.swp391.onlinetutorapplication.onlinetutorapplication.service.userSer
 
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.resetPasswordRequest.ResetPasswordRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.LoginRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.RegistrationRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.authResponse.JwtResponse;
@@ -15,8 +16,12 @@ public interface UserServiceInterface {
     List<User> getAllUser();
     void createAccount(User user);
     void saveRole(Role role);
-    JwtResponse handleUserLogin(LoginRequest loginRequest);
+    JwtResponse handleUserLogin(LoginRequest loginRequest) throws Exception;
     MessageResponse handleUserRegistration(RegistrationRequest registrationRequest) throws MessagingException;
      void activeAccount(String activateToken);
-     MessageResponse sendTokenForgetPassword(String email) throws MessagingException;
+     void sendTokenForgetPassword(String email) throws MessagingException;
+     User verifiedResetCode(Long resetCode);
+     void resetPassword(ResetPasswordRequest resetPasswordRequest);
+    void deleteById (long id) ;
+
 }

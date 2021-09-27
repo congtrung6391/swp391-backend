@@ -23,13 +23,13 @@ public class MailSenderService {
                 "</html>";
     }
 
-    public String htmlEmailForForgetPassword(String token,String username){
+    public String htmlEmailForForgetPassword(Long resetCode,String username){
         return "<html>\n" +
                 "<body>\n" +
                 "\t<h2>Email Reset Password</h2>\n" +
                 "\t<p>Dear "+username+" ,</p>\n" +
-                "\t<p>This is email for confirm your registration account. Please click the link below to confirm your registration.</p><br>\n" +
-                "\t<a href=\"http://localhost:8080/api/auth/reset-password?username"+username+"\"><button>CLICK HERE</button></a>\n" +
+                "\t<p>This is email for confirm your registration account. Please use code below to reset your password.</p><br>\n" +
+                "\t<a href=\"http://localhost:8080/api/auth/reset-password/"+resetCode+"\"><button>CLICK HERE</button></a>\n" +
                 "\t<br>\n" +
                 "\t<p>Thanks for using our product. Have a nice day!</p>\n" +
                 "</body>\n" +
@@ -53,10 +53,10 @@ public class MailSenderService {
         javaMailSender.send(message);
     }
 
-    public void sendEmailResetPassword(String username, String token, String email) throws MessagingException{
+    public void sendEmailResetPassword(String username, Long resetCode, String email) throws MessagingException{
         MimeMessage message = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message,true,"utf-8");
-        String htmlMessage = htmlEmailForForgetPassword(token,username);
+        String htmlMessage = htmlEmailForForgetPassword(resetCode,username);
 
         message.setContent(htmlMessage,"text/html");
         helper.setTo(email);

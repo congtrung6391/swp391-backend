@@ -2,6 +2,7 @@ package com.swp391.onlinetutorapplication.onlinetutorapplication.controller.auth
 
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.refreshToken.RefreshToken;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.exception.refreshTokenException.TokenRefreshException;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.resetPasswordRequest.ResetPasswordRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.utils.jwtUtils.JWTUtils;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.tokenRequest.RefreshTokenRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.LoginRequest;
@@ -12,13 +13,15 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceInterface.UserServiceInterface;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.tokenService.RefreshTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.view.RedirectView;
 
 import javax.mail.MessagingException;
 import javax.validation.Valid;
+import java.util.NoSuchElementException;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000/")
@@ -36,17 +39,18 @@ public class AuthenticateController {
     private UserServiceInterface userService;
 
     @PostMapping("/log-in")
-    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-        JwtResponse jwtResponse = userService.handleUserLogin(loginRequest);
-        if(jwtResponse.getErrorMessage()!=null){
-            //send bad request when login failed
-            return ResponseEntity.badRequest().body(jwtResponse);
-        }else {
-            //send status 200 when successful
-            return ResponseEntity.ok(jwtResponse);
+    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) throws Exception {
+        try {
+            JwtResponse jwtResponse = userService.handleUserLogin(loginRequest);
+            return ResponseEntity.ok().body(jwtResponse);
+        }catch (UsernameNotFoundException ex){
+            return ResponseEntity.badRequest().body("UsernameNotFoundException : "+ex.getMessage());
         }
-    }
+        catch (Exception ex){
+            return ResponseEntity.badRequest().body("Exception : "+ex.getMessage());
+        }
 
+    }
 
 
     @PostMapping("/signup")
@@ -75,20 +79,40 @@ public class AuthenticateController {
     }
 
     @GetMapping("/activate")
-    public RedirectView activateUser(@RequestParam(name = "token") String token) {
+    public ResponseEntity activateUser(@RequestParam(name = "token") String token) {
         userService.activeAccount(token);
-        RedirectView redirectView = new RedirectView();
-        redirectView.setUrl("/api/auth/all");
-        return redirectView;
+        return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/send-forget-password/{email}")
-    public ResponseEntity<?> sendForgetPassword(@PathVariable String email) throws MessagingException{
-        MessageResponse messageResponse = userService.sendTokenForgetPassword(email);
-        if(messageResponse.getMessage().contains("Error")){
-            return ResponseEntity.badRequest().body(messageResponse);
-        }else{
-            return ResponseEntity.ok(messageResponse);
+    //Sau khi nhập xong email bấm enter thì chuyển tới trang nhập code thì
+    @PostMapping("/send-forgot-password")
+    public ResponseEntity<?> sendForgetPassword(@RequestParam(name = "email") String email) throws MessagingException{
+        try {
+            userService.sendTokenForgetPassword(email);
+            return ResponseEntity.ok().body("Reset code sent to your email");
+        }catch (NoSuchElementException ex){
+            return ResponseEntity.badRequest().body("Error 500 "+ex.getMessage());
+        }
+    }
+
+    @GetMapping("/reset-code")
+    public ResponseEntity<?> verifyResetCode(@RequestParam(name = "resetCode") Long resetCode){
+        try{
+            userService.verifiedResetCode(resetCode);
+            return ResponseEntity.ok().body("resetCode :"+ resetCode);
+        }catch (NoSuchElementException ex){
+            return ResponseEntity.badRequest().body("Reset code is not existed");
+        }
+    }
+
+    //Nếu code đúng thì đi tới trang reset password
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@Valid @RequestBody ResetPasswordRequest resetPasswordRequest){
+        try {
+            userService.resetPassword(resetPasswordRequest);
+            return ResponseEntity.ok().build();
+        }catch (NoSuchElementException ex){
+            return ResponseEntity.badRequest().body(ex.getMessage());
         }
     }
 
