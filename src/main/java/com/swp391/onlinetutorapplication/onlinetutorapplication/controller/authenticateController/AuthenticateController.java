@@ -28,11 +28,6 @@ import java.util.NoSuchElementException;
 
 public class AuthenticateController {
 
-    @Autowired
-    private RefreshTokenService refreshTokenService;
-
-    @Autowired
-    private JWTUtils jwtUtils;
 
     @Autowired
     private UserServiceInterface userService;
@@ -43,10 +38,10 @@ public class AuthenticateController {
             JwtResponse jwtResponse = userService.handleUserLogin(loginRequest);
             return ResponseEntity.ok().body(jwtResponse);
         }catch (UsernameNotFoundException ex){
-            return ResponseEntity.badRequest().body("UsernameNotFoundException : "+ex.getMessage());
+            return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
         }
         catch (Exception ex){
-            return ResponseEntity.badRequest().body("Exception : "+ex.getMessage());
+            return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
         }
 
     }
@@ -62,20 +57,38 @@ public class AuthenticateController {
         }
     }
 
-    @PostMapping("/refresh-token")
-    public ResponseEntity<?> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
-        String requestRefreshToken = request.getRefreshToken();
+//    @PostMapping("/refresh-token")
+//    public ResponseEntity<?> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
+//        String requestRefreshToken = request.getRefreshToken();
+//
+//        return refreshTokenService.findByToken(requestRefreshToken)
+//                .map(refreshTokenService::verifyExpiration)
+//                .map(RefreshToken::getUser)
+//                .map(user -> {
+//                    String token = jwtUtils.generateTokenFromUsername(user.getUsername());
+//                    return ResponseEntity.ok(new RefreshTokenResponse(token, requestRefreshToken));
+//                })
+//                .orElseThrow(() -> new TokenRefreshException(requestRefreshToken,
+//                        "Refresh refreshToken is not in database!"));
+//    }
 
-        return refreshTokenService.findByToken(requestRefreshToken)
-                .map(refreshTokenService::verifyExpiration)
-                .map(RefreshToken::getUser)
-                .map(user -> {
-                    String token = jwtUtils.generateTokenFromUsername(user.getUsername());
-                    return ResponseEntity.ok(new RefreshTokenResponse(token, requestRefreshToken));
-                })
-                .orElseThrow(() -> new TokenRefreshException(requestRefreshToken,
-                        "Refresh refreshToken is not in database!"));
+
+    @PostMapping("/verify-authorization")
+    public ResponseEntity<?> verifyAuthorization(@RequestHeader(name = "Authorization")String accessToken){
+        try{
+            userService.verifyAccessToken(accessToken);
+            return ResponseEntity.ok().build();
+        }catch (NoSuchElementException ex){
+            return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
+        }
     }
+
+    @GetMapping("/logout")
+    public ResponseEntity<?> logout(@RequestHeader(name = "Authorization")String accessToken){
+        userService.handleUserLogout(accessToken);
+        return ResponseEntity.ok().body("logout");
+    }
+
 
     @GetMapping("/activate")
     public ResponseEntity activateUser(@RequestParam(name = "token") String token) {

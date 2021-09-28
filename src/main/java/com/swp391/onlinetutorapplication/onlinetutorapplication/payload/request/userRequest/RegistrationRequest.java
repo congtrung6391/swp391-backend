@@ -26,6 +26,9 @@ public class RegistrationRequest {
     @Size(max = 50)
     private String email;
 
+    @Size(max = 15)
+    private String phone;
+
     @NotBlank
     @Size(min = 6, max = 30)
     private String password;
