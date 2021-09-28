@@ -86,7 +86,7 @@ public class AuthenticateController {
     @GetMapping("/logout")
     public ResponseEntity<?> logout(@RequestHeader(name = "Authorization")String accessToken){
         userService.handleUserLogout(accessToken);
-        return ResponseEntity.ok().body("logout");
+        return ResponseEntity.ok().build();
     }
 
 
@@ -103,17 +103,17 @@ public class AuthenticateController {
             userService.sendTokenForgetPassword(email);
             return ResponseEntity.ok().body(new MessageResponse("Reset code sent to your email"));
         }catch (NoSuchElementException ex){
-            return ResponseEntity.badRequest().body("Error 500 "+ex.getMessage());
+            return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
         }
     }
 
-    @GetMapping("/reset-code")
-    public ResponseEntity<?> verifyResetCode(@RequestParam(name = "resetCode") Long resetCode){
+    @GetMapping("/reset-code/{resetCode}")
+    public ResponseEntity<?> verifyResetCode(@PathVariable(name = "resetCode") Long resetCode){
         try{
             userService.verifiedResetCode(resetCode);
             return ResponseEntity.ok().body(new MessageResponse(resetCode.toString()));
         }catch (NoSuchElementException ex){
-            return ResponseEntity.badRequest().body("Reset code is not existed");
+            return ResponseEntity.badRequest().body(new MessageResponse("Reset code is not existed"));
         }
     }
 
@@ -124,7 +124,7 @@ public class AuthenticateController {
             userService.resetPassword(resetPasswordRequest);
             return ResponseEntity.ok().build();
         }catch (NoSuchElementException ex){
-            return ResponseEntity.badRequest().body(ex.getMessage());
+            return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
         }
     }
 }
