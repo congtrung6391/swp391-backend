@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.Instant;
 import java.util.*;
 
 import static javax.persistence.FetchType.EAGER;
@@ -28,6 +29,9 @@ public class User {
     private String email;
     private String fullName;
     private String password;
+    private String phone;
+    private String authorizationToken;
+    private Instant expireAuthorization;
     private String activateToken;
     private Boolean activeStatus = false;
     private Long resetPasswordCode;
@@ -37,9 +41,10 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     Set<Role> roles = new HashSet<>();
 
-    public User(String username, String email, String fullName, String password,String activateToken) {
+    public User(String username, String email, String phone, String fullName, String password,String activateToken) {
         this.username = username;
         this.email = email;
+        this.phone = phone;
         this.fullName = fullName;
         this.password = password;
         this.activateToken = activateToken;
@@ -50,4 +55,5 @@ public class User {
         this.email = email;
         this.password = password;
     }
+
 }
