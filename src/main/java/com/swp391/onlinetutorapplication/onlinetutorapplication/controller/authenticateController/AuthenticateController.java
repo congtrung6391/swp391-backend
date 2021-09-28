@@ -57,7 +57,7 @@ public class AuthenticateController {
         MessageResponse messageResponse = userService.handleUserRegistration(registrationRequest);
         if(messageResponse.getMessage().contains("Error")){
             return ResponseEntity.badRequest().body(messageResponse);
-        }else {
+        } else {
             return ResponseEntity.ok(messageResponse);
         }
     }

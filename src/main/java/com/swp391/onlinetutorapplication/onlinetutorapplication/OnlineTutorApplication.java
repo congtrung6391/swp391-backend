@@ -16,6 +16,8 @@ public class OnlineTutorApplication {
 	}
 
 
+
+	@Bean
 	CommandLineRunner run(UserServiceInterface userService){
 		return args -> {
 
