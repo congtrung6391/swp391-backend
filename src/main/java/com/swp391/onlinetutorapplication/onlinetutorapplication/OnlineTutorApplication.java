@@ -17,7 +17,7 @@ public class OnlineTutorApplication {
 
 
 
-	@Bean
+	/*
 	CommandLineRunner run(UserServiceInterface userService){
 		return args -> {
 
@@ -28,15 +28,6 @@ public class OnlineTutorApplication {
 
 		};
 	}
+	*/
 
-//	CommandLineRunner run(UserServiceInterface userService){
-//		return args -> {
-//
-////			userService.saveRole(new Role(null,"TUTOR"));
-////			userService.saveRole(new Role(null,"STUDENT"));
-////			userService.saeRole(new Role(null,"ADMIN"));
-////			userService.saveRole(new Role(null,"SUPER_ADMIN"));
-//
-//		};
-//	}
 }
