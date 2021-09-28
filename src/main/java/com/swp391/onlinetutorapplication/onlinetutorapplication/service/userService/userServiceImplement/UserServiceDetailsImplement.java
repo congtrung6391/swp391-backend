@@ -33,6 +33,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
+import java.sql.SQLOutput;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -81,7 +82,22 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
     }
 
     @Override
+    public User getUserById(Long id) {
+        return userRepository.findById(id).get();
+    }
+
+    @Override
     public void saveUser(User user) { userRepository.save(user);}
+
+    @Override
+    public void updateUser(Long id, User user) {
+        User userFromDb = userRepository.findById(id).get();
+        System.out.println(userFromDb.toString());
+        userFromDb.setUsername(user.getUsername());
+        userFromDb.setEmail(user.getEmail());
+        userFromDb.setFullName(user.getFullName());
+        userRepository.save(userFromDb);
+    }
 
     @Override
     public List<User> getAllUser() {

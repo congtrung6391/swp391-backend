@@ -14,6 +14,7 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceInterface.UserServiceInterface;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.tokenService.RefreshTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.ui.Model;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +29,7 @@ import java.util.NoSuchElementException;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000/")
-@RequestMapping("/api/user")
+@RequestMapping("/api/admin")
 
 public class UserController {
 
@@ -41,26 +42,26 @@ public class UserController {
     @Autowired
     private UserServiceInterface userService;
 
-    @GetMapping("/users")
-    public String getAllUser(Model model){
+    @GetMapping("/user/get-user-list")
+    @PreAuthorize("hasAuthority('SUPER_ADMIN')")
+    public ResponseEntity<List<User>> getAllUser(){
         List<User> listUsers = userService.getAllUser();
-        model.addAttribute("listUsers", listUsers);
-        return "users";
+        return new ResponseEntity<>(listUsers, HttpStatus.OK);
     }
 
-    @PostMapping("/users/save")
-    public String saveUser(User user, RedirectAttributes ra) {
-        userService.saveUser(user);
-        ra.addAttribute("message", "The user has been save successfully.");
-        return "redirect:/users";
-    }
-
-    @GetMapping("/users/edit/{username}")
-    public String showEditForm(@PathVariable("username") String username, Model model){
+    // still working on
+    @GetMapping("/user/get-user-profile")
+    public ResponseEntity<User> getUser(@PathVariable("username") String username) {
         User user = userService.getUser(username);
-        model.addAttribute("user", user);
-        model.addAttribute("pageTitle", "Edit User");
-        return "user_form";
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
+
+    // still working on
+    @PostMapping("/user/update-user")
+    public ResponseEntity updateUser(@PathVariable("id") Long id, @RequestBody User user) {
+        userService.updateUser(id, user);
+        return new ResponseEntity<>(userService.getUserById(id), HttpStatus.OK);
+    }
+
 
 }
