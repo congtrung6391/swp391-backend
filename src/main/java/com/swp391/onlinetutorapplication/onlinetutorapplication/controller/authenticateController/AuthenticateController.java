@@ -80,7 +80,7 @@ public class AuthenticateController {
     @GetMapping("/activate")
     public ResponseEntity activateUser(@RequestParam(name = "token") String token) {
         userService.activeAccount(token);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().build();//Bấm vào link là bay về trang chủ liền
     }
 
     //Sau khi nhập xong email bấm enter thì chuyển tới trang nhập code thì
@@ -88,7 +88,7 @@ public class AuthenticateController {
     public ResponseEntity<?> sendForgetPassword(@RequestParam(name = "email") String email) throws MessagingException{
         try {
             userService.sendTokenForgetPassword(email);
-            return ResponseEntity.ok().body("Reset code sent to your email");
+            return ResponseEntity.ok().body(new MessageResponse("Reset code sent to your email"));
         }catch (NoSuchElementException ex){
             return ResponseEntity.badRequest().body("Error 500 "+ex.getMessage());
         }
@@ -98,7 +98,7 @@ public class AuthenticateController {
     public ResponseEntity<?> verifyResetCode(@RequestParam(name = "resetCode") Long resetCode){
         try{
             userService.verifiedResetCode(resetCode);
-            return ResponseEntity.ok().body("resetCode :"+ resetCode);
+            return ResponseEntity.ok().body(new MessageResponse(resetCode.toString()));
         }catch (NoSuchElementException ex){
             return ResponseEntity.badRequest().body("Reset code is not existed");
         }
