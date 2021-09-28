@@ -91,7 +91,7 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
         String jwt = jwtUtils.generateJwtToken(userDetails);
 
         user.setAuthorizationToken(jwt);
-        user.setExpireAuthorization(Instant.now().plusMillis(86400000));
+        user.setExpireAuthorization(Instant.now().plusMillis(604800000));
 
         userRepository.save(user);
 
