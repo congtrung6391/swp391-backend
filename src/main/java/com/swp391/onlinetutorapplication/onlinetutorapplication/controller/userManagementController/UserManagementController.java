@@ -1,6 +1,6 @@
-package com.swp391.onlinetutorapplication.onlinetutorapplication.controller.AdminController;
+package com.swp391.onlinetutorapplication.onlinetutorapplication.controller.userManagementController;
 
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.SuperAdminRequest.ChangeRoleUserRequest;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.superAdminRequest.ChangeRoleUserRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.authResponse.StatusResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceInterface.UserServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/admin")
 
-public class AdminController {
+public class UserManagementController {
     @Autowired
     private UserServiceInterface userService;
 
