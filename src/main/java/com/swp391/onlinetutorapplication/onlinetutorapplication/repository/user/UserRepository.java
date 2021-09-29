@@ -18,8 +18,5 @@ public interface UserRepository extends JpaRepository<User,Long> {
     Boolean existsByUsername(String username);
     Optional<User> findByActivateToken(String token);
     Optional<User> findByResetPasswordCode(Long code);
-<<<<<<< HEAD
-=======
     Optional<User> findByAuthorizationToken(String accessToken);
->>>>>>> dev
 }
