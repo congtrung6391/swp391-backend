@@ -16,7 +16,7 @@ public class deleteUserController {
     @Autowired
     private UserManagementInterface userManagement;
 
-    @GetMapping("/delete/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> verifyResetCode(@PathVariable("id") Long id){
         try{
             userManagement.deleteUser(id);
