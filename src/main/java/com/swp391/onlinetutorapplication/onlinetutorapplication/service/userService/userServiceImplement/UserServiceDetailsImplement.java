@@ -244,4 +244,14 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
             return false;
         }
     }
+
+    @Override
+    public void deleteUser(Long id) {
+        User user = userRepository.findById(id).get();
+        user.setIsDisable(false);
+        userRepository.save(user);
+
+
+
+    }
 }

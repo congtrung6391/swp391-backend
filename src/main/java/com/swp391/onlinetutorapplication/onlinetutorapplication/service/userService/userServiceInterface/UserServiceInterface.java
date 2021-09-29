@@ -23,4 +23,5 @@ public interface UserServiceInterface {
      User verifiedResetCode(Long resetCode);
      void resetPassword(ResetPasswordRequest resetPasswordRequest);
      boolean changeRole(String role, String username);
+     void deleteUser(Long id);
 }
