@@ -29,11 +29,6 @@ import java.util.NoSuchElementException;
 
 public class AuthenticateController {
 
-    @Autowired
-    private RefreshTokenService refreshTokenService;
-
-    @Autowired
-    private JWTUtils jwtUtils;
 
     @Autowired
     private UserServiceInterface userService;
@@ -44,10 +39,16 @@ public class AuthenticateController {
             JwtResponse jwtResponse = userService.handleUserLogin(loginRequest);
             return ResponseEntity.ok().body(jwtResponse);
         }catch (UsernameNotFoundException ex){
+
             return ResponseEntity.badRequest().body("UsernameNotFoundException : "+ex.getMessage());
         }
         catch (Exception ex){
             return ResponseEntity.badRequest().body("Exception : "+ex.getMessage());
+            return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
+        }
+        catch (Exception ex){
+            return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
+
         }
 
     }
@@ -63,25 +64,44 @@ public class AuthenticateController {
         }
     }
 
-    @PostMapping("/refresh-token")
-    public ResponseEntity<?> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
-        String requestRefreshToken = request.getRefreshToken();
+//    @PostMapping("/refresh-token")
+//    public ResponseEntity<?> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
+//        String requestRefreshToken = request.getRefreshToken();
+//
+//        return refreshTokenService.findByToken(requestRefreshToken)
+//                .map(refreshTokenService::verifyExpiration)
+//                .map(RefreshToken::getUser)
+//                .map(user -> {
+//                    String token = jwtUtils.generateTokenFromUsername(user.getUsername());
+//                    return ResponseEntity.ok(new RefreshTokenResponse(token, requestRefreshToken));
+//                })
+//                .orElseThrow(() -> new TokenRefreshException(requestRefreshToken,
+//                        "Refresh refreshToken is not in database!"));
+//    }
 
-        return refreshTokenService.findByToken(requestRefreshToken)
-                .map(refreshTokenService::verifyExpiration)
-                .map(RefreshToken::getUser)
-                .map(user -> {
-                    String token = jwtUtils.generateTokenFromUsername(user.getUsername());
-                    return ResponseEntity.ok(new RefreshTokenResponse(token, requestRefreshToken));
-                })
-                .orElseThrow(() -> new TokenRefreshException(requestRefreshToken,
-                        "Refresh refreshToken is not in database!"));
+
+    @PostMapping("/verify-authorization")
+    public ResponseEntity<?> verifyAuthorization(@RequestHeader(name = "Authorization")String accessToken){
+        try{
+            userService.verifyAccessToken(accessToken);
+            return ResponseEntity.ok().build();
+        }catch (NoSuchElementException ex){
+            return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
+        }
     }
+
+    @GetMapping("/logout")
+    public ResponseEntity<?> logout(@RequestHeader(name = "Authorization")String accessToken){
+        userService.handleUserLogout(accessToken);
+        return ResponseEntity.ok().build();
+    }
+
 
     @GetMapping("/activate")
     public ResponseEntity activateUser(@RequestParam(name = "token") String token) {
         userService.activeAccount(token);
         return ResponseEntity.ok().build();
+        return ResponseEntity.ok().build();//Bấm vào link là bay về trang chủ liền
     }
 
     //Sau khi nhập xong email bấm enter thì chuyển tới trang nhập code thì
@@ -89,6 +109,7 @@ public class AuthenticateController {
     public ResponseEntity<?> sendForgetPassword(@RequestParam(name = "email") String email) throws MessagingException{
         try {
             userService.sendTokenForgetPassword(email);
+
             return ResponseEntity.ok().body("Reset code sent to your email");
         }catch (NoSuchElementException ex){
             return ResponseEntity.badRequest().body("Error 500 "+ex.getMessage());
@@ -113,8 +134,31 @@ public class AuthenticateController {
             return ResponseEntity.ok().build();
         }catch (NoSuchElementException ex){
             return ResponseEntity.badRequest().body(ex.getMessage());
+            return ResponseEntity.ok().body(new MessageResponse("Reset code sent to your email"));
+        }catch (NoSuchElementException ex){
+            return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
+
         }
     }
 
+    @GetMapping("/reset-code/{resetCode}")
+    public ResponseEntity<?> verifyResetCode(@PathVariable(name = "resetCode") Long resetCode){
+        try{
+            userService.verifiedResetCode(resetCode);
+            return ResponseEntity.ok().body(new MessageResponse(resetCode.toString()));
+        }catch (NoSuchElementException ex){
+            return ResponseEntity.badRequest().body(new MessageResponse("Reset code is not existed"));
+        }
+    }
 
+    //Nếu code đúng thì đi tới trang reset password
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@Valid @RequestBody ResetPasswordRequest resetPasswordRequest){
+        try {
+            userService.resetPassword(resetPasswordRequest);
+            return ResponseEntity.ok().build();
+        }catch (NoSuchElementException ex){
+            return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
+        }
+    }
 }

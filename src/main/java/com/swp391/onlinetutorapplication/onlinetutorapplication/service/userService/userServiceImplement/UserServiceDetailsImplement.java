@@ -34,6 +34,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -62,8 +63,6 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
     @Autowired
     private MailSenderService mailSenderService;
 
-    @Value("${tutor-online.app.token.forget.password}")
-    private String TOKEN_FORGET_PASS;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -75,34 +74,14 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
     }
 
 
-    @Override
-    public User getUser(String username) {
-        log.info("Fetching user {} ", username);
-        return userRepository.findByUsername(username).get();
-    }
-
-    @Override
-    public List<User> getAllUser() {
-        log.info("Fetching all users");
-        return userRepository.findAll();
-    }
-
-    @Override
-    public void createAccount(User user) {
-        userRepository.save(user);
-    }
-
-    @Override
-    public void saveRole(Role role) {
-        roleRepository.save(role);
-    }
-
-
 
     @Override
     public JwtResponse handleUserLogin(LoginRequest loginRequest) throws Exception {
         loadUserByUsername(loginRequest.getUsername());
+
         boolean isActivated = userRepository.findByUsername(loginRequest.getUsername()).get().getActiveStatus();
+        User user = userRepository.findByUsername(loginRequest.getUsername()).get();
+        Boolean isActivated = user.getActiveStatus();
         if(!isActivated){
             throw new Exception("User must be activated!");
         }
@@ -114,19 +93,39 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
         UserDetailsImplement userDetails  = (UserDetailsImplement) authentication.getPrincipal();
         String jwt = jwtUtils.generateJwtToken(userDetails);
 
+        user.setAuthorizationToken(jwt);
+        user.setExpireAuthorization(Instant.now().plusMillis(604800000));
+
+        userRepository.save(user);
+
+        System.out.println(user.getAuthorizationToken());
+
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList());
 
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
         return new JwtResponse(
                 jwt,
-                refreshToken.getToken(),
                 userDetails.getId(),
                 userDetails.getUsername(),
                 userDetails.getEmail(),
                 roles
         );
+    }
+
+
+    @Override
+    public void verifyAccessToken(String accessToken) {
+        accessToken = accessToken.replaceAll("Bearer ", "");
+        User user = userRepository.findByAuthorizationToken(accessToken)
+                .orElseThrow(() -> {
+                   throw new NoSuchElementException("Unauthorized");
+                });
+        if(user.getExpireAuthorization().isAfter(Instant.now())){
+            handleUserLogout(accessToken);
+            throw new NoSuchElementException("Unauthorized");
+        }
+
     }
 
     @Override
@@ -143,6 +142,7 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
         User user = new User(
                 registrationRequest.getUsername(),
                 registrationRequest.getEmail(),
+                registrationRequest.getPhone(),
                 registrationRequest.getFullName(),
                 registrationRequest.getPassword(),
                 stringOfToken
@@ -196,6 +196,35 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
         user.setResetPasswordCode(resetCode);
         userRepository.save(user);
         mailSenderService.sendEmailResetPassword(user.getUsername(), resetCode, user.getEmail());
+
+    }
+
+    @Override
+    public User verifiedResetCode(Long resetCode) {
+        User user = userRepository.findByResetPasswordCode(resetCode).get();
+        if(user == null){
+            throw new NoSuchElementException("Reset code not accepted");
+        }
+        return user;
+    }
+
+    @Override
+    public void resetPassword(ResetPasswordRequest resetPasswordRequest){
+        User user = verifiedResetCode(resetPasswordRequest.getResetCode());
+        String newPassword = encoder.encode(resetPasswordRequest.getNewPassword());
+        user.setPassword(newPassword);
+        user.setResetPasswordCode(null);
+        userRepository.save(user);
+    }
+
+    @Override
+    public void handleUserLogout(String accessToken) {
+        accessToken = accessToken.replaceAll("Bearer ", "");
+        User user = userRepository.findByAuthorizationToken(accessToken).get();
+        user.setAuthorizationToken(null);
+        user.setExpireAuthorization(null);
+        userRepository.save(user);
+
     }
 
     @Override

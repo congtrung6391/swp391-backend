@@ -12,7 +12,6 @@ import java.util.List;
 @NoArgsConstructor
 public class JwtResponse {
     private String access_token;
-    private String refresh_token;
     private String type = "Bearer ";
     private Long id;
     private String username;
@@ -21,9 +20,9 @@ public class JwtResponse {
 
 
 
-    public JwtResponse(String accessToken, String refresh_token, Long id, String username, String email, List<String> roles) {
+
+    public JwtResponse(String accessToken, Long id, String username, String email, List<String> roles) {
         this.access_token = accessToken;
-        this.refresh_token = refresh_token;
         this.id = id;
         this.username = username;
         this.email = email;
