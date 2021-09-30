@@ -113,12 +113,13 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
 
     @Override
     public void verifyAccessToken(String accessToken) {
-        accessToken = accessToken.replaceAll("Bearer ", "");
+        // accessToken = accessToken.replaceAll("Bearer ", "");
+
         User user = userRepository.findByAuthorizationToken(accessToken)
                 .orElseThrow(() -> {
                    throw new NoSuchElementException("Unauthorized");
                 });
-        if(user.getExpireAuthorization().isAfter(Instant.now())){
+        if(Instant.now().isAfter(user.getExpireAuthorization())){
             handleUserLogout(accessToken);
             throw new NoSuchElementException("Unauthorized");
         }
