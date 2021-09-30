@@ -22,8 +22,8 @@ public class Course {
     private int grade;
     private double cost;
     private int length;
-    private Boolean courseStatus;
-    private Boolean status;
+    private Boolean courseStatus = false;
+    private Boolean status = false;
     @ManyToOne
     @JoinColumn(name = "subject_id")
     private Subject subject;

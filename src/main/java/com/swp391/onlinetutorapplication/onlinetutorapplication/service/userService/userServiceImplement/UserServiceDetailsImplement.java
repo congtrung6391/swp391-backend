@@ -118,7 +118,7 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Unauthorized");
                 });
-        if (user.getExpireAuthorization().isAfter(Instant.now())) {
+        if (user.getExpireAuthorization().isBefore(Instant.now())) {
             handleUserLogout(accessToken);
             throw new NoSuchElementException("Unauthorized");
         }
