@@ -34,7 +34,7 @@ public class User {
     private Instant expireAuthorization;
     private String activateToken;
     private Boolean activeStatus = false;
-    private Boolean isDisable= true;
+    private Boolean isDisable= false;
     private Long resetPasswordCode;
     @ManyToMany(fetch = EAGER)
     @JoinTable(name = "user_roles",
