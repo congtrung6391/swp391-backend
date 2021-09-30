@@ -28,6 +28,9 @@ public class Course {
     @JoinColumn(name = "subject_id")
     private Subject subject;
     @ManyToOne
-    @JoinColumn
-    private User user;
+    @JoinColumn(name = "tutor_id")
+    private User tutor;
+    @ManyToOne
+    @JoinColumn(name = "student_id")
+    private User student;
 }
