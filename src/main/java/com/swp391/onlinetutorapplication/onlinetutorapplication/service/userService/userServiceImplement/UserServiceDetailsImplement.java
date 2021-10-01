@@ -41,7 +41,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UserServiceDetailsImplement implements UserDetailsService, UserServiceInterface {
 
-    @Autowired @Lazy
+    @Autowired
+    @Lazy
     private AuthenticationManager authenticationManager;
 
     @Autowired
@@ -78,6 +79,9 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
     public JwtResponse handleUserLogin(LoginRequest loginRequest) throws Exception {
         loadUserByUsername(loginRequest.getUsername());
         User user = userRepository.findByUsername(loginRequest.getUsername()).get();
+        if(user.getIsDisable()){
+            throw new Exception("User not found");
+        }
         Boolean isActivated = user.getActiveStatus();
         if(!isActivated){
             throw new Exception("User must be activated!");
@@ -113,13 +117,12 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
 
     @Override
     public void verifyAccessToken(String accessToken) {
-        // accessToken = accessToken.replaceAll("Bearer ", "");
-
+        accessToken = accessToken.replaceAll("Bearer ", "");
         User user = userRepository.findByAuthorizationToken(accessToken)
                 .orElseThrow(() -> {
-                   throw new NoSuchElementException("Unauthorized");
+                    throw new NoSuchElementException("Unauthorized");
                 });
-        if(Instant.now().isAfter(user.getExpireAuthorization())){
+        if (user.getExpireAuthorization().isBefore(Instant.now())) {
             handleUserLogout(accessToken);
             throw new NoSuchElementException("Unauthorized");
         }
@@ -176,7 +179,7 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
     }
 
     @Override
-    public void activeAccount(String activateToken){
+    public void activeAccount(String activateToken) {
         User user = userRepository.findByActivateToken(activateToken).get();
         user.setActivateToken(null);
         user.setActiveStatus(true);
@@ -184,12 +187,11 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
     }
 
     @Override
-    public void sendTokenForgetPassword(String email) throws MessagingException{
-        User user = userRepository.findByEmail(email).get();
-        if(user == null){
+    public void sendTokenForgetPassword(String email) throws MessagingException {
+        User user = userRepository.findByEmail(email).orElseThrow(()->{
             throw new NoSuchElementException("Email not found");
-        }
-        Long resetCode = 100000+(long)(Math.random()*(999999-100000));
+        });
+        Long resetCode = 100000 + (long) (Math.random() * (999999 - 100000));
         user.setResetPasswordCode(resetCode);
         userRepository.save(user);
         mailSenderService.sendEmailResetPassword(user.getUsername(), resetCode, user.getEmail());
@@ -197,15 +199,15 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
 
     @Override
     public User verifiedResetCode(Long resetCode) {
-        User user = userRepository.findByResetPasswordCode(resetCode).get();
-        if(user == null){
-            throw new NoSuchElementException("Reset code not accepted");
-        }
+        User user = userRepository.findByResetPasswordCode(resetCode).
+                orElseThrow(()->{
+                    throw new NoSuchElementException("Reset code not accepted");
+                });
         return user;
     }
 
     @Override
-    public void resetPassword(ResetPasswordRequest resetPasswordRequest){
+    public void resetPassword(ResetPasswordRequest resetPasswordRequest) {
         User user = verifiedResetCode(resetPasswordRequest.getResetCode());
         String newPassword = encoder.encode(resetPasswordRequest.getNewPassword());
         user.setPassword(newPassword);
@@ -220,5 +222,34 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
         user.setAuthorizationToken(null);
         user.setExpireAuthorization(null);
         userRepository.save(user);
+    }
+
+    @Override
+    public boolean changeRole(String username, String role) {
+        try {
+            User user = userRepository.findByUsername(username).get();
+            user.getRoles().clear();
+            Role newRole = null;
+            switch (role) {
+                case "ADMIN":
+                    newRole = roleRepository.findByUserRole(ERole.ADMIN).get();
+                    break;
+                case "TUTOR":
+                    newRole = roleRepository.findByUserRole(ERole.TUTOR).get();
+                    break;
+                case "STUDENT":
+                    newRole = roleRepository.findByUserRole(ERole.STUDENT).get();
+                    break;
+            }
+            if (newRole != null) {
+                user.getRoles().add(newRole);
+                userRepository.save(user);
+                return true;
+            }
+            return false;
+        } catch (Exception e) {
+            log.info(e.getMessage());
+            return false;
+        }
     }
 }

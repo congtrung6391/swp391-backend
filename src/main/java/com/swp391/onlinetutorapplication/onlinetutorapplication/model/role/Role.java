@@ -19,7 +19,4 @@ public class Role {
     @Enumerated(EnumType.STRING)
     private ERole userRole;
 
-    public Role(ERole userRole) {
-        this.userRole = userRole;
-    }
 }
