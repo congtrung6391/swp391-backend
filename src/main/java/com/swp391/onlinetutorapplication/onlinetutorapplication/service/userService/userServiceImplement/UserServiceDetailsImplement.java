@@ -77,48 +77,6 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
 
 
     @Override
-    public User getUser(String username) {
-        log.info("Fetching user {} ", username);
-        return userRepository.findByUsername(username).get();
-    }
-
-    @Override
-    public User getUserById(Long id) {
-        return userRepository.findById(id).get();
-    }
-
-    @Override
-    public void saveUser(User user) { userRepository.save(user);}
-
-    @Override
-    public void updateUser(Long id, User user) {
-        User userFromDb = userRepository.findById(id).get();
-        System.out.println(userFromDb.toString());
-        userFromDb.setUsername(user.getUsername());
-        userFromDb.setEmail(user.getEmail());
-        userFromDb.setFullName(user.getFullName());
-        userRepository.save(userFromDb);
-    }
-
-    @Override
-    public List<User> getAllUser() {
-        log.info("Fetching all users");
-        return userRepository.findAll();
-    }
-
-    @Override
-    public void createAccount(User user) {
-        userRepository.save(user);
-    }
-
-    @Override
-    public void saveRole(Role role) {
-        roleRepository.save(role);
-    }
-
-
-
-    @Override
     public JwtResponse handleUserLogin(LoginRequest loginRequest) throws Exception {
         loadUserByUsername(loginRequest.getUsername());
         User user = userRepository.findByUsername(loginRequest.getUsername()).get();

@@ -12,13 +12,6 @@ import javax.mail.MessagingException;
 import java.util.List;
 
 public interface UserServiceInterface {
-    User getUser(String username);
-    User getUserById(Long id);
-    List<User> getAllUser();
-    void saveUser(User user);
-    void updateUser(Long id, User user);
-    void createAccount(User user);
-    void saveRole(Role role);
     JwtResponse handleUserLogin(LoginRequest loginRequest) throws Exception;
 
     MessageResponse handleUserRegistration(RegistrationRequest registrationRequest) throws MessagingException;
