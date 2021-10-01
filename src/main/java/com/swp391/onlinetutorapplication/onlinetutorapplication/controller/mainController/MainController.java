@@ -1,5 +1,7 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.controller.mainController;
 
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.authResponse.MessageResponse;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,8 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class MainController {
 
     @GetMapping("/auth/all")
-    public String accessByAll(){
-        return "Public content";
+    public ResponseEntity accessByAll(){
+        return ResponseEntity.ok().body(new MessageResponse("pub content1 "));
     }
 
     @GetMapping("/auth/success/student")

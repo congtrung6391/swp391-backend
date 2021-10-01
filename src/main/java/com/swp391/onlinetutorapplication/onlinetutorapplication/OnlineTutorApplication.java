@@ -1,8 +1,9 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication;
 
-import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.ERole;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceInterface.UserServiceInterface;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.ESubject;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Subject;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.SubjectRepository;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.service.courseService.courseServiceInterface.CourseServiceInterface;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -16,18 +17,23 @@ public class OnlineTutorApplication {
 	}
 
 
-
-	/*
-	CommandLineRunner run(UserServiceInterface userService){
-		return args -> {
-
-			userService.saveRole(new Role(null, ERole.TUTOR));
-			userService.saveRole(new Role(null, ERole.STUDENT));
-			userService.saveRole(new Role(null, ERole.ADMIN));
-			userService.saveRole(new Role(null, ERole.SUPER_ADMIN));
-
-		};
-	}
-	*/
-
+//	CommandLineRunner run(UserServiceInterface userService){
+//		return args -> {
+//
+////			userService.saveRole(new Role(null,"TUTOR"));
+////			userService.saveRole(new Role(null,"STUDENT"));
+////			userService.saveRole(new Role(null,"ADMIN"));
+////			userService.saveRole(new Role(null,"SUPER_ADMIN"));
+//
+//		};
+//	}
+//
+//	CommandLineRunner run(CourseServiceInterface courseServiceInterface){
+//		return args -> {
+//			courseServiceInterface.saveSubject(new Subject(null,ESubject.VAT_LY));
+//			courseServiceInterface.saveSubject(new Subject(null,ESubject.TOAN));
+//			courseServiceInterface.saveSubject(new Subject(null,ESubject.HOA_HOC));
+//			courseServiceInterface.saveSubject(new Subject(null,ESubject.SINH_HOC));
+//		};
+//	}
 }
