@@ -25,4 +25,6 @@ public interface UserManagementInterface {
     void createAccount(User user);
 
     void saveRole(Role role);
+
+    void deleteUser(Long id);
 }

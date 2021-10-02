@@ -58,9 +58,6 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
     private JWTUtils jwtUtils;
 
     @Autowired
-    private RefreshTokenService refreshTokenService;
-
-    @Autowired
     private MailSenderService mailSenderService;
 
     @Value("${tutor-online.app.token.forget.password}")
@@ -80,6 +77,9 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
     public JwtResponse handleUserLogin(LoginRequest loginRequest) throws Exception {
         loadUserByUsername(loginRequest.getUsername());
         User user = userRepository.findByUsername(loginRequest.getUsername()).get();
+        if(user.getIsDisable()){
+            throw new Exception("User not found");
+        }
         Boolean isActivated = user.getActiveStatus();
         if (!isActivated) {
             throw new Exception("User must be activated!");
@@ -120,7 +120,7 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Unauthorized");
                 });
-        if (user.getExpireAuthorization().isAfter(Instant.now())) {
+        if (user.getExpireAuthorization().isBefore(Instant.now())) {
             handleUserLogout(accessToken);
             throw new NoSuchElementException("Unauthorized");
         }
@@ -186,10 +186,9 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
 
     @Override
     public void sendTokenForgetPassword(String email) throws MessagingException {
-        User user = userRepository.findByEmail(email).get();
-        if (user == null) {
+        User user = userRepository.findByEmail(email).orElseThrow(()->{
             throw new NoSuchElementException("Email not found");
-        }
+        });
         Long resetCode = 100000 + (long) (Math.random() * (999999 - 100000));
         user.setResetPasswordCode(resetCode);
         userRepository.save(user);
@@ -198,10 +197,10 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
 
     @Override
     public User verifiedResetCode(Long resetCode) {
-        User user = userRepository.findByResetPasswordCode(resetCode).get();
-        if (user == null) {
-            throw new NoSuchElementException("Reset code not accepted");
-        }
+        User user = userRepository.findByResetPasswordCode(resetCode).
+                orElseThrow(()->{
+                    throw new NoSuchElementException("Reset code not accepted");
+                });
         return user;
     }
 

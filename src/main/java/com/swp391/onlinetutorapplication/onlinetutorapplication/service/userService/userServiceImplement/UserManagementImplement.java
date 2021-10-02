@@ -15,10 +15,10 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.user.
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.userDetails.UserDetailsImplement;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.mailSenderService.MailSenderService;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.tokenService.RefreshTokenService;
-
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceInterface.UserManagementInterface;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
@@ -86,5 +86,12 @@ public class UserManagementImplement implements UserManagementInterface{
         roleRepository.save(role);
     }
 
+    @Override
+    public void deleteUser(Long id) {
+        User user = userRepository.findById(id).get();
+        user.setIsDisable(true);
+        userRepository.save(user);
+    }
+}
 
 }
