@@ -5,6 +5,7 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.refreshToken.RefreshToken;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.resetPasswordRequest.ResetPasswordRequest;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.UpdateProfileRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.utils.jwtUtils.JWTUtils;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.LoginRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.RegistrationRequest;
@@ -61,12 +62,12 @@ public class UserManagementImplement implements UserManagementInterface{
     public void saveUser(User user) { userRepository.save(user);}
 
     @Override
-    public void updateUser(Long id, User user) {
+    public void updateUser(Long id, UpdateProfileRequest updateProfileRequest) {
         User userFromDb = userRepository.findById(id).get();
         System.out.println(userFromDb.toString());
-        userFromDb.setUsername(user.getUsername());
-        userFromDb.setEmail(user.getEmail());
-        userFromDb.setFullName(user.getFullName());
+        userFromDb.setPhone(updateProfileRequest.getPhone());
+        userFromDb.setEmail(updateProfileRequest.getEmail());
+        userFromDb.setFullName(updateProfileRequest.getFullName());
         userRepository.save(userFromDb);
     }
 
@@ -94,4 +95,4 @@ public class UserManagementImplement implements UserManagementInterface{
     }
 }
 
-}
+

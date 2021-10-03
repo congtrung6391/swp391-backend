@@ -2,6 +2,7 @@ package com.swp391.onlinetutorapplication.onlinetutorapplication.controller.user
 
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.superAdminRequest.ChangeRoleUserRequest;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.UpdateProfileRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.authResponse.MessageResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.authResponse.StatusResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceInterface.UserManagementInterface;
@@ -60,7 +61,7 @@ public class UserManagementController {
         }
     }
 
-    @GetMapping("/get-user-profile")
+    @GetMapping("/get-user-profile/{username}")
     @PreAuthorize("hasAuthority('SUPER_ADMIN')")
     public ResponseEntity<?> getUser(@PathVariable("username") String username) {
         try {
@@ -73,9 +74,9 @@ public class UserManagementController {
 
     @PostMapping("/update-user/{id}")
     @PreAuthorize("hasAuthority('SUPER_ADMIN')")
-    public ResponseEntity<?> updateUser(@PathVariable("id") Long id, @RequestBody User user) {
+    public ResponseEntity<?> updateUser(@PathVariable("id") Long id, @RequestBody UpdateProfileRequest updateProfileRequest) {
         try {
-            userManagement.updateUser(id, user);
+            userManagement.updateUser(id, updateProfileRequest);
             return ResponseEntity.ok().body(new MessageResponse("User id: "+id + " has been updated."));
         } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
