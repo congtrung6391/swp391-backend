@@ -29,7 +29,7 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
     private AuthEntryJwtResponse unAuthEntryJwtResponse;
 
     @Bean
-    public TokenAuthFilter tokenAuthFilter(){
+    public TokenAuthFilter tokenAuthFilter() {
         return new TokenAuthFilter();
     }
 
@@ -52,12 +52,12 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
         http.cors().and().csrf().disable()
                 .exceptionHandling().authenticationEntryPoint(unAuthEntryJwtResponse).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-                .authorizeRequests().antMatchers("/api/auth/**").permitAll()
-                .antMatchers("/api/test/**").permitAll()
+                .authorizeRequests().antMatchers("/api/**").permitAll()
+                .antMatchers("/api/**").permitAll()
                 .anyRequest().authenticated();
 
-        http.addFilterBefore(tokenAuthFilter(), UsernamePasswordAuthenticationFilter.class);    }
-
+        http.addFilterBefore(tokenAuthFilter(), UsernamePasswordAuthenticationFilter.class);
+    }
 
 
 }

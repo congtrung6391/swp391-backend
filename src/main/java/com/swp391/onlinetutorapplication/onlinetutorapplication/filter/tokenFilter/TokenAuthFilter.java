@@ -44,8 +44,6 @@ public class TokenAuthFilter extends OncePerRequestFilter {
                         userDetails, null, userDetails.getAuthorities());
                 authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                System.out.println(authenticationToken.getAuthorities());
-                System.out.println("CHeck JWT : "+userDetails.getUsername()+", "+ userDetails.getPassword());
             }
         }catch (Exception exception){
             log.error("Cannot set user authentication: {}", exception);
