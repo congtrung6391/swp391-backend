@@ -1,5 +1,6 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest;
 
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Subject;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;

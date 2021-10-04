@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -33,4 +35,13 @@ public class Course {
     @ManyToOne
     @JoinColumn(name = "student_id")
     private User student;
+
+
+    public Course(String courseName, String courseDescription, int grade, double cost, int length) {
+        this.courseName = courseName;
+        this.courseDescription = courseDescription;
+        this.grade = grade;
+        this.cost = cost;
+        this.length = length;
+    }
 }

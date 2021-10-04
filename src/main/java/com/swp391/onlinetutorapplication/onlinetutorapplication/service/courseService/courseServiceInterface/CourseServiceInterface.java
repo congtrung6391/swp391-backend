@@ -8,7 +8,7 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response
 import java.util.List;
 
 public interface CourseServiceInterface {
-    void handleCourseCreate(CourseCreationRequest courseCreationRequest);
+    void handleCourseCreate(CourseCreationRequest courseCreationRequest,String accessToken);
     List<CourseInformationResponse> getAllCourseInformationForAdmin();
     List<CourseInformationResponse> getAllCourseInformationForStudent();
     void handleCourseRegister(String accessToken, Long id);

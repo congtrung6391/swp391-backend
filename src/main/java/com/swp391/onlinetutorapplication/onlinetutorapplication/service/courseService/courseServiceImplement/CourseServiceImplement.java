@@ -1,6 +1,7 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.service.courseService.courseServiceImplement;
 
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Course;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.ESubject;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Subject;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.CourseCreationRequest;
@@ -14,9 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 @Service
 public class CourseServiceImplement implements CourseServiceInterface {
@@ -31,8 +30,45 @@ public class CourseServiceImplement implements CourseServiceInterface {
     private UserServiceInterface userService;
 
     @Override
-    public void handleCourseCreate(CourseCreationRequest courseCreationRequest) {
-
+    public void handleCourseCreate(CourseCreationRequest courseCreationRequest,String accessToken) {
+        accessToken = accessToken.replaceAll("Bearer ","");
+        User tutor = userRepository.findByAuthorizationToken(accessToken)
+                .orElseThrow(()-> {
+                    throw new NoSuchElementException("Not found user");
+                });
+        if(tutor.getExpireAuthorization().isBefore(Instant.now())){
+            userService.handleUserLogout(accessToken);
+        }
+        Course course = new Course();
+        course.setCourseName(courseCreationRequest.getCourseName());
+        course.setCourseDescription(courseCreationRequest.getCourseDescription());
+        course.setCost(courseCreationRequest.getCost());
+        course.setGrade(courseCreationRequest.getGrade());
+        course.setLength(courseCreationRequest.getLength());
+        course.setTutor(tutor);
+        switch(courseCreationRequest.getSubject()){
+            case "VAT_LY":
+                Subject subject = subjectRepository.findBySubjectName(ESubject.VAT_LY).get();
+                course.setSubject(subject);
+                break;
+            case "TOAN":
+                 subject = subjectRepository.findBySubjectName(ESubject.TOAN).get();
+                course.setSubject(subject);
+                break;
+            case "HOA_HOC":
+                subject = subjectRepository.findBySubjectName(ESubject.HOA_HOC).get();
+                course.setSubject(subject);
+                break;
+            case "SINH_HOC":
+                subject = subjectRepository.findBySubjectName(ESubject.SINH_HOC).get();
+                course.setSubject(subject);
+                break;
+            case "TIENG_VIET":
+                subject = subjectRepository.findBySubjectName(ESubject.TIENG_VIET).get();
+                course.setSubject(subject);
+                break;
+        }
+        courseRepository.save(course);
     }
 
     @Override
@@ -113,4 +149,8 @@ public class CourseServiceImplement implements CourseServiceInterface {
     public void saveSubject(Subject subject) {
         subjectRepository.save(subject);
     }
+
+
+
+
 }
