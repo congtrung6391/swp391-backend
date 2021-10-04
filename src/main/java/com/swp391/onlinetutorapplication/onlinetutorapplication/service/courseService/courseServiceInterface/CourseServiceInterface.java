@@ -13,4 +13,5 @@ public interface CourseServiceInterface {
     List<CourseInformationResponse> getAllCourseInformationForStudent();
     void handleCourseRegister(String accessToken, Long id);
     void saveSubject(Subject subject);
+    void deleteCourse(Long id);
 }

@@ -113,4 +113,11 @@ public class CourseServiceImplement implements CourseServiceInterface {
     public void saveSubject(Subject subject) {
         subjectRepository.save(subject);
     }
+
+    @Override
+    public void deleteCourse(Long id) {
+        Course course = courseRepository.findById(id).get();
+        course.setStatus(false);
+        courseRepository.save(course);
+    }
 }

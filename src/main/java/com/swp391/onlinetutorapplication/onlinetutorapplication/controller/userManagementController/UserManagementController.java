@@ -72,7 +72,7 @@ public class UserManagementController {
         }
     }
 
-    @PostMapping("/update-user/{id}")
+    @PutMapping("/update-user/{id}")
     @PreAuthorize("hasAuthority('SUPER_ADMIN')")
     public ResponseEntity<?> updateUser(@PathVariable("id") Long id, @RequestBody UpdateProfileRequest updateProfileRequest) {
         try {
