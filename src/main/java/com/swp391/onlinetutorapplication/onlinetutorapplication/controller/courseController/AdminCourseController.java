@@ -7,7 +7,6 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.CourseResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.courseService.courseServiceInterface.CourseServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -15,24 +14,15 @@ import org.springframework.web.bind.annotation.*;
 import java.util.NoSuchElementException;
 
 @RestController
-@RequestMapping("/api/course")
+@RequestMapping("/api/admin/course")
 @CrossOrigin(origins = "localhost:3000/")
-public class CourseManagementController {
+public class AdminCourseController {
 
     @Autowired
     private CourseServiceInterface courseService;
 
-    @GetMapping("/all-courses")
-    public ResponseEntity<?> getAllCourseForStudent() {
-        try {
-            return ResponseEntity.ok().body(courseService.getAllCourseInformationForStudent());
-        } catch (NoSuchElementException ex) {
-            return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
-        }
-    }
-
-
-    @GetMapping("/admin/manage/all-courses")
+    // localhost:8080/api/admin/course/all-courses
+    @GetMapping("")
     @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
     public ResponseEntity<?> getAllCourseForAdmin() {
         try {
@@ -42,8 +32,8 @@ public class CourseManagementController {
         }
     }
 
-    // localhost:8080/api/course/admin/:id
-    @PutMapping("/admin/{courseId}")
+    // localhost:8080/api/admin/course/:id
+    @PutMapping("/{courseId}")
     @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN') or hasAuthority('TUTOR')")
     public ResponseEntity<?> updateCourse(@RequestBody CourseUpdateRequest request, @RequestHeader(name = "Authorization") String accessToken, @PathVariable(name = "courseId") String id) {
         Course course = courseService.updateCourse(request, Long.parseLong(id), accessToken);
