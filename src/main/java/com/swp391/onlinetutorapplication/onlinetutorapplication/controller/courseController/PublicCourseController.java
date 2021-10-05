@@ -13,12 +13,13 @@ import org.springframework.web.client.HttpClientErrorException;
 import java.util.NoSuchElementException;
 
 @RestController
-@RequestMapping("/api/course")
-public class CourseController {
+@RequestMapping("/api/public/course")
+public class PublicCourseController {
     @Autowired
     private CourseServiceInterface courseService;
 
-    @PostMapping("/student/register-course/{id}")
+    // POST   localhost:8080/api/public/course/register-course/:id
+    @PostMapping("/register-course/{id}")
     @PreAuthorize("hasAuthority('STUDENT')")
     public ResponseEntity<?> registerCourse(@RequestHeader(name = "Authorization") String accessToken, @PathVariable(name = "id")Long id){
         try{
@@ -28,6 +29,16 @@ public class CourseController {
             return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
         }catch (Exception ex){
             return ResponseEntity.badRequest().body(ex.getMessage());
+        }
+    }
+
+    // Get   localhost:8080/api/public/course/all-courses
+    @GetMapping("/all-courses")
+    public ResponseEntity<?> getAllCourseForPublic() {
+        try {
+            return ResponseEntity.ok().body(courseService.getAllCourseInformationForStudent());
+        } catch (NoSuchElementException ex) {
+            return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
         }
     }
 }

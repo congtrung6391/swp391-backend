@@ -44,7 +44,9 @@ public class CourseServiceImplement implements CourseServiceInterface {
         if (listAllCourse.isEmpty()) {
             throw new NoSuchElementException("Course empty");
         }
+
         List<CourseInformationResponse> allCourseApi = new ArrayList<>();
+
         for (Course course : listAllCourse) {
             CourseInformationResponse response = new CourseInformationResponse(
                     course.getId(),
@@ -61,7 +63,9 @@ public class CourseServiceImplement implements CourseServiceInterface {
                     course.getTutor().getEmail(),
                     course.getStudent()
             );
+
             allCourseApi.add(response);
+
         }
         return allCourseApi;
     }
@@ -69,9 +73,11 @@ public class CourseServiceImplement implements CourseServiceInterface {
     @Override
     public List<CourseInformationResponse> getAllCourseInformationForStudent() {
         List<Course> listAllCourse = courseRepository.findAllByCourseStatusIsTrue();
+
         if (listAllCourse.isEmpty()) {
             throw new NoSuchElementException("Course empty");
         }
+
         List<CourseInformationResponse> allCourseApi = new ArrayList<>();
         for (Course course : listAllCourse) {
             CourseInformationResponse response = new CourseInformationResponse(
