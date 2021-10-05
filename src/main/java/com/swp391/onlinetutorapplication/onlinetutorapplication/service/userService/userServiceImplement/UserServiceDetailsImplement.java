@@ -33,6 +33,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -40,7 +41,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UserServiceDetailsImplement implements UserDetailsService, UserServiceInterface {
 
-    @Autowired @Lazy
+    @Autowired
+    @Lazy
     private AuthenticationManager authenticationManager;
 
     @Autowired
@@ -56,13 +58,8 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
     private JWTUtils jwtUtils;
 
     @Autowired
-    private RefreshTokenService refreshTokenService;
-
-    @Autowired
     private MailSenderService mailSenderService;
 
-    @Value("${tutor-online.app.token.forget.password}")
-    private String TOKEN_FORGET_PASS;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -75,34 +72,14 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
 
 
     @Override
-    public User getUser(String username) {
-        log.info("Fetching user {} ", username);
-        return userRepository.findByUsername(username).get();
-    }
-
-    @Override
-    public List<User> getAllUser() {
-        log.info("Fetching all users");
-        return userRepository.findAll();
-    }
-
-    @Override
-    public void createAccount(User user) {
-        userRepository.save(user);
-    }
-
-    @Override
-    public void saveRole(Role role) {
-        roleRepository.save(role);
-    }
-
-
-
-    @Override
     public JwtResponse handleUserLogin(LoginRequest loginRequest) throws Exception {
         loadUserByUsername(loginRequest.getUsername());
-        boolean isActivated = userRepository.findByUsername(loginRequest.getUsername()).get().getActiveStatus();
-        if(!isActivated){
+        User user = userRepository.findByUsername(loginRequest.getUsername()).get();
+        if(user.getIsDisable()){
+            throw new Exception("User not found");
+        }
+        Boolean isActivated = user.getActiveStatus();
+        if (!isActivated) {
             throw new Exception("User must be activated!");
         }
         Authentication authentication = authenticationManager.authenticate(
@@ -110,22 +87,41 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        UserDetailsImplement userDetails  = (UserDetailsImplement) authentication.getPrincipal();
+        UserDetailsImplement userDetails = (UserDetailsImplement) authentication.getPrincipal();
         String jwt = jwtUtils.generateJwtToken(userDetails);
+
+        user.setAuthorizationToken(jwt);
+        user.setExpireAuthorization(Instant.now().plusMillis(604800000));
+
+        userRepository.save(user);
+
+        System.out.println(user.getAuthorizationToken());
 
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList());
 
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
         return new JwtResponse(
                 jwt,
-                refreshToken.getToken(),
                 userDetails.getId(),
                 userDetails.getUsername(),
                 userDetails.getEmail(),
                 roles
         );
+    }
+
+
+    @Override
+    public void verifyAccessToken(String accessToken) {
+        accessToken = accessToken.replaceAll("Bearer ", "");
+        User user = userRepository.findByAuthorizationToken(accessToken)
+                .orElseThrow(() -> {
+                    throw new NoSuchElementException("Unauthorized");
+                });
+        if (user.getExpireAuthorization().isBefore(Instant.now())) {
+            handleUserLogout(accessToken);
+            throw new NoSuchElementException("Unauthorized");
+        }
     }
 
     @Override
@@ -142,6 +138,7 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
         User user = new User(
                 registrationRequest.getUsername(),
                 registrationRequest.getEmail(),
+                registrationRequest.getPhone(),
                 registrationRequest.getFullName(),
                 registrationRequest.getPassword(),
                 stringOfToken
@@ -178,7 +175,7 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
     }
 
     @Override
-    public void activeAccount(String activateToken){
+    public void activeAccount(String activateToken) {
         User user = userRepository.findByActivateToken(activateToken).get();
         user.setActivateToken(null);
         user.setActiveStatus(true);
@@ -186,12 +183,11 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
     }
 
     @Override
-    public void sendTokenForgetPassword(String email) throws MessagingException{
-        User user = userRepository.findByEmail(email).get();
-        if(user == null){
+    public void sendTokenForgetPassword(String email) throws MessagingException {
+        User user = userRepository.findByEmail(email).orElseThrow(()->{
             throw new NoSuchElementException("Email not found");
-        }
-        Long resetCode = 100000+(long)(Math.random()*(999999-100000));
+        });
+        Long resetCode = 100000 + (long) (Math.random() * (999999 - 100000));
         user.setResetPasswordCode(resetCode);
         userRepository.save(user);
         mailSenderService.sendEmailResetPassword(user.getUsername(), resetCode, user.getEmail());
@@ -199,15 +195,15 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
 
     @Override
     public User verifiedResetCode(Long resetCode) {
-        User user = userRepository.findByResetPasswordCode(resetCode).get();
-        if(user == null){
-            throw new NoSuchElementException("Reset code not accepted");
-        }
+        User user = userRepository.findByResetPasswordCode(resetCode).
+                orElseThrow(()->{
+                    throw new NoSuchElementException("Reset code not accepted");
+                });
         return user;
     }
 
     @Override
-    public void resetPassword(ResetPasswordRequest resetPasswordRequest){
+    public void resetPassword(ResetPasswordRequest resetPasswordRequest) {
         User user = verifiedResetCode(resetPasswordRequest.getResetCode());
         String newPassword = encoder.encode(resetPasswordRequest.getNewPassword());
         user.setPassword(newPassword);
@@ -215,10 +211,18 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
         userRepository.save(user);
     }
 
+    @Override
+    public void handleUserLogout(String accessToken) {
+        accessToken = accessToken.replaceAll("Bearer ", "");
+        User user = userRepository.findByAuthorizationToken(accessToken).get();
+        user.setAuthorizationToken(null);
+        user.setExpireAuthorization(null);
+        userRepository.save(user);
+    }
 
     @Override
     public boolean changeRole(String username, String role) {
-        try{
+        try {
             User user = userRepository.findByUsername(username).get();
             user.getRoles().clear();
             Role newRole = null;
@@ -233,13 +237,13 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
                     newRole = roleRepository.findByUserRole(ERole.STUDENT).get();
                     break;
             }
-            if(newRole != null){
+            if (newRole != null) {
                 user.getRoles().add(newRole);
                 userRepository.save(user);
                 return true;
             }
             return false;
-        }catch (Exception e){
+        } catch (Exception e) {
             log.info(e.getMessage());
             return false;
         }

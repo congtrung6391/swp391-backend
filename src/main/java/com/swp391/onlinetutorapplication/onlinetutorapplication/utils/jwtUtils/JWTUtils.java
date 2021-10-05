@@ -1,8 +1,10 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.utils.jwtUtils;
 
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.userDetails.UserDetailsImplement;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceInterface.UserServiceInterface;
 import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore;
@@ -19,6 +21,9 @@ public class JWTUtils {
 
     @Value("${tutor-online.app.jwtExpirationMs}")
     private int EXPIRATION_TIME;
+
+    @Autowired
+    private UserServiceInterface userService;
 
 
     public String generateJwtToken(UserDetailsImplement userPrincipal) {
@@ -43,6 +48,7 @@ public class JWTUtils {
         } catch (MalformedJwtException e) {
             log.error("Invalid JWT refreshToken: {}", e.getMessage());
         } catch (ExpiredJwtException e) {
+            userService.handleUserLogout(token);
             log.error("JWT refreshToken is expired: {}", e.getMessage());
         } catch (UnsupportedJwtException e) {
             log.error("JWT refreshToken is unsupported: {}", e.getMessage());

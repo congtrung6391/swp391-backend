@@ -37,7 +37,7 @@ public class UserDetailsImplement implements UserDetails {
     //dùng để build user sau khi đăng nhập, lấy các role của user
     //Vì user có thể có nhiều role nên phải map vào trong một list
     //Sau khi build xong sẽ trả về ID, username, email, password, authorities
-    public static UserDetailsImplement build(User user){
+    public static UserDetailsImplement build(User user) {
         List<GrantedAuthority> authorities = user.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority(role.getUserRole().name()))
                 .collect(Collectors.toList());
@@ -55,7 +55,7 @@ public class UserDetailsImplement implements UserDetails {
         return authorities; // trả về list role của user
     }
 
-    public Long getId(){
+    public Long getId() {
         return id;
     }
 
@@ -69,7 +69,7 @@ public class UserDetailsImplement implements UserDetails {
         return username;
     }
 
-    public String getEmail(){
+    public String getEmail() {
         return email;
     }
 

@@ -12,15 +12,21 @@ import javax.mail.MessagingException;
 import java.util.List;
 
 public interface UserServiceInterface {
-    User getUser(String username);
-    List<User> getAllUser();
-    void createAccount(User user);
-    void saveRole(Role role);
     JwtResponse handleUserLogin(LoginRequest loginRequest) throws Exception;
+
     MessageResponse handleUserRegistration(RegistrationRequest registrationRequest) throws MessagingException;
-     void activeAccount(String activateToken);
-     void sendTokenForgetPassword(String email) throws MessagingException;
-     User verifiedResetCode(Long resetCode);
-     void resetPassword(ResetPasswordRequest resetPasswordRequest);
-     boolean changeRole(String role, String username);
+
+    void activeAccount(String activateToken);
+
+    void sendTokenForgetPassword(String email) throws MessagingException;
+
+    User verifiedResetCode(Long resetCode);
+
+    void resetPassword(ResetPasswordRequest resetPasswordRequest);
+
+    void handleUserLogout(String accessToken);
+
+    void verifyAccessToken(String accessToken);
+
+    boolean changeRole(String username, String role);
 }
