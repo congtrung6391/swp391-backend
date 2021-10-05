@@ -18,7 +18,7 @@ public class CourseController {
     @Autowired
     private CourseServiceInterface courseService;
 
-    @GetMapping("/student/register-course/{id}")
+    @PostMapping("/student/register-course/{id}")
     @PreAuthorize("hasAuthority('STUDENT')")
     public ResponseEntity<?> registerCourse(@RequestHeader(name = "Authorization") String accessToken, @PathVariable(name = "id")Long id){
         try{
@@ -27,7 +27,6 @@ public class CourseController {
         }catch (NoSuchElementException ex){
             return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
         }catch (Exception ex){
-            System.out.println("a");
             return ResponseEntity.badRequest().body(ex.getMessage());
         }
     }
