@@ -24,14 +24,15 @@ public class UserManagementController {
     @Autowired
     private UserManagementInterface userManagement;
 
+    // localhost:8080/api/admin/user/{username}
     @PostMapping("/user/{username}")
     @PreAuthorize("hasAuthority('SUPER_ADMIN')")
     public ResponseEntity<?> changeRoleUser(@PathVariable String username, @RequestBody ChangeRoleUserRequest role){
         boolean result = userService.changeRole(username, role.getRole());
         if(result){
-            return ResponseEntity.ok(new StatusResponse("Update Successful", HttpStatus.OK.toString()));
+            return ResponseEntity.ok(new StatusResponse("Update Successful", "truegit"));
         }else{
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new StatusResponse("Update Failed", HttpStatus.NOT_FOUND.toString()));
+            return ResponseEntity.badRequest().body(new StatusResponse("Update Failed", "false"));
         }
     }
 

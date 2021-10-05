@@ -1,5 +1,6 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.model.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -28,6 +29,7 @@ public class User {
     private String username;
     private String email;
     private String fullName;
+    @JsonIgnore
     private String password;
     private String phone;
     private String authorizationToken;
