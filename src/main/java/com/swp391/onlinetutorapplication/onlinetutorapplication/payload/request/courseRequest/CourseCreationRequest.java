@@ -14,5 +14,5 @@ public class CourseCreationRequest {
     private int grade;
     private double cost;
     private int length;
-    private String subject;
+    private Long subjectId;
 }

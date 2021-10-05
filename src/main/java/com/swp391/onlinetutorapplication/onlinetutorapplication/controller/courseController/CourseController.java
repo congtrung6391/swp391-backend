@@ -16,12 +16,12 @@ import javax.validation.Valid;
 import java.util.NoSuchElementException;
 
 @RestController
-@RequestMapping("/api/course")
+@RequestMapping("/api/admin/course")
 public class CourseController {
     @Autowired
     private CourseServiceInterface courseService;
 
-    @PostMapping("/tutor/create-course")
+    @PostMapping("/create-course")
     @PreAuthorize("hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
     public ResponseEntity<?> createCourse( @RequestHeader(name = "Authorization") String accessToken, @Valid @RequestBody CourseCreationRequest courseCreationRequest) {
         try{
