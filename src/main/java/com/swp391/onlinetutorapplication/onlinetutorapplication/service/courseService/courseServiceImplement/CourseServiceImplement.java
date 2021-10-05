@@ -73,7 +73,6 @@ public class CourseServiceImplement implements CourseServiceInterface {
     @Override
     public List<CourseInformationResponse> getAllCourseInformationForStudent() {
         List<Course> listAllCourse = courseRepository.findAllByCourseStatusIsTrue();
-
         if (listAllCourse.isEmpty()) {
             throw new NoSuchElementException("Course empty");
         }

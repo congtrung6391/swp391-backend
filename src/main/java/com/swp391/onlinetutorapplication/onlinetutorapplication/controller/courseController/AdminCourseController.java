@@ -16,13 +16,13 @@ import java.util.NoSuchElementException;
 @RestController
 @RequestMapping("/api/admin/course")
 @CrossOrigin(origins = "localhost:3000/")
-public class CourseManagementController {
+public class AdminCourseController {
 
     @Autowired
     private CourseServiceInterface courseService;
 
     // localhost:8080/api/admin/course/all-courses
-    @GetMapping("/all-courses")
+    @GetMapping("")
     @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
     public ResponseEntity<?> getAllCourseForAdmin() {
         try {
@@ -32,8 +32,8 @@ public class CourseManagementController {
         }
     }
 
-    // localhost:8080/api/admin/course/update-course/:id
-    @PutMapping("/update-course/{courseId}")
+    // localhost:8080/api/admin/course/:id
+    @PutMapping("/{courseId}")
     @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN') or hasAuthority('TUTOR')")
     public ResponseEntity<?> updateCourse(@RequestBody CourseUpdateRequest request, @RequestHeader(name = "Authorization") String accessToken, @PathVariable(name = "courseId") String id) {
         Course course = courseService.updateCourse(request, Long.parseLong(id), accessToken);

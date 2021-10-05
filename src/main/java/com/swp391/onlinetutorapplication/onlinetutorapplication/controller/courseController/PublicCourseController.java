@@ -32,8 +32,8 @@ public class PublicCourseController {
         }
     }
 
-    // Get   localhost:8080/api/public/course/all-courses
-    @GetMapping("/all-courses")
+    // Get   localhost:8080/api/public/course/
+    @GetMapping("")
     public ResponseEntity<?> getAllCourseForPublic() {
         try {
             return ResponseEntity.ok().body(courseService.getAllCourseInformationForStudent());
