@@ -1,10 +1,8 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication;
 
-import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.ESubject;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Subject;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.SubjectRepository;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.service.courseService.courseServiceInterface.CourseServiceInterface;
-import org.springframework.boot.CommandLineRunner;
+import com.dropbox.core.DbxException;
+import com.dropbox.core.DbxRequestConfig;
+import com.dropbox.core.v2.DbxClientV2;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -12,9 +10,9 @@ import org.springframework.context.annotation.Bean;
 @SpringBootApplication
 public class OnlineTutorApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(OnlineTutorApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(OnlineTutorApplication.class, args);
+    }
 
 
 //	CommandLineRunner run(UserServiceInterface userService){
