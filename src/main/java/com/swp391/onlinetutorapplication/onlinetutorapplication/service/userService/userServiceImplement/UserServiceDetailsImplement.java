@@ -57,8 +57,6 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
     @Autowired
     private MailSenderService mailSenderService;
 
-    @Value("${tutor-online.app.token.forget.password}")
-    private String TOKEN_FORGET_PASS;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
