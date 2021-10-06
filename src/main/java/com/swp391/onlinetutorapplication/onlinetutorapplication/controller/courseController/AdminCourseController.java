@@ -44,7 +44,8 @@ public class AdminCourseController {
         }
     }
 
-    @DeleteMapping("/delete/{id}")
+    // localhost:8080/api/admin/course/id
+    @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN') or hasAuthority('TUTOR')")
     public ResponseEntity<?> deleteCourse(@PathVariable("id") Long id){
         try{
