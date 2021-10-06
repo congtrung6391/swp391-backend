@@ -39,10 +39,10 @@ public class UserManagementController {
         }
     }
 
-    // localhost:8080/api/admin/delete/
-    @DeleteMapping("/delete/{id}")
+    // localhost:8080/api/admin/id
+    @DeleteMapping("/user/{id}")
     @PreAuthorize("hasAuthority('SUPER_ADMIN')")
-    public ResponseEntity<?> verifyResetCode(@PathVariable("id") Long id) {
+    public ResponseEntity<?> deleteUser(@PathVariable("id") Long id) {
         try{
             userManagement.deleteUser(id);
             return ResponseEntity.ok().body(new MessageResponse("User id: "+id + " is deleted"));
