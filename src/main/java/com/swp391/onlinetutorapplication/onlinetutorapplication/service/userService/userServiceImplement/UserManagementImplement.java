@@ -1,5 +1,6 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceImplement;
 
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.refreshToken.RefreshToken;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.resetPasswordRequest.ResetPasswordRequest;
@@ -13,7 +14,6 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.role.
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.user.UserRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.userDetails.UserDetailsImplement;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.mailSenderService.MailSenderService;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.service.tokenService.RefreshTokenService;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceInterface.UserManagementInterface;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +41,8 @@ import java.util.stream.Collectors;
 public class UserManagementImplement implements UserManagementInterface{
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private RoleRepository roleRepository;
 
     @Override
     public User getUser(String username) {
