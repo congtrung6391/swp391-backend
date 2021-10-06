@@ -50,10 +50,10 @@ public class AdminCourseController {
     @PreAuthorize("hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
     public ResponseEntity<?> createCourse( @RequestHeader(name = "Authorization") String accessToken, @Valid @RequestBody CourseCreationRequest courseCreationRequest) {
         try{
-            courseService.handleCourseCreate(courseCreationRequest, accessToken);
-            return ResponseEntity.ok().body(new MessageResponse("Create Course done"));
+            Course course= courseService.handleCourseCreate(courseCreationRequest, accessToken);
+            return ResponseEntity.ok().body(new CourseResponse(course,"true"));
         }catch (NoSuchElementException ex){
-            return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
+            return ResponseEntity.badRequest().body(new StatusResponse("Create failed","false"));
         }
     }
 }

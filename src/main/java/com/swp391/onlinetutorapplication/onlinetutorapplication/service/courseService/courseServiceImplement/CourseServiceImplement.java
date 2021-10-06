@@ -34,7 +34,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
     private UserServiceInterface userService;
 
     @Override
-    public void handleCourseCreate(CourseCreationRequest courseCreationRequest, String accessToken) {
+    public Course handleCourseCreate(CourseCreationRequest courseCreationRequest, String accessToken) {
         accessToken = accessToken.replaceAll("Bearer ","");
         User tutor = userRepository.findByAuthorizationToken(accessToken)
                 .orElseThrow(()-> {
@@ -57,6 +57,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
         course.setSubject(subject);
 
         courseRepository.save(course);
+        return course;
     }
 
     @Override
