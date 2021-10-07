@@ -34,8 +34,30 @@ public class CourseServiceImplement implements CourseServiceInterface {
     private UserServiceInterface userService;
 
     @Override
-    public void handleCourseCreate(CourseCreationRequest courseCreationRequest) {
+    public Course handleCourseCreate(CourseCreationRequest courseCreationRequest, String accessToken) {
+        accessToken = accessToken.replaceAll("Bearer ","");
+        User tutor = userRepository.findByAuthorizationToken(accessToken)
+                .orElseThrow(()-> {
+                    throw new NoSuchElementException("Not found user");
+                });
+        if(tutor.getExpireAuthorization().isBefore(Instant.now())){
+            userService.handleUserLogout(accessToken);
+        }
+        Subject subject = subjectRepository.findById(courseCreationRequest.getSubjectId())
+                .orElseThrow(()-> {
+                    throw new NoSuchElementException("Not found subject");
+                });
+        Course course = new Course();
+        course.setCourseName(courseCreationRequest.getCourseName());
+        course.setCourseDescription(courseCreationRequest.getCourseDescription());
+        course.setCost(courseCreationRequest.getCost());
+        course.setGrade(courseCreationRequest.getGrade());
+        course.setLength(courseCreationRequest.getLength());
+        course.setTutor(tutor);
+        course.setSubject(subject);
 
+        courseRepository.save(course);
+        return course;
     }
 
     @Override
@@ -44,7 +66,9 @@ public class CourseServiceImplement implements CourseServiceInterface {
         if (listAllCourse.isEmpty()) {
             throw new NoSuchElementException("Course empty");
         }
+
         List<CourseInformationResponse> allCourseApi = new ArrayList<>();
+
         for (Course course : listAllCourse) {
             CourseInformationResponse response = new CourseInformationResponse(
                     course.getId(),
@@ -61,7 +85,9 @@ public class CourseServiceImplement implements CourseServiceInterface {
                     course.getTutor().getEmail(),
                     course.getStudent()
             );
+
             allCourseApi.add(response);
+
         }
         return allCourseApi;
     }
@@ -72,6 +98,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
         if (listAllCourse.isEmpty()) {
             throw new NoSuchElementException("Course empty");
         }
+
         List<CourseInformationResponse> allCourseApi = new ArrayList<>();
         for (Course course : listAllCourse) {
             CourseInformationResponse response = new CourseInformationResponse(
