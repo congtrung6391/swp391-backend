@@ -34,7 +34,6 @@ public class Course {
     @ManyToOne
     @JoinColumn(name = "student_id")
     private User student;
-
-    @OneToMany(mappedBy = "course",fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
     private Set<CourseMaterial> courseMaterial;
 }

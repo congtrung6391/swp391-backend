@@ -9,6 +9,7 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.CourseUpdateRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.MaterialCreationRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.CourseInformationResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.MaterialCreationResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.CourseMaterialRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.CourseRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.SubjectRepository;
@@ -20,9 +21,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.io.IOException;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
 @Service
 @Slf4j
@@ -173,38 +178,52 @@ public class CourseServiceImplement implements CourseServiceInterface {
     public Object uploadMaterial(Long courseId, MaterialCreationRequest request, MultipartFile fileAttach) throws IOException, DbxException {
         CourseMaterial courseMaterial = new CourseMaterial(request.getDescription(), request.getTitle(), fileAttach.getOriginalFilename());
         Course course = courseRepository.findByIdAndCourseStatusIsTrue(courseId)
-                        .orElseThrow(()->{
-                           throw new NoSuchElementException("Course not found");
-                        });
-        Set<CourseMaterial> courseMaterials = course.getCourseMaterial();
-        courseMaterials.add(courseMaterial);
-        course.setCourseMaterial(courseMaterials);
+                .orElseThrow(() -> {
+                    throw new NoSuchElementException("Course not found");
+                });
+        courseMaterial.setCourse(course);
         courseRepository.save(course);
         courseMaterialRepository.save(courseMaterial);
+        if(fileAttach.isEmpty()){
+            return new MaterialCreationResponse(courseMaterial.getTitle(),
+                    courseMaterial.getDescription(), courseMaterial.getFileAttach(),courseMaterial.getLinkShare(),true);
+        }
         return dropboxService.uploadFile(fileAttach, Long.toString(courseId), Long.toString(courseMaterialRepository.count()));
     }
 
     @Override
     public Object updateMaterial(Long courseId, Long materialId, MaterialCreationRequest request, MultipartFile file) throws IOException, DbxException {
         CourseMaterial courseMaterial = courseMaterialRepository.findById(materialId)
-                .orElseThrow(()->{
+                .orElseThrow(() -> {
                     throw new NoSuchElementException("Course material not found");
                 });
-        courseMaterial.setTitle(request.getTitle());
-        courseMaterial.setDescription(request.getDescription());
-        courseMaterial.setFileAttach(file.getOriginalFilename());
+        if (!request.getTitle().isEmpty()) {
+            courseMaterial.setTitle(request.getTitle());
+        }
+        if (!request.getDescription().isEmpty()) {
+            courseMaterial.setDescription(request.getDescription());
+        }
+        if (!request.getFileAttach().isEmpty()) {
+            courseMaterial.setFileAttach(file.getOriginalFilename());
+        }
+        if(request.getTitle().isEmpty() && request.getDescription().isEmpty() && request.getFileAttach().isEmpty())
+            throw new IllegalArgumentException("All field must be fill");
         courseMaterialRepository.save(courseMaterial);
-        return dropboxService.uploadOverwrittenFile(file,Long.toString(courseId),Long.toString(materialId));
+        if(file.isEmpty()){
+            return new MaterialCreationResponse(courseMaterial.getTitle(),
+                    courseMaterial.getDescription(), courseMaterial.getFileAttach(),courseMaterial.getLinkShare(),true);
+        }
+        return dropboxService.uploadOverwrittenFile(file, Long.toString(courseId), Long.toString(materialId));
     }
 
     @Override
     public List<Map<String, Object>> getCourseMaterial(Long courseId, Long materialId) throws IOException, DbxException {
         Course course = courseRepository.findByIdAndCourseStatusIsTrue(courseId)
-                .orElseThrow(()->{
+                .orElseThrow(() -> {
                     throw new NoSuchElementException("Course not found");
                 });
         CourseMaterial courseMaterial = courseMaterialRepository.findById(materialId)
-                .orElseThrow(()->{
+                .orElseThrow(() -> {
                     throw new NoSuchElementException("Material not found");
                 });
         return dropboxService.getFileList(Long.toString(courseId), Long.toString(materialId));
@@ -212,7 +231,8 @@ public class CourseServiceImplement implements CourseServiceInterface {
 
 
     @Override
-    public Object getShareableLink(Long courseId,String materialId,String fileName) {
-        return dropboxService.getShareLink(Long.toString(courseId),materialId,fileName);
+    public Object getShareableLink(Long courseId, String materialId, String fileName) {
+        return dropboxService.getShareLink(Long.toString(courseId), materialId, fileName);
     }
+
 }
