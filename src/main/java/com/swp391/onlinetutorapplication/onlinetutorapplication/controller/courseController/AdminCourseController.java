@@ -82,7 +82,7 @@ public class AdminCourseController {
     }
 
     @GetMapping("/{courseId}/material/{materialId}/get-link")
-    public ResponseEntity<?> getSharebleLink(@PathVariable(name = "courseId")Long courseId,@PathVariable(name = "materialId") String materialId,@RequestParam(name = "fileName") String fileName){
+    public ResponseEntity<?> getSharableLink(@PathVariable(name = "courseId")Long courseId,@PathVariable(name = "materialId") String materialId,@RequestParam(name = "fileName") String fileName){
         try{
             return ResponseEntity.ok().body(courseService.getShareableLink(courseId,materialId,fileName));
         }catch (Exception e){
