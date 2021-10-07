@@ -27,5 +27,5 @@ public interface UserManagementInterface {
 
     void saveRole(Role role);
 
-    void deleteUser(Long id,String accessToken) throws Exception;
+    void deleteUser(Long id) throws Exception;
 }

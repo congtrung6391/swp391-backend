@@ -42,10 +42,10 @@ public class UserManagementController {
     // localhost:8080/api/admin/id
     @DeleteMapping("/user/{id}")
     @PreAuthorize("hasAuthority('SUPER_ADMIN')")
-    public ResponseEntity<?> deleteUser(@PathVariable("id") Long id,@RequestHeader(name = "Authorization") String accessToken) {
+    public ResponseEntity<?> deleteUser(@PathVariable("id") Long id) {
         try{
 
-            userManagement.deleteUser(id,accessToken);
+            userManagement.deleteUser(id);
             return ResponseEntity.ok().body(new StatusResponse("User id: "+id + " is deleted", "true"));
         }catch (NoSuchElementException ex){
             return ResponseEntity.badRequest().body(new StatusResponse("Delete Failed", "false"));
