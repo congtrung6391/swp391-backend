@@ -30,7 +30,7 @@ public class UserManagementController {
     public ResponseEntity<?> changeRoleUser(@PathVariable String username, @RequestBody ChangeRoleUserRequest role){
         boolean result = userService.changeRole(username, role.getRole());
         if(result){
-            return ResponseEntity.ok(new StatusResponse("Update Successful", "truegit"));
+            return ResponseEntity.ok(new StatusResponse("Update Successful", "true"));
         }else{
             return ResponseEntity.badRequest().body(new StatusResponse("Update Failed", "false"));
         }
