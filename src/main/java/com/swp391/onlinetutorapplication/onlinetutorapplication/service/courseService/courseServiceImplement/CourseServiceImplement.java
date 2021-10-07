@@ -33,6 +33,9 @@ public class CourseServiceImplement implements CourseServiceInterface {
     @Autowired
     private UserServiceInterface userService;
 
+    @Autowired
+    SubjectRepository subjectRepository;
+
     @Override
     public Course handleCourseCreate(CourseCreationRequest courseCreationRequest, String accessToken) {
         accessToken = accessToken.replaceAll("Bearer ","");
@@ -137,12 +140,15 @@ public class CourseServiceImplement implements CourseServiceInterface {
         courseRepository.save(course);
     }
 
-    @Autowired
-    SubjectRepository subjectRepository;
 
     @Override
     public void saveSubject(Subject subject) {
         subjectRepository.save(subject);
+    }
+
+    @Override
+    public List<Subject> getSubjectList(){
+        return subjectRepository.findAll();
     }
 
     @Override
