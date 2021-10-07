@@ -1,5 +1,4 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.controller.userManagementController;
-
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.superAdminRequest.ChangeRoleUserRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.UpdateProfileRequest;
@@ -44,7 +43,6 @@ public class UserManagementController {
     @PreAuthorize("hasAuthority('SUPER_ADMIN')")
     public ResponseEntity<?> deleteUser(@PathVariable("id") Long id) {
         try{
-
             userManagement.deleteUser(id);
             return ResponseEntity.ok().body(new StatusResponse("User id: "+id + " is deleted", "true"));
         }catch (NoSuchElementException ex){
