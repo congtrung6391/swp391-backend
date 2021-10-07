@@ -45,9 +45,11 @@ public class UserManagementController {
     public ResponseEntity<?> deleteUser(@PathVariable("id") Long id) {
         try{
             userManagement.deleteUser(id);
-            return ResponseEntity.ok().body(new MessageResponse("User id: "+id + " is deleted"));
+            return ResponseEntity.ok().body(new StatusResponse("User id: "+id + " is deleted", "true"));
         }catch (NoSuchElementException ex){
-            return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
+            return ResponseEntity.badRequest().body(new StatusResponse("Delete Failed", "false"));
+        }catch (Exception ex){
+            return ResponseEntity.badRequest().body(new StatusResponse("Not allowed", "false"));
         }
     }
 
