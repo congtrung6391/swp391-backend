@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -33,4 +34,7 @@ public class Course {
     @ManyToOne
     @JoinColumn(name = "student_id")
     private User student;
+
+    @OneToMany(mappedBy = "course",fetch = FetchType.LAZY)
+    private Set<CourseMaterial> courseMaterial;
 }
