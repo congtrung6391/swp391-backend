@@ -21,10 +21,9 @@ public class CourseMaterial {
     private String fileAttach;
     private String linkShare;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "course_id")
     private Course course;
-
     public CourseMaterial(String description, String title, String fileAttach) {
         this.description = description;
         this.title = title;
