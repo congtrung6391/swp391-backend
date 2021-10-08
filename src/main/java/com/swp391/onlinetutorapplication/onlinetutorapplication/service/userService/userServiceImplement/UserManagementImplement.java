@@ -44,9 +44,6 @@ public class UserManagementImplement implements UserManagementInterface{
     @Autowired
     private RoleRepository roleRepository;
 
-    @Autowired
-    private RoleRepository roleRepository;
-
     @Override
     public User getUser(String username) {
         log.info("Fetching user {} ", username);

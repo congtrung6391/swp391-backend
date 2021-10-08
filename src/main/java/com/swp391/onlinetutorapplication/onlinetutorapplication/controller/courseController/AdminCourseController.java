@@ -17,7 +17,7 @@ import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api/admin/course")
-@CrossOrigin(origins = "localhost:3000/")
+@CrossOrigin(origins = "http://localhost:3000/")
 public class AdminCourseController {
 
     @Autowired
