@@ -53,7 +53,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
 
     }
 
-    @Override
+    @Override // by Nam
     public List<CourseInformationResponse> getAllCourseInformationForAdmin() {
         List<Course> listAllCourse = courseRepository.findAll();
         if (listAllCourse.isEmpty()) {
@@ -76,7 +76,8 @@ public class CourseServiceImplement implements CourseServiceInterface {
                     course.getTutor().getFullName(),
                     course.getTutor().getPhone(),
                     course.getTutor().getEmail(),
-                    course.getStudent()
+                    course.getStudent(),
+                    true
             );
 
             allCourseApi.add(response);
@@ -85,7 +86,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
         return allCourseApi;
     }
 
-    @Override
+    @Override //by Nam
     public List<CourseInformationResponse> getAllCourseInformationForStudent() {
         List<Course> listAllCourse = courseRepository.findAllByCourseStatusIsTrue();
         if (listAllCourse.isEmpty()) {
@@ -111,7 +112,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
         return allCourseApi;
     }
 
-    @Override
+    @Override //by Nam
     public void handleCourseRegister(String accessToken, Long id) {
         accessToken = accessToken.replaceAll("Bearer ", "");
         User student = userRepository.findByAuthorizationToken(accessToken)
@@ -184,6 +185,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
         courseMaterial.setCourse(course);
         courseRepository.save(course);
         courseMaterialRepository.save(courseMaterial);
+        //file được phép null
         if(fileAttach.isEmpty()){
             return new MaterialCreationResponse(courseMaterial.getTitle(),
                     courseMaterial.getDescription(), courseMaterial.getFileAttach(),courseMaterial.getLinkShare(),true);
@@ -197,6 +199,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Course material not found");
                 });
+        //Nếu giá trị nhập vào trống thì lấy lại giá trị cũ
         if (!request.getTitle().isEmpty()) {
             courseMaterial.setTitle(request.getTitle());
         }
@@ -206,9 +209,12 @@ public class CourseServiceImplement implements CourseServiceInterface {
         if (!request.getFileAttach().isEmpty()) {
             courseMaterial.setFileAttach(file.getOriginalFilename());
         }
+        //nếu 3 cái trống hết thì ném lỗi
         if(request.getTitle().isEmpty() && request.getDescription().isEmpty() && request.getFileAttach().isEmpty())
             throw new IllegalArgumentException("All field must be fill");
         courseMaterialRepository.save(courseMaterial);
+
+        //nếu file trống thì xóa file ở database
         if(file.isEmpty()){
             return new MaterialCreationResponse(courseMaterial.getTitle(),
                     courseMaterial.getDescription(), courseMaterial.getFileAttach(),courseMaterial.getLinkShare(),true);
@@ -216,6 +222,8 @@ public class CourseServiceImplement implements CourseServiceInterface {
         return dropboxService.uploadOverwrittenFile(file, Long.toString(courseId), Long.toString(materialId));
     }
 
+
+    //Ai có task get material thì sửa lại api response của list materials - nam
     @Override
     public List<Map<String, Object>> getCourseMaterial(Long courseId, Long materialId) throws IOException, DbxException {
         Course course = courseRepository.findByIdAndCourseStatusIsTrue(courseId)
@@ -229,7 +237,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
         return dropboxService.getFileList(Long.toString(courseId), Long.toString(materialId));
     }
 
-
+    //Link share đã lưu vào database, nên không cần dùng hàm này cũng được, sài getLinkShare là lấy đc link rồi - nam
     @Override
     public Object getShareableLink(Long courseId, String materialId, String fileName) {
         return dropboxService.getShareLink(Long.toString(courseId), materialId, fileName);

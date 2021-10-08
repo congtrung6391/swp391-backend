@@ -23,6 +23,7 @@ public class CourseInformationResponse {
     private String tutorPhone;
     private String tutorEmail;
     private User student;
+    private Boolean status = true;
 
     public CourseInformationResponse(Long id,String courseName, String courseDescription, int grade, double cost, int length,String subject, String tutorFullName, String tutorPhone, String tutorEmail) {
         this.id = id;

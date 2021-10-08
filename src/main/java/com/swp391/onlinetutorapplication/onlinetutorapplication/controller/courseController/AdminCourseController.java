@@ -6,6 +6,7 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.authResponse.MessageResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.authResponse.StatusResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.CourseResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.ErrorMessageResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.courseService.courseServiceInterface.CourseServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,14 +28,15 @@ public class AdminCourseController {
     @Autowired
     private CourseServiceInterface courseService;
 
-    // localhost:8080/api/admin/course/all-courses
+    //Get all course for admin - by Nam
+    // localhost:8080/api/admin/course/
     @GetMapping("")
     @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
     public ResponseEntity<?> getAllCourseForAdmin() {
         try {
             return ResponseEntity.ok().body(courseService.getAllCourseInformationForAdmin());
         } catch (NoSuchElementException ex) {
-            return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }
     }
 
@@ -53,40 +55,44 @@ public class AdminCourseController {
     //Tạo material - Nam
     @PostMapping(value = "/{courseId}/material", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasAuthority('TUTOR')")
     public ResponseEntity<?> uploadMaterial(@PathVariable(name = "courseId") Long courseId, MaterialCreationRequest request,@RequestPart(value = "fileAttach",required = false) MultipartFile fileAttach){
         try{
             return ResponseEntity.ok().body(courseService.uploadMaterial(courseId,request,fileAttach));
         }catch (Exception e){
-            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
         }
     }//  /Course/:courseId/material
 
 
     //Edit material - Nam
     @PutMapping(value = "/{courseId}/material/{materialId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PreAuthorize("hasAuthority('TUTOR')")
     public ResponseEntity<?> updateMaterial(@PathVariable(name = "courseId") Long courseId,@PathVariable(name = "materialId") Long materialId, MaterialCreationRequest request,@RequestPart("fileAttach") MultipartFile fileAttach){
         try{
             return ResponseEntity.ok().body(courseService.updateMaterial(courseId,materialId,request,fileAttach));
         }catch (Exception e){
-            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
         }
     }
 
+    //Phần này làm demo thôi, ai có task này thì modify lại - Name
     @GetMapping("/{courseId}/material/{materialId}")
     public ResponseEntity<?> getAllMaterial(@PathVariable(name = "courseId") Long courseId,@PathVariable(name = "materialId") Long materialId){
         try{
             return ResponseEntity.ok().body(courseService.getCourseMaterial(courseId,materialId));
         }catch (Exception e){
-            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
         }
     }
 
+    //Phần này làm demo thôi, ai có task này thì modify lại - Name
     @GetMapping("/{courseId}/material/{materialId}/get-link")
     public ResponseEntity<?> getSharableLink(@PathVariable(name = "courseId")Long courseId,@PathVariable(name = "materialId") String materialId,@RequestParam(name = "fileName") String fileName){
         try{
             return ResponseEntity.ok().body(courseService.getShareableLink(courseId,materialId,fileName));
         }catch (Exception e){
-            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
         }
     }
 }
