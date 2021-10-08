@@ -9,11 +9,12 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response
 import java.util.List;
 
 public interface CourseServiceInterface {
-    void handleCourseCreate(CourseCreationRequest courseCreationRequest);
+    Course handleCourseCreate(CourseCreationRequest courseCreationRequest, String accessToken);
     List<CourseInformationResponse> getAllCourseInformationForAdmin();
     List<CourseInformationResponse> getAllCourseInformationForStudent();
     void handleCourseRegister(String accessToken, Long id);
     void saveSubject(Subject subject);
+    List<Subject> getSubjectList();
     Course updateCourse(CourseUpdateRequest request, Long courseID, String accessToken);
     void deleteCourse(Long id);
 }

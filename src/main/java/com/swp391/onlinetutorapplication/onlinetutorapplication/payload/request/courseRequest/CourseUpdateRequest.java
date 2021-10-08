@@ -8,8 +8,8 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class CourseUpdateRequest {
-    private String title;
-    private String description;
+    private String courseName;
+    private String courseDescription;
     private Double cost;
     private Integer grade;
     private Integer length;

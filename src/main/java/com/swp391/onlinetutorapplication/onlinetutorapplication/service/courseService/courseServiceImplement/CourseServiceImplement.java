@@ -2,6 +2,8 @@ package com.swp391.onlinetutorapplication.onlinetutorapplication.service.courseS
 
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Course;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Subject;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.ERole;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.CourseCreationRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.CourseUpdateRequest;
@@ -19,6 +21,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 @Service
 @Slf4j
@@ -33,9 +36,34 @@ public class CourseServiceImplement implements CourseServiceInterface {
     @Autowired
     private UserServiceInterface userService;
 
-    @Override
-    public void handleCourseCreate(CourseCreationRequest courseCreationRequest) {
+    @Autowired
+    SubjectRepository subjectRepository;
 
+    @Override
+    public Course handleCourseCreate(CourseCreationRequest courseCreationRequest, String accessToken) {
+        accessToken = accessToken.replaceAll("Bearer ","");
+        User tutor = userRepository.findByAuthorizationToken(accessToken)
+                .orElseThrow(()-> {
+                    throw new NoSuchElementException("Not found user");
+                });
+        if(tutor.getExpireAuthorization().isBefore(Instant.now())){
+            userService.handleUserLogout(accessToken);
+        }
+        Subject subject = subjectRepository.findById(courseCreationRequest.getSubjectId())
+                .orElseThrow(()-> {
+                    throw new NoSuchElementException("Not found subject");
+                });
+        Course course = new Course();
+        course.setCourseName(courseCreationRequest.getCourseName());
+        course.setCourseDescription(courseCreationRequest.getCourseDescription());
+        course.setCost(courseCreationRequest.getCost());
+        course.setGrade(courseCreationRequest.getGrade());
+        course.setLength(courseCreationRequest.getLength());
+        course.setTutor(tutor);
+        course.setSubject(subject);
+
+        courseRepository.save(course);
+        return course;
     }
 
     @Override
@@ -124,6 +152,11 @@ public class CourseServiceImplement implements CourseServiceInterface {
     }
 
     @Override
+    public List<Subject> getSubjectList(){
+        return subjectRepository.findAll();
+    }
+
+    @Override
     public void deleteCourse(Long id) {
         Course course = courseRepository.findById(id).get();
         course.setStatus(false);
@@ -135,14 +168,26 @@ public class CourseServiceImplement implements CourseServiceInterface {
         Course course = null;
         try {
             accessToken = accessToken.replaceAll("Bearer ", "");
-            User tutor = userRepository.findByAuthorizationToken(accessToken).get();
-
-            course = courseRepository.findByIdAndTutor(courseID, tutor).get();
-            if (request.getTitle() != null) {//missing title or not
-                course.setCourseName(request.getTitle());
+            User user = userRepository.findByAuthorizationToken(accessToken).get();
+            Set<Role> Roles = user.getRoles();
+            for (Role role : Roles) {
+                switch (role.getUserRole()) {
+                    case SUPER_ADMIN:
+                    case ADMIN:
+                        course = courseRepository.findById(courseID).get();
+                        break;
+                    case TUTOR:
+                        course = courseRepository.findByIdAndTutor(courseID, user).get();
+                        break;
+                    default:
+                        return null;
+                }
             }
-            if (request.getDescription() != null) {//missing description or not
-                course.setCourseDescription(request.getDescription());
+            if (request.getCourseName() != null) {//missing title or not
+                course.setCourseName(request.getCourseName());
+            }
+            if (request.getCourseDescription() != null) {//missing description or not
+                course.setCourseDescription(request.getCourseDescription());
             }
             if (request.getCost() != null) {//missing cost or not
                 course.setCost(request.getCost());
