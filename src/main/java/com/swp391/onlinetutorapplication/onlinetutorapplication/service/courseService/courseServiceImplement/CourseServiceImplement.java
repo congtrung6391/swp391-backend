@@ -49,9 +49,33 @@ public class CourseServiceImplement implements CourseServiceInterface {
     private CourseMaterialRepository courseMaterialRepository;
 
     @Override
-    public void handleCourseCreate(CourseCreationRequest courseCreationRequest) {
+    public Course handleCourseCreate(CourseCreationRequest courseCreationRequest, String accessToken) {
+        accessToken = accessToken.replaceAll("Bearer ","");
+        User tutor = userRepository.findByAuthorizationToken(accessToken)
+                .orElseThrow(()-> {
+                    throw new NoSuchElementException("Not found user");
+                });
+        if(tutor.getExpireAuthorization().isBefore(Instant.now())){
+            userService.handleUserLogout(accessToken);
+        }
+        Subject subject = subjectRepository.findById(courseCreationRequest.getSubjectId())
+                .orElseThrow(()-> {
+                    throw new NoSuchElementException("Not found subject");
+                });
+        Course course = new Course();
+        course.setCourseName(courseCreationRequest.getCourseName());
+        course.setCourseDescription(courseCreationRequest.getCourseDescription());
+        course.setCost(courseCreationRequest.getCost());
+        course.setGrade(courseCreationRequest.getGrade());
+        course.setLength(courseCreationRequest.getLength());
+        course.setTutor(tutor);
+        course.setSubject(subject);
 
+        courseRepository.save(course);
+        return course;
     }
+
+
 
     @Override // by Nam
     public List<CourseInformationResponse> getAllCourseInformationForAdmin() {
@@ -137,6 +161,11 @@ public class CourseServiceImplement implements CourseServiceInterface {
     @Override
     public void saveSubject(Subject subject) {
         subjectRepository.save(subject);
+    }
+
+    @Override
+    public List<Subject> getSubjectList() {
+        return subjectRepository.findAll();
     }
 
     @Override
