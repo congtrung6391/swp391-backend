@@ -33,7 +33,7 @@ public class UserManagementController {
     public ResponseEntity<?> changeRoleUser(@PathVariable String username, @RequestBody ChangeRoleUserRequest role){
         boolean result = userService.changeRole(username, role.getRole());
         if(result){
-            return ResponseEntity.ok(new StatusResponse("Update Successful", "truegit"));
+            return ResponseEntity.ok(new StatusResponse("Update Successful", "true"));
         }else{
             return ResponseEntity.badRequest().body(new StatusResponse("Update Failed", "false"));
         }
@@ -45,9 +45,11 @@ public class UserManagementController {
     public ResponseEntity<?> deleteUser(@PathVariable("id") Long id) {
         try{
             userManagement.deleteUser(id);
-            return ResponseEntity.ok().body(new MessageResponse("User id: "+id + " is deleted"));
+            return ResponseEntity.ok().body(new StatusResponse("User id: "+id + " is deleted", "true"));
         }catch (NoSuchElementException ex){
-            return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
+            return ResponseEntity.badRequest().body(new StatusResponse("Delete Failed", "false"));
+        }catch (Exception ex){
+            return ResponseEntity.badRequest().body(new StatusResponse("Not allowed", "false"));
         }
     }
 

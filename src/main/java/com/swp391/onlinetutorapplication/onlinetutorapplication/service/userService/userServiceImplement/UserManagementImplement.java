@@ -1,5 +1,6 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceImplement;
 
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.ERole;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.refreshToken.RefreshToken;
@@ -88,11 +89,18 @@ public class UserManagementImplement implements UserManagementInterface{
     }
 
     @Override
-    public void deleteUser(Long id) {
+    public void deleteUser(Long id)throws Exception {
         User user = userRepository.findById(id).get();
-        user.setIsDisable(true);
-        userRepository.save(user);
+        Role role = roleRepository.findByUserRole(ERole.SUPER_ADMIN).get();
+        if (user.getRoles().contains(role)) {
+            throw new Exception();
+        }
+        else {
+            user.setIsDisable(true);
+            userRepository.save(user);
+        }
     }
+
 }
 
 

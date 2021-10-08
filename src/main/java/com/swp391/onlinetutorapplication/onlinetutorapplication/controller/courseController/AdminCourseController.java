@@ -37,7 +37,7 @@ public class AdminCourseController {
     // localhost:8080/api/admin/course/:id
     @PutMapping("/{courseId}")
     @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN') or hasAuthority('TUTOR')")
-    public ResponseEntity<?> updateCourse(@RequestBody CourseUpdateRequest request, @RequestHeader(name = "Authorization") String accessToken, @PathVariable(name = "courseId") String id) {
+    public ResponseEntity<?> updateCourse(@Valid @RequestBody CourseUpdateRequest request, @RequestHeader(name = "Authorization") String accessToken, @PathVariable(name = "courseId") String id) {
         Course course = courseService.updateCourse(request, Long.parseLong(id), accessToken);
         if (course == null) {
             return ResponseEntity.badRequest().body(new StatusResponse("Update Failed", "false"));
