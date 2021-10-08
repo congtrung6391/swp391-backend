@@ -41,4 +41,13 @@ public class PublicCourseController {
             return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
         }
     }
+
+    @GetMapping("/subject")
+    public ResponseEntity<?> getAllSubjectForPublic() {
+        try {
+            return ResponseEntity.ok().body(courseService.getSubjectList());
+        } catch (Exception ex) {
+            return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
+        }
+    }
 }
