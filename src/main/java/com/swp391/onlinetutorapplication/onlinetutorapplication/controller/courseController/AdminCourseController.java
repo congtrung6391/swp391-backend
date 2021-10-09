@@ -1,6 +1,7 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.controller.courseController;
 
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Course;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.CourseCreationRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.CourseUpdateRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.MaterialCreationRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.authResponse.MessageResponse;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.annotation.MultipartConfig;
+import javax.validation.Valid;
 import java.net.http.HttpResponse;
 import java.util.NoSuchElementException;
 
@@ -43,12 +45,23 @@ public class AdminCourseController {
     // localhost:8080/api/admin/course/:id
     @PutMapping("/{courseId}")
     @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN') or hasAuthority('TUTOR')")
-    public ResponseEntity<?> updateCourse(@RequestBody CourseUpdateRequest request, @RequestHeader(name = "Authorization") String accessToken, @PathVariable(name = "courseId") String id) {
+    public ResponseEntity<?> updateCourse(@Valid @RequestBody CourseUpdateRequest request, @RequestHeader(name = "Authorization") String accessToken, @PathVariable(name = "courseId") String id) {
         Course course = courseService.updateCourse(request, Long.parseLong(id), accessToken);
         if (course == null) {
             return ResponseEntity.badRequest().body(new StatusResponse("Update Failed", "false"));
         } else {
             return ResponseEntity.ok().body(new CourseResponse(course, "true"));
+        }
+    }
+
+    @PostMapping("")
+    @PreAuthorize("hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
+    public ResponseEntity<?> createCourse( @RequestHeader(name = "Authorization") String accessToken, @Valid @RequestBody CourseCreationRequest courseCreationRequest) {
+        try{
+            Course course= courseService.handleCourseCreate(courseCreationRequest, accessToken);
+            return ResponseEntity.ok().body(new CourseResponse(course,"true"));
+        }catch (NoSuchElementException ex){
+            return ResponseEntity.badRequest().body(new StatusResponse("Create failed","false"));
         }
     }
 

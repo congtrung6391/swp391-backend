@@ -1,10 +1,21 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceImplement;
 
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.ERole;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.refreshToken.RefreshToken;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.resetPasswordRequest.ResetPasswordRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.UpdateProfileRequest;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.utils.jwtUtils.JWTUtils;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.LoginRequest;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.RegistrationRequest;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.authResponse.JwtResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.authResponse.MessageResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.role.RoleRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.user.UserRepository;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.userDetails.UserDetailsImplement;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.service.mailSenderService.MailSenderService;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceInterface.UserManagementInterface;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,11 +75,18 @@ public class UserManagementImplement implements UserManagementInterface{
     }
 
     @Override
-    public void deleteUser(Long id) {
+    public void deleteUser(Long id)throws Exception {
         User user = userRepository.findById(id).get();
-        user.setIsDisable(true);
-        userRepository.save(user);
+        Role role = roleRepository.findByUserRole(ERole.SUPER_ADMIN).get();
+        if (user.getRoles().contains(role)) {
+            throw new Exception();
+        }
+        else {
+            user.setIsDisable(true);
+            userRepository.save(user);
+        }
     }
+
 }
 
 

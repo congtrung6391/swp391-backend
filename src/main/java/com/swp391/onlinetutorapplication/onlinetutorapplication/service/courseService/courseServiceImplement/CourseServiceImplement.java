@@ -4,6 +4,8 @@ import com.dropbox.core.DbxException;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Course;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.CourseMaterial;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Subject;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.ERole;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.CourseCreationRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.CourseUpdateRequest;
@@ -28,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 @Service
 @Slf4j
@@ -44,9 +47,13 @@ public class CourseServiceImplement implements CourseServiceInterface {
 
     @Autowired
     private DropboxService dropboxService;
+    @Autowired
+    SubjectRepository subjectRepository;
 
     @Autowired
     private CourseMaterialRepository courseMaterialRepository;
+
+
 
     @Override
     public Course handleCourseCreate(CourseCreationRequest courseCreationRequest, String accessToken) {
@@ -155,8 +162,6 @@ public class CourseServiceImplement implements CourseServiceInterface {
         courseRepository.save(course);
     }
 
-    @Autowired
-    SubjectRepository subjectRepository;
 
     @Override
     public void saveSubject(Subject subject) {
@@ -173,14 +178,26 @@ public class CourseServiceImplement implements CourseServiceInterface {
         Course course = null;
         try {
             accessToken = accessToken.replaceAll("Bearer ", "");
-            User tutor = userRepository.findByAuthorizationToken(accessToken).get();
-
-            course = courseRepository.findByIdAndTutor(courseID, tutor).get();
-            if (request.getTitle() != null) {//missing title or not
-                course.setCourseName(request.getTitle());
+            User user = userRepository.findByAuthorizationToken(accessToken).get();
+            Set<Role> Roles = user.getRoles();
+            for (Role role : Roles) {
+                switch (role.getUserRole()) {
+                    case SUPER_ADMIN:
+                    case ADMIN:
+                        course = courseRepository.findById(courseID).get();
+                        break;
+                    case TUTOR:
+                        course = courseRepository.findByIdAndTutor(courseID, user).get();
+                        break;
+                    default:
+                        return null;
+                }
             }
-            if (request.getDescription() != null) {//missing description or not
-                course.setCourseDescription(request.getDescription());
+            if (request.getCourseName() != null) {//missing title or not
+                course.setCourseName(request.getCourseName());
+            }
+            if (request.getCourseDescription() != null) {//missing description or not
+                course.setCourseDescription(request.getCourseDescription());
             }
             if (request.getCost() != null) {//missing cost or not
                 course.setCost(request.getCost());
