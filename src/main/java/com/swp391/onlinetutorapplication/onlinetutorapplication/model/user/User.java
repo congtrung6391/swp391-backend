@@ -32,6 +32,12 @@ public class User {
     @JsonIgnore
     private String password;
     private String phone;
+    private Integer grade;
+    private String address;
+    private String facebookUrl;
+    private String affiliate;
+    private Double gpa;
+    private String gender;
     private String authorizationToken;
     private Instant expireAuthorization;
     private String activateToken;

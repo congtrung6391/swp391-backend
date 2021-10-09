@@ -36,7 +36,7 @@ public class PublicCourseController {
     }
 
     //Get course public - by Nam
-    // Get   localhost:8080/api/public/course/
+    // Get   localhost:8080/api/public/course
     @GetMapping("")
     public ResponseEntity<?> getAllCourseForPublic() {
         try {

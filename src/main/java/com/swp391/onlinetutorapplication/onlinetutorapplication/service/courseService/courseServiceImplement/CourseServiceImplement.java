@@ -123,7 +123,6 @@ public class CourseServiceImplement implements CourseServiceInterface {
         if (listAllCourse.isEmpty()) {
             throw new NoSuchElementException("Course empty");
         }
-
         List<CourseInformationResponse> allCourseApi = new ArrayList<>();
         for (Course course : listAllCourse) {
             CourseInformationResponse response = new CourseInformationResponse(
@@ -224,7 +223,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
     @Override
     public Object uploadMaterial(Long courseId, MaterialCreationRequest request, MultipartFile fileAttach) throws IOException, DbxException {
         CourseMaterial courseMaterial = new CourseMaterial(request.getDescription(), request.getTitle(), fileAttach.getOriginalFilename());
-        Course course = courseRepository.findByIdAndCourseStatusIsTrue(courseId)
+        Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Course not found");
                 });
