@@ -17,7 +17,7 @@ import java.util.Map;
 
 public interface CourseServiceInterface {
     Course handleCourseCreate(CourseCreationRequest courseCreationRequest, String accessToken);
-    List<CourseInformationResponse> getAllCourseInformationForAdmin();
+     List<CourseInformationResponse> getAllCourseInformationForAdmin();
     List<CourseInformationResponse> getAllCourseInformationForStudent();
     void handleCourseRegister(String accessToken, Long id);
     void saveSubject(Subject subject);
