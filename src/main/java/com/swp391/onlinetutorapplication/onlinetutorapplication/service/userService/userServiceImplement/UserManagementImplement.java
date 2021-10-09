@@ -45,18 +45,20 @@ public class UserManagementImplement implements UserManagementInterface{
     @Autowired
     private RoleRepository roleRepository;
 
-    @Autowired
-    private RoleRepository roleRepository;
 
     @Override
     public User getUser(String username) {
         log.info("Fetching user {} ", username);
-        return userRepository.findByUsername(username).get();
+        return userRepository.findByUsername(username).orElseThrow(() ->{
+           throw new NoSuchElementException("User cannot be found.");
+        });
     }
 
     @Override
     public User getUserById(Long id) {
-        return userRepository.findById(id).get();
+        return userRepository.findById(id).orElseThrow(() ->{
+            throw new NoSuchElementException("User cannot be found.");
+        });
     }
 
     @Override
@@ -64,7 +66,9 @@ public class UserManagementImplement implements UserManagementInterface{
 
     @Override
     public void updateUser(Long id, UpdateProfileRequest updateProfileRequest) {
-        User userFromDb = userRepository.findById(id).get();
+        User userFromDb = userRepository.findById(id).orElseThrow(() ->{
+            throw new NoSuchElementException("User cannot be found.");
+        });
         System.out.println(userFromDb.toString());
         userFromDb.setPhone(updateProfileRequest.getPhone());
         userFromDb.setEmail(updateProfileRequest.getEmail());

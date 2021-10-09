@@ -68,5 +68,11 @@ public class AdminCourseController {
             return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
         }
     }
+
+    @PostMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN') or hasAuthority('TUTOR')")
+    public ResponseEntity<?> handleCourseRegisterRequest(@PathVariable("id") Long id){
+
+    }
 }
 

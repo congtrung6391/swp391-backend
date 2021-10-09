@@ -142,9 +142,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
         course.setStudent(student);
         courseRepository.save(course);
     }
-
-    @Autowired
-    SubjectRepository subjectRepository;
+    
 
     @Override
     public void saveSubject(Subject subject) {

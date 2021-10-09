@@ -17,4 +17,5 @@ public interface CourseServiceInterface {
     List<Subject> getSubjectList();
     Course updateCourse(CourseUpdateRequest request, Long courseID, String accessToken);
     void deleteCourse(Long id);
+
 }
