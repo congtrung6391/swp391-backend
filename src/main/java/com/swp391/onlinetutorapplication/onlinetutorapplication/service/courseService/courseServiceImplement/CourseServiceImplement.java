@@ -41,16 +41,16 @@ public class CourseServiceImplement implements CourseServiceInterface {
 
     @Override
     public Course handleCourseCreate(CourseCreationRequest courseCreationRequest, String accessToken) {
-        accessToken = accessToken.replaceAll("Bearer ","");
+        accessToken = accessToken.replaceAll("Bearer ", "");
         User tutor = userRepository.findByAuthorizationToken(accessToken)
-                .orElseThrow(()-> {
+                .orElseThrow(() -> {
                     throw new NoSuchElementException("Not found user");
                 });
-        if(tutor.getExpireAuthorization().isBefore(Instant.now())){
+        if (tutor.getExpireAuthorization().isBefore(Instant.now())) {
             userService.handleUserLogout(accessToken);
         }
         Subject subject = subjectRepository.findById(courseCreationRequest.getSubjectId())
-                .orElseThrow(()-> {
+                .orElseThrow(() -> {
                     throw new NoSuchElementException("Not found subject");
                 });
         Course course = new Course();
@@ -67,8 +67,24 @@ public class CourseServiceImplement implements CourseServiceInterface {
     }
 
     @Override
-    public List<CourseInformationResponse> getAllCourseInformationForAdmin() {
-        List<Course> listAllCourse = courseRepository.findAll();
+    public List<CourseInformationResponse> getAllCourseInformationForAdmin(String accessToken) {
+        List<Course> listAllCourse = null;
+        accessToken = accessToken.replaceAll("Bearer ", "");
+        User user = userRepository.findByAuthorizationToken(accessToken).get();
+        Set<Role> Roles = user.getRoles();
+        for (Role role : Roles) {
+            switch (role.getUserRole()) {
+                case SUPER_ADMIN:
+                case ADMIN:
+                    listAllCourse = courseRepository.findAllByStatusIsTrue();
+                    break;
+                case TUTOR:
+                    listAllCourse = courseRepository.findAllByTutorAndStatusIsTrue(user);
+                    break;
+                default:
+                    return null;
+            }
+        }
         if (listAllCourse.isEmpty()) {
             throw new NoSuchElementException("Course empty");
         }
@@ -76,22 +92,11 @@ public class CourseServiceImplement implements CourseServiceInterface {
         List<CourseInformationResponse> allCourseApi = new ArrayList<>();
 
         for (Course course : listAllCourse) {
-            CourseInformationResponse response = new CourseInformationResponse(
-                    course.getId(),
-                    course.getCourseName(),
-                    course.getCourseDescription(),
-                    course.getGrade(),
-                    course.getCost(),
-                    course.getLength(),
-                    course.getCourseStatus(),
-                    course.getSubject().getSubjectName().name(),
-                    course.getTutor(),
-                    course.getTutor().getFullName(),
-                    course.getTutor().getPhone(),
-                    course.getTutor().getEmail(),
-                    course.getStudent()
-            );
-
+            CourseInformationResponse response = new CourseInformationResponse(course);
+            response.setTutor(course.getTutor());
+            if (course.getStudent() != null) {
+                response.setStudent(course.getStudent());
+            }
             allCourseApi.add(response);
 
         }
@@ -100,25 +105,15 @@ public class CourseServiceImplement implements CourseServiceInterface {
 
     @Override
     public List<CourseInformationResponse> getAllCourseInformationForStudent() {
-        List<Course> listAllCourse = courseRepository.findAllByCourseStatusIsTrue();
+        List<Course> listAllCourse = courseRepository.findAllByStudentIsNullAndCourseStatusIsTrueAndStatusIsTrue();
         if (listAllCourse.isEmpty()) {
             throw new NoSuchElementException("Course empty");
         }
 
         List<CourseInformationResponse> allCourseApi = new ArrayList<>();
         for (Course course : listAllCourse) {
-            CourseInformationResponse response = new CourseInformationResponse(
-                    course.getId(),
-                    course.getCourseName(),
-                    course.getCourseDescription(),
-                    course.getGrade(),
-                    course.getCost(),
-                    course.getLength(),
-                    course.getSubject().getSubjectName().name(),
-                    course.getTutor().getFullName(),
-                    course.getTutor().getPhone(),
-                    course.getTutor().getEmail()
-            );
+            CourseInformationResponse response = new CourseInformationResponse(course);
+            response.setTutor(course.getTutor());
             allCourseApi.add(response);
         }
         return allCourseApi;
@@ -150,7 +145,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
     }
 
     @Override
-    public List<Subject> getSubjectList(){
+    public List<Subject> getSubjectList() {
         return subjectRepository.findAll();
     }
 

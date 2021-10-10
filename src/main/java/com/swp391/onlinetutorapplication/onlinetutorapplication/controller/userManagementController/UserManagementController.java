@@ -28,7 +28,7 @@ public class UserManagementController {
     private UserManagementInterface userManagement;
 
     // localhost:8080/api/admin/user/{username}
-    @PostMapping("/user/{username}")
+    @PutMapping("/user/{username}/change-role")
     @PreAuthorize("hasAuthority('SUPER_ADMIN')")
     public ResponseEntity<?> changeRoleUser(@PathVariable String username, @RequestBody ChangeRoleUserRequest role){
         boolean result = userService.changeRole(username, role.getRole());

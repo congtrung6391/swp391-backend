@@ -5,6 +5,7 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.CourseUpdateRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.authResponse.MessageResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.authResponse.StatusResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.CourseListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.CourseResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.courseService.courseServiceInterface.CourseServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,19 +26,20 @@ public class AdminCourseController {
 
     // localhost:8080/api/admin/course/all-courses
     @GetMapping("")
-    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
-    public ResponseEntity<?> getAllCourseForAdmin() {
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN') or hasAuthority('TUTOR')")
+    public ResponseEntity<?> getAllCourseForAdmin(@RequestHeader(name = "Authorization") String accessToken) {
         try {
-            return ResponseEntity.ok().body(courseService.getAllCourseInformationForAdmin());
+            return ResponseEntity.ok().body(new CourseListResponse("true"
+                    , courseService.getAllCourseInformationForAdmin(accessToken)));
         } catch (NoSuchElementException ex) {
-            return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
+            return ResponseEntity.badRequest().body(new StatusResponse(ex.getMessage(), "false"));
         }
     }
 
     // localhost:8080/api/admin/course/:id
     @PutMapping("/{courseId}")
     @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN') or hasAuthority('TUTOR')")
-    public ResponseEntity<?> updateCourse(@Valid @RequestBody CourseUpdateRequest request, @RequestHeader(name = "Authorization") String accessToken, @PathVariable(name = "courseId") String id) {
+    public ResponseEntity<?> updateCourse(@RequestBody CourseUpdateRequest request, @RequestHeader(name = "Authorization") String accessToken, @PathVariable(name = "courseId") String id) {
         Course course = courseService.updateCourse(request, Long.parseLong(id), accessToken);
         if (course == null) {
             return ResponseEntity.badRequest().body(new StatusResponse("Update Failed", "false"));
@@ -48,12 +50,12 @@ public class AdminCourseController {
 
     @PostMapping("")
     @PreAuthorize("hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
-    public ResponseEntity<?> createCourse( @RequestHeader(name = "Authorization") String accessToken, @Valid @RequestBody CourseCreationRequest courseCreationRequest) {
-        try{
-            Course course= courseService.handleCourseCreate(courseCreationRequest, accessToken);
-            return ResponseEntity.ok().body(new CourseResponse(course,"true"));
-        }catch (NoSuchElementException ex){
-            return ResponseEntity.badRequest().body(new StatusResponse("Create failed","false"));
+    public ResponseEntity<?> createCourse(@RequestHeader(name = "Authorization") String accessToken, @Valid @RequestBody CourseCreationRequest courseCreationRequest) {
+        try {
+            Course course = courseService.handleCourseCreate(courseCreationRequest, accessToken);
+            return ResponseEntity.ok().body(new CourseResponse(course, "true"));
+        } catch (NoSuchElementException ex) {
+            return ResponseEntity.badRequest().body(new StatusResponse("Create failed", "false"));
         }
     }
 }
