@@ -2,14 +2,9 @@ package com.swp391.onlinetutorapplication.onlinetutorapplication.service.userSer
 
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.resetPasswordRequest.ResetPasswordRequest;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.LoginRequest;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.RegistrationRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.UpdateProfileRequest;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.authResponse.JwtResponse;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.authResponse.MessageResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserProfileResponse;
 
-import javax.mail.MessagingException;
 import java.util.List;
 
 public interface UserManagementInterface {
@@ -17,11 +12,13 @@ public interface UserManagementInterface {
 
     User getUserById(Long id);
 
+    UserProfileResponse getUserProfile(Long id);
+
     List<User> getAllUser();
 
     void saveUser(User user);
 
-    void updateUser(Long id, UpdateProfileRequest updateProfileRequest);
+    void updateUser(String accessToken, Long id, UpdateProfileRequest updateProfileRequest);
 
     void createAccount(User user);
 
