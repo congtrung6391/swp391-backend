@@ -10,11 +10,11 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 public class CourseListResponse {
-    private String status;
+    private Boolean status;
     private int totalCourse;
     List<CourseInformationResponse> courses;
 
-    public CourseListResponse(String status, List<CourseInformationResponse> courses) {
+    public CourseListResponse(Boolean status, List<CourseInformationResponse> courses) {
         this.status = status;
         this.totalCourse = courses.size();
         this.courses = courses;

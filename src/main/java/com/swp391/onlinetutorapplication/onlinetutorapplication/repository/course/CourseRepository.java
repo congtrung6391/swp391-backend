@@ -2,9 +2,11 @@ package com.swp391.onlinetutorapplication.onlinetutorapplication.repository.cour
 
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Course;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
+import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.awt.print.Pageable;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,5 +38,5 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     @Override
     List<Course> findAll();
 
-    List<Course> findAllByStudentIsNullAndCourseStatusIsTrueAndStatusIsTrue();
+    List<Course> findAllByStudentIsNullAndCourseStatusIsTrueAndStatusIsTrueAndStudentNotNull();
 }

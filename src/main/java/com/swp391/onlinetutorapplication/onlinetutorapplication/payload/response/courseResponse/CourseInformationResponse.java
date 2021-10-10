@@ -1,5 +1,6 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Course;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Subject;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
@@ -20,6 +21,7 @@ public class CourseInformationResponse {
     private Boolean courseStatus;
     private Subject subject;
     private CourseTutorInformation tutor;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private CourseStudentInformation student;
 
     public CourseInformationResponse(Course course) {

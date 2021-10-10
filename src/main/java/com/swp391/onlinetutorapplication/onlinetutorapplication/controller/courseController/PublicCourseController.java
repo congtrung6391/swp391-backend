@@ -3,6 +3,8 @@ package com.swp391.onlinetutorapplication.onlinetutorapplication.controller.cour
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.authResponse.MessageResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.authResponse.StatusResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.CourseListResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.ErrorMessageResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.SuccessfulMessageResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.courseService.courseServiceInterface.CourseServiceInterface;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,25 +22,27 @@ public class PublicCourseController {
     @Autowired
     private CourseServiceInterface courseService;
 
-    // POST   localhost:8080/api/public/course/register-course/:id
-    @PostMapping("/register-course/{id}")
+    //Register course- Nam
+    // POST   localhost:8080/api/public/course/:id/register
+    @PostMapping("/{id}/register")
     @PreAuthorize("hasAuthority('STUDENT')")
     public ResponseEntity<?> registerCourse(@RequestHeader(name = "Authorization") String accessToken, @PathVariable(name = "id") Long id) {
         try {
             courseService.handleCourseRegister(accessToken, id);
-            return ResponseEntity.ok().body(new MessageResponse("Register course successful"));
+            return ResponseEntity.ok().body(new SuccessfulMessageResponse("Register course successful"));
         } catch (NoSuchElementException ex) {
-            return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         } catch (Exception ex) {
-            return ResponseEntity.badRequest().body(ex.getMessage());
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }
     }
 
-    // Get   localhost:8080/api/public/course/
+    //Get course public - by Nam
+    // Get localhost:8080/api/public/course
     @GetMapping("")
     public ResponseEntity<?> getAllCourseForPublic() {
         try {
-            return ResponseEntity.ok().body(new CourseListResponse("true"
+            return ResponseEntity.ok().body(new CourseListResponse(true
                     , courseService.getAllCourseInformationForStudent()));
         } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new StatusResponse(ex.getMessage(), "false"));

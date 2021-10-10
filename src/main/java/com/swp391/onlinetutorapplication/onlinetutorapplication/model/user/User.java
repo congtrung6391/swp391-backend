@@ -25,6 +25,7 @@ import static javax.persistence.FetchType.EAGER;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Long id;
     private String username;
     private String email;
@@ -32,11 +33,23 @@ public class User {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
     private String phone;
+    private Integer grade;
+    private String address;
+    private String facebookUrl;
+    private String affiliate;
+    private Double gpa;
+    private String gender;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String authorizationToken;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Instant expireAuthorization;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String activateToken;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Boolean activeStatus = false;
-    private Boolean isDisable= false;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private Boolean status = true;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Long resetPasswordCode;
     @ManyToMany(fetch = EAGER)
     @JoinTable(name = "user_roles",
