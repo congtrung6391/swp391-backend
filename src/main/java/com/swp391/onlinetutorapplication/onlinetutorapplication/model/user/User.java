@@ -28,6 +28,7 @@ public class User {
     private Long id;
     private String username;
     private String email;
+    @Column(columnDefinition = "nvarchar(100)")
     private String fullName;
     @JsonIgnore
     private String password;
