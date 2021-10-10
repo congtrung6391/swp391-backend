@@ -155,7 +155,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
         course.setStudent(student);
         courseRepository.save(course);
     }
-
+    
 
     @Override
     public void saveSubject(Subject subject) {
@@ -165,6 +165,13 @@ public class CourseServiceImplement implements CourseServiceInterface {
     @Override
     public List<Subject> getSubjectList() {
         return subjectRepository.findAll();
+    }
+
+    @Override
+    public void deleteCourse(Long id) {
+        Course course = courseRepository.findById(id).get();
+        course.setStatus(false);
+        courseRepository.save(course);
     }
 
     @Override

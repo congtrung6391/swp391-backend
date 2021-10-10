@@ -29,6 +29,7 @@ public class User {
     private Long id;
     private String username;
     private String email;
+    @Column(columnDefinition = "nvarchar(100)")
     private String fullName;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;

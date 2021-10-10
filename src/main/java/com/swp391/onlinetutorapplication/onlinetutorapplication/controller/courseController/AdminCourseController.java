@@ -67,6 +67,18 @@ public class AdminCourseController {
         }
     }
 
+    // localhost:8080/api/admin/course/id
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN') or hasAuthority('TUTOR')")
+    public ResponseEntity<?> deleteCourse(@PathVariable("id") Long id){
+        try{
+            courseService.deleteCourse(id);
+            return ResponseEntity.ok().body(new MessageResponse("Course has been successfully deleted."));
+        }catch (NoSuchElementException ex){
+            return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
+        }
+    }
+
     //Tạo material - Nam
     @PostMapping(value = "/{courseId}/material", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @ResponseStatus(HttpStatus.CREATED)

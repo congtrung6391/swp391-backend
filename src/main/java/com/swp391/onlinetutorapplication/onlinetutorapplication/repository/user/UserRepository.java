@@ -13,6 +13,7 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User,Long> {
     Optional<User> findByUsername(String username);
     Optional<User> findByEmail(String email);
+
     List<User> findAllByRoles(String role);
     Boolean existsByEmail(String email);
     Boolean existsByUsername(String username);
@@ -20,4 +21,7 @@ public interface UserRepository extends JpaRepository<User,Long> {
     Optional<User> findByResetPasswordCode(Long code);
     Optional<User> findByAuthorizationToken(String accessToken);
     List<User> findAllByStatusIsTrue();
+
+    @Override
+    List<User> findAll();
 }
