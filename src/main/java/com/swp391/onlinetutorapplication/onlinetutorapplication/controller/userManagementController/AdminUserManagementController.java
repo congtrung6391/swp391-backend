@@ -75,6 +75,10 @@ public class AdminUserManagementController {
         }
     }
 
+    /*
+
+    // Can be reused
+
     @PutMapping("/update-user/{id}")
     @PreAuthorize("hasAuthority('SUPER_ADMIN')")
     public ResponseEntity<?> updateUser(@RequestHeader(name = "Authorization") String accessToken, @PathVariable("id") Long id, @RequestBody UpdateProfileRequest updateProfileRequest) {
@@ -85,4 +89,6 @@ public class AdminUserManagementController {
             return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
         }
     }
+
+     */
 }

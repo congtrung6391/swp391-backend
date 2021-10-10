@@ -113,9 +113,6 @@ public class UserManagementImplement implements UserManagementInterface{
         if(!updateProfileRequest.getGpa().equals(user.getGpa())){
             user.setGpa(updateProfileRequest.getGpa());
         }
-
-
-
         userRepository.save(user);
 
     }
@@ -123,7 +120,7 @@ public class UserManagementImplement implements UserManagementInterface{
     @Override
     public List<User> getAllUser() {
         log.info("Fetching all users");
-        return userRepository.findAll();
+        return userRepository.findAllByIsDisableIsFalse();
     }
 
     @Override
