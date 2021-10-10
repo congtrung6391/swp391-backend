@@ -27,4 +27,6 @@ public interface CourseServiceInterface {
     Object updateMaterial(Long courseId, Long materialId, MaterialCreationRequest request, MultipartFile file) throws IOException, DbxException;
     List<Map<String, Object>> getCourseMaterial(Long courseId,Long materialId) throws IOException, DbxException;
     Object getShareableLink(Long courseId,String materialId,String fileName);
+    void deleteCourse(Long id);
+
 }

@@ -75,5 +75,20 @@ public class AdminUserManagementController {
         }
     }
 
+    /*
 
+    // Can be reused
+
+    @PutMapping("/update-user/{id}")
+    @PreAuthorize("hasAuthority('SUPER_ADMIN')")
+    public ResponseEntity<?> updateUser(@RequestHeader(name = "Authorization") String accessToken, @PathVariable("id") Long id, @RequestBody UpdateProfileRequest updateProfileRequest) {
+        try {
+            userManagement.updateUser(accessToken, id, updateProfileRequest);
+            return ResponseEntity.ok().body(new MessageResponse("User id: "+id + " has been updated."));
+        } catch (NoSuchElementException ex) {
+            return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
+        }
+    }
+
+     */
 }
