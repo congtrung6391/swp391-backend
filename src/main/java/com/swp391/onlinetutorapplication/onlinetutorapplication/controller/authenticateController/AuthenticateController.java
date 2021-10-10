@@ -3,6 +3,8 @@ package com.swp391.onlinetutorapplication.onlinetutorapplication.controller.auth
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.refreshToken.RefreshToken;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.exception.refreshTokenException.TokenRefreshException;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.resetPasswordRequest.ResetPasswordRequest;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.ErrorMessageResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.SuccessfulMessageResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.utils.jwtUtils.JWTUtils;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.tokenRequest.RefreshTokenRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.LoginRequest;
@@ -37,9 +39,9 @@ public class AuthenticateController {
             JwtResponse jwtResponse = userService.handleUserLogin(loginRequest);
             return ResponseEntity.ok().body(jwtResponse);
         } catch (UsernameNotFoundException ex) {
-            return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         } catch (Exception ex) {
-            return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }
 
     }
@@ -77,7 +79,7 @@ public class AuthenticateController {
             userService.verifyAccessToken(accessToken);
             return ResponseEntity.ok().build();
         } catch (NoSuchElementException ex) {
-            return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }
     }
 
@@ -99,9 +101,9 @@ public class AuthenticateController {
     public ResponseEntity<?> sendForgetPassword(@RequestParam(name = "email") String email) throws MessagingException {
         try {
             userService.sendTokenForgetPassword(email);
-            return ResponseEntity.ok().body(new MessageResponse("Reset code sent to your email"));
+            return ResponseEntity.ok().body(new SuccessfulMessageResponse("Reset code sent to your email"));
         } catch (NoSuchElementException ex) {
-            return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }
     }
 
@@ -111,7 +113,7 @@ public class AuthenticateController {
             userService.verifiedResetCode(resetCode);
             return ResponseEntity.ok().body(new MessageResponse(resetCode.toString()));
         } catch (NoSuchElementException ex) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Reset code is not existed"));
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse("Reset code is not existed"));
         }
     }
 
@@ -122,7 +124,7 @@ public class AuthenticateController {
             userService.resetPassword(resetPasswordRequest);
             return ResponseEntity.ok().build();
         } catch (NoSuchElementException ex) {
-            return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }
     }
 }

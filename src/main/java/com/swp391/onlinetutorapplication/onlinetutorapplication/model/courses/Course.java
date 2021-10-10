@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -17,7 +18,9 @@ public class Course {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(columnDefinition = "nvarchar")
     private String courseName;
+    @Column(columnDefinition = "nvarchar")
     private String courseDescription;
     private int grade;
     private double cost;
@@ -33,4 +36,6 @@ public class Course {
     @ManyToOne
     @JoinColumn(name = "student_id")
     private User student;
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
+    private Set<CourseMaterial> courseMaterial;
 }
