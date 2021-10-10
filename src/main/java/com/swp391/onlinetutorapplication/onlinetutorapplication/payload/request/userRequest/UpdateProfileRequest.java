@@ -13,14 +13,23 @@ import java.util.Set;
 @Setter
 public class UpdateProfileRequest {
 
-    @NotBlank
-    @Size(max = 50)
+
     private String fullName;
 
-    @NotBlank
-    @Size(max = 50)
+
     private String email;
 
     @Size(max = 15)
     private String phone;
+
+    private Integer grade;
+
+    private String address;
+
+    private String facebookUrl;
+    private String affiliate;
+
+    private Double gpa;
+
+    private String gender;
 }

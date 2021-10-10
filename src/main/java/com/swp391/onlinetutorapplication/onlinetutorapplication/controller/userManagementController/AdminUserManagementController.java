@@ -20,7 +20,7 @@ import java.util.NoSuchElementException;
 @RestController
 @RequestMapping("/api/admin")
 
-public class UserManagementController {
+public class AdminUserManagementController {
     @Autowired
     private UserServiceInterface userService;
 
@@ -75,14 +75,5 @@ public class UserManagementController {
         }
     }
 
-    @PostMapping("/update-user/{id}")
-    @PreAuthorize("hasAuthority('SUPER_ADMIN')")
-    public ResponseEntity<?> updateUser(@PathVariable("id") Long id, @RequestBody UpdateProfileRequest updateProfileRequest) {
-        try {
-            userManagement.updateUser(id, updateProfileRequest);
-            return ResponseEntity.ok().body(new MessageResponse("User id: "+id + " has been updated."));
-        } catch (NoSuchElementException ex) {
-            return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
-        }
-    }
+
 }
