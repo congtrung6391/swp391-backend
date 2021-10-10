@@ -295,4 +295,32 @@ public class CourseServiceImplement implements CourseServiceInterface {
         return dropboxService.getShareLink(Long.toString(courseId), materialId, fileName);
     }
 
+    @Override
+    public void deleteMaterial(Long materialId, Long courseId, String accessToken ) throws Exception{
+        accessToken = accessToken.replaceAll("Bearer ", "");
+        // check existed
+        User tutor = userRepository.findByAuthorizationToken(accessToken).orElseThrow(()->{
+            throw new NoSuchElementException("User not found");
+        });
+        Course course = courseRepository.findByIdAndCourseStatusIsTrue(courseId)
+                .orElseThrow(() -> {
+                    throw new NoSuchElementException("Course not found");
+                });
+        CourseMaterial courseMaterial = courseMaterialRepository.findById(materialId)
+                .orElseThrow(() -> {
+                    throw new NoSuchElementException("Material not found");
+                });
+
+        if(tutor != course.getTutor() ){
+            throw new Exception("You are not allowed to delete");
+        }
+        else{
+            courseMaterial.setStatus(false);
+            courseMaterialRepository.save(courseMaterial);
+        }
+
+
+    }
+
+
 }

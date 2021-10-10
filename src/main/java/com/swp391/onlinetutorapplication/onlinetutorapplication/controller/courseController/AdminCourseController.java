@@ -120,5 +120,19 @@ public class AdminCourseController {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
         }
     }
+
+    @DeleteMapping("{courseId}/material/{materialId}")
+    @PreAuthorize("hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
+    public ResponseEntity<?> deleteMaterial(@PathVariable(name = "courseId")Long courseId,@PathVariable(name = "materialId")Long materialId,@RequestHeader(name="Authorization") String accessToken) {
+        try{
+            courseService.deleteMaterial(materialId,courseId,accessToken);
+            return ResponseEntity.ok().body(new StatusResponse("Delete success","true"));
+
+        } catch (NoSuchElementException ex){
+            return ResponseEntity.badRequest().body(new StatusResponse(ex.getMessage(), "false"));
+        } catch (Exception ex){
+            return ResponseEntity.badRequest().body(new StatusResponse(ex.getMessage(), "false"));
+        }
+    }
 }
 
