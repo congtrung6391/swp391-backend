@@ -3,9 +3,8 @@ package com.swp391.onlinetutorapplication.onlinetutorapplication.controller.user
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.superAdminRequest.ChangeRoleUserRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.UpdateProfileRequest;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.authResponse.MessageResponse;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.authResponse.StatusResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.ErrorMessageResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.SuccessfulMessageResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserInformationResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceInterface.UserManagementInterface;
@@ -36,9 +35,9 @@ public class AdminUserManagementController {
     public ResponseEntity<?> changeRoleUser(@PathVariable String username, @RequestBody ChangeRoleUserRequest role) {
         boolean result = userService.changeRole(username, role.getRole());
         if (result) {
-            return ResponseEntity.ok(new StatusResponse("Update Successful", "true"));
+            return ResponseEntity.ok(new SuccessfulMessageResponse("Update Successful"));
         } else {
-            return ResponseEntity.badRequest().body(new StatusResponse("Update Failed", "false"));
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse("Update Failed"));
         }
     }
 
@@ -48,11 +47,11 @@ public class AdminUserManagementController {
     public ResponseEntity<?> deleteUser(@PathVariable("id") Long id) {
         try {
             userManagement.deleteUser(id);
-            return ResponseEntity.ok().body(new StatusResponse("User id: " + id + " is deleted", "true"));
+            return ResponseEntity.ok().body(new SuccessfulMessageResponse("User id: " + id + " is deleted"));
         } catch (NoSuchElementException ex) {
-            return ResponseEntity.badRequest().body(new StatusResponse("Delete Failed", "false"));
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse("Delete Failed"));
         } catch (Exception ex) {
-            return ResponseEntity.badRequest().body(new StatusResponse("Not allowed", "false"));
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse("Not allowed"));
         }
     }
 

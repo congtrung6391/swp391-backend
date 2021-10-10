@@ -5,10 +5,10 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.CourseUpdateRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.MaterialCreationRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.authResponse.MessageResponse;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.authResponse.StatusResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.CourseListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.CourseResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.ErrorMessageResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.SuccessfulMessageResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.courseService.courseServiceInterface.CourseServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -40,7 +40,7 @@ public class AdminCourseController {
             return ResponseEntity.ok().body(new CourseListResponse(true
                     , courseService.getAllCourseInformationForAdmin(accessToken)));
         } catch (NoSuchElementException ex) {
-            return ResponseEntity.badRequest().body(new StatusResponse(ex.getMessage(), "false"));
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }
     }
 
@@ -50,7 +50,7 @@ public class AdminCourseController {
     public ResponseEntity<?> updateCourse(@RequestBody CourseUpdateRequest request, @RequestHeader(name = "Authorization") String accessToken, @PathVariable(name = "courseId") String id) {
         Course course = courseService.updateCourse(request, Long.parseLong(id), accessToken);
         if (course == null) {
-            return ResponseEntity.badRequest().body(new StatusResponse("Update Failed", "false"));
+            return ResponseEntity.badRequest().body(new SuccessfulMessageResponse("Update Failed"));
         } else {
             return ResponseEntity.ok().body(new CourseResponse(course, "true"));
         }
@@ -63,7 +63,7 @@ public class AdminCourseController {
             Course course = courseService.handleCourseCreate(courseCreationRequest, accessToken);
             return ResponseEntity.ok().body(new CourseResponse(course, "true"));
         } catch (NoSuchElementException ex) {
-            return ResponseEntity.badRequest().body(new StatusResponse("Create failed", "false"));
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse("Create failed"));
         }
     }
 
