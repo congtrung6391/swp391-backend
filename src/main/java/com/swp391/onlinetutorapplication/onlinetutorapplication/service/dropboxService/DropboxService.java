@@ -35,6 +35,10 @@ public class DropboxService {
     @Autowired
     private CourseMaterialRepository courseMaterialRepository;
 
+    public void createFolder(String courseId, String materialId) throws DbxException {
+        dropboxClient.dropboxClient().files().createFolderV2("/Course/"+courseId+"/"+materialId);
+    }
+
 
     public Object uploadFile(MultipartFile file, String courseId, String materialId) throws IOException, DbxException {
         try {
@@ -118,7 +122,7 @@ public class DropboxService {
             //Gán thông tin vào material response
             //Response trả về dạng : title, description, tên file, link file
             MaterialCreationResponse response =
-                    new MaterialCreationResponse(material.getTitle(), material.getDescription(), material.getFileAttach(), sharedLinkMetadata.getUrl(), true);
+                    new MaterialCreationResponse(material.getId(),material.getTitle(), material.getDescription(), material.getFileAttach(), sharedLinkMetadata.getUrl(), true);
 
             return response;
         } catch (CreateSharedLinkWithSettingsErrorException ex) {
