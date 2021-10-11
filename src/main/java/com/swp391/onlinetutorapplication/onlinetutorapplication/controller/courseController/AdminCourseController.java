@@ -92,7 +92,7 @@ public class AdminCourseController {
     // localhost:8080/api/public/course/:id/register
     @PutMapping("/{id}/register")
     @PreAuthorize("hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
-    public ResponseEntity<?> handleCourseRegisterRequest(@RequestHeader(name = "Authorization") String accessToken, @PathVariable(name = "id") String id, @RequestBody ActionApproveOrRejectRequest request){
+    public ResponseEntity<?> handleCourseRegisterRequest(@RequestHeader(name = "Authorization") String accessToken, @PathVariable(name = "id") String id, @RequestBody ActionApproveOrRejectRequest  request){
         try{
             courseService.handleCourseRegisterRequest(accessToken, Long.parseLong(id), request);
             return ResponseEntity.ok().body(new SuccessfulMessageResponse("Course has been processed."));
