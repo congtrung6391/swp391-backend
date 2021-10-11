@@ -175,21 +175,23 @@ public class CourseServiceImplement implements CourseServiceInterface {
     }
 
     @Override
-    public void handleCourseRegisterRequest(String accessToken, Long id, ActionApproveOrRejectRequest actionApproveOrRejectRequest) {
+    public void handleCourseRegisterRequest(String accessToken, Long id, ActionApproveOrRejectRequest request) {
         accessToken = accessToken.replaceAll("Bearer ", "");
         User student = userRepository.findByAuthorizationToken(accessToken)
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("User cannot be found.");
                 });
-        Course course = courseRepository.findByIdAndCourseStatusIsFalseAndStatusIsTrue(id)
+        Course course = courseRepository.findByIdAndStudentIsNotNullAndCourseStatusIsTrue(id)
                 .orElseThrow(() -> {
-                    throw new NoSuchElementException("Course not found");
+                    throw new NoSuchElementException("Course cannot be found.");
                 });
-        if(){
+        boolean var = request.isAction();
+        if(var = true){
             course.setStatus(false);
             courseRepository.save(course);
+
         }else{
-            course.setCourseStatus(true);
+            course.setStudent(null);
             courseRepository.save(course);
         }
     }
