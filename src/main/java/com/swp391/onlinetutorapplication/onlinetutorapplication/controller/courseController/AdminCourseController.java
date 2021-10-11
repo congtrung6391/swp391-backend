@@ -118,7 +118,7 @@ public class AdminCourseController {
     //Tạo material - Nam
     @PostMapping(value = "/{courseId}/material", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasAuthority('TUTOR')")
+    @PreAuthorize("hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
     public ResponseEntity<?> uploadMaterial(@PathVariable(name = "courseId") Long courseId, MaterialCreationRequest request, @RequestPart(value = "fileAttach", required = false) MultipartFile fileAttach) {
         try {
             return ResponseEntity.ok().body(courseService.uploadMaterial(courseId, request, fileAttach));
@@ -130,7 +130,7 @@ public class AdminCourseController {
 
     //Edit material - Nam
     @PutMapping(value = "/{courseId}/material/{materialId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    @PreAuthorize("hasAuthority('TUTOR')")
+    @PreAuthorize("hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
     public ResponseEntity<?> updateMaterial(@PathVariable(name = "courseId") Long courseId, @PathVariable(name = "materialId") Long materialId, MaterialCreationRequest request, @RequestPart("fileAttach") MultipartFile fileAttach) {
         try {
             return ResponseEntity.ok().body(courseService.updateMaterial(courseId, materialId, request, fileAttach));

@@ -356,12 +356,10 @@ public class CourseServiceImplement implements CourseServiceInterface {
                     }
                     break;
                 case STUDENT:
-                    if(course.getStudent() == null ){
+                    if (course.getStudent() == null) {
                         throw new IllegalArgumentException("You are not allow to see other material");
-                    }else{
-                        if (currentUser.getId() != course.getStudent().getId()) {
-                            throw new IllegalArgumentException("You are not allow to see other material");
-                        }
+                    } else if (currentUser.getId() != course.getStudent().getId()) {
+                        throw new IllegalArgumentException("You are not allow to see other material");
                     }
                     break;
                 default:
