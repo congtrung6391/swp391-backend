@@ -15,8 +15,8 @@ public class MaterialListResponse {
     private int totalMaterial;
     List<MaterialCreationResponse> materialList;
 
-    public MaterialListResponse(List<MaterialCreationResponse> materials) {
-        this.totalMaterial = materials.size();
-        this.materialList = materials;
+    public MaterialListResponse(List<MaterialCreationResponse> materialList) {
+        this.totalMaterial = materialList.size();
+        this.materialList = materialList;
     }
 }

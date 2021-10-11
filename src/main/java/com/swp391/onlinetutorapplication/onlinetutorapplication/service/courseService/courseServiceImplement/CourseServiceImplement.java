@@ -125,24 +125,24 @@ public class CourseServiceImplement implements CourseServiceInterface {
     public CourseInformationResponse getOneCourseApi(String accessToken, Long courseId) {
         accessToken = accessToken.replaceAll("Bearer ", "");
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(()->{
+                .orElseThrow(() -> {
                     throw new NoSuchElementException("Course not found");
                 });
         System.out.println(course.getStudent());
         User currentUser = userRepository.findByAuthorizationToken(accessToken)
-                .orElseThrow(()->{
+                .orElseThrow(() -> {
                     throw new NoSuchElementException("User is not authorized");
                 });
         Set<Role> roles = currentUser.getRoles();
         for (Role role : roles) {
             switch (role.getUserRole()) {
                 case TUTOR:
-                    if(course.getTutor().getId() != currentUser.getId()){
+                    if (course.getTutor().getId() != currentUser.getId()) {
                         throw new IllegalArgumentException("You are not allow to view this course");
                     }
                     break;
                 case STUDENT:
-                    if (course.getStudent().getId() != currentUser.getId()){
+                    if (course.getStudent().getId() != currentUser.getId()) {
                         throw new IllegalArgumentException("You are not allow to view this course");
                     }
                     break;
@@ -183,7 +183,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Course not found");
                 });
-        if(course.getStudent() != null){
+        if (course.getStudent() != null) {
             throw new NoSuchElementException("Course not available now");
         }
         course.setStudent(student);
@@ -218,11 +218,11 @@ public class CourseServiceImplement implements CourseServiceInterface {
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Course cannot be found.");
                 });
-        if(request.isAction() == true){
+        if (request.isAction() == true) {
             course.setCourseStatus(false);
             courseRepository.save(course);
 
-        }else{
+        } else {
             course.setStudent(null);
             courseRepository.save(course);
         }
@@ -348,17 +348,39 @@ public class CourseServiceImplement implements CourseServiceInterface {
                     throw new NoSuchElementException("Not found user");
                 });
         Course course = courseRepository.findByIdAndStatusIsTrue(courseId).
-                orElseThrow(()->{
+                orElseThrow(() -> {
                     throw new NoSuchElementException("Material unauthorizated");
                 });
-        if(currentUser.getRoles().contains(ERole.TUTOR)){
-            if(currentUser.getId() != course.getTutor().getId()){
-                throw new IllegalArgumentException("You are not allow to see other material");
+//        if(currentUser.getRoles().contains(ERole.TUTOR)){
+//            if(currentUser.getId() != course.getTutor().getId()){
+//                throw new IllegalArgumentException("You are not allow to see other material");
+//            }
+//        }
+        Set<Role> roles = currentUser.getRoles();
+        for (Role role : roles) {
+            switch (role.getUserRole()) {
+                case SUPER_ADMIN:
+                case ADMIN:
+                    break;
+                case TUTOR:
+                    if (currentUser.getId() != course.getTutor().getId()) {
+                        throw new IllegalArgumentException("You are not allow to see other material");
+                    }
+                    break;
+                case STUDENT:
+                    if (course.getStudent() == null) {
+                        throw new IllegalArgumentException("You are not allow to see other material");
+                    } else if (currentUser.getId() != course.getStudent().getId()) {
+                        throw new IllegalArgumentException("You are not allow to see other material");
+                    }
+                    break;
+                default:
+                    throw new NoSuchElementException("Material not found");
             }
         }
         List<CourseMaterial> materialList = courseMaterialRepository.findAllByCourseAndStatusIsTrue(course);
         List<MaterialCreationResponse> materialCreationResponses = new ArrayList<>();
-        for(CourseMaterial courseMaterial : materialList){
+        for (CourseMaterial courseMaterial : materialList) {
             MaterialCreationResponse response = new MaterialCreationResponse(courseMaterial);
             materialCreationResponses.add(response);
         }
@@ -372,10 +394,10 @@ public class CourseServiceImplement implements CourseServiceInterface {
     }
 
     @Override
-    public void deleteMaterial(Long materialId, Long courseId, String accessToken ) throws Exception{
+    public void deleteMaterial(Long materialId, Long courseId, String accessToken) throws Exception {
         accessToken = accessToken.replaceAll("Bearer ", "");
         // check existed
-        User tutor = userRepository.findByAuthorizationToken(accessToken).orElseThrow(()->{
+        User tutor = userRepository.findByAuthorizationToken(accessToken).orElseThrow(() -> {
             throw new NoSuchElementException("User not found");
         });
         Course course = courseRepository.findByIdAndCourseStatusIsTrue(courseId)
@@ -387,10 +409,9 @@ public class CourseServiceImplement implements CourseServiceInterface {
                     throw new NoSuchElementException("Material not found");
                 });
 
-        if(tutor != course.getTutor() ){
+        if (tutor != course.getTutor()) {
             throw new Exception("You are not allowed to delete");
-        }
-        else{
+        } else {
             courseMaterial.setStatus(false);
             courseMaterialRepository.save(courseMaterial);
         }
