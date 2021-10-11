@@ -52,11 +52,7 @@ public class AdminCourseController {
     // localhost:8080/api/admin/course/:id
     @PutMapping("/{courseId}")
     @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN') or hasAuthority('TUTOR')")
-    public ResponseEntity<?> updateCourse(
-            @RequestBody CourseUpdateRequest request,
-            @RequestHeader(name = "Authorization") String accessToken,
-            @PathVariable(name = "courseId") String id
-    ) {
+    public ResponseEntity<?> updateCourse(@RequestBody CourseUpdateRequest request, @RequestHeader(name = "Authorization") String accessToken, @PathVariable(name = "courseId") String id) {
         Course course = courseService.updateCourse(request, Long.parseLong(id), accessToken);
         if (course == null) {
             return ResponseEntity.badRequest().body(new SuccessfulMessageResponse("Update Failed"));
@@ -110,11 +106,11 @@ public class AdminCourseController {
     // localhost:8080/api/admin/course/id
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN') or hasAuthority('TUTOR')")
-    public ResponseEntity<?> deleteCourse(@PathVariable("id") Long id) {
-        try {
+    public ResponseEntity<?> deleteCourse(@PathVariable("id") Long id){
+        try{
             courseService.deleteCourse(id);
             return ResponseEntity.ok().body(new MessageResponse("Course has been successfully deleted."));
-        } catch (NoSuchElementException ex) {
+        }catch (NoSuchElementException ex){
             return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
         }
     }
@@ -123,13 +119,11 @@ public class AdminCourseController {
     @PostMapping(value = "/{courseId}/material", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('TUTOR')")
-    public ResponseEntity<?> uploadMaterial(
-            @PathVariable(name = "courseId") Long courseId,
-            MaterialCreationRequest request,
-            @RequestPart(value = "fileAttach", required = false) MultipartFile fileAttach
-    ) {
+    public ResponseEntity<?> uploadMaterial(@PathVariable(name = "courseId") Long courseId,
+                                             MaterialCreationRequest request) {
         try {
-            return ResponseEntity.ok().body(courseService.uploadMaterial(courseId, request, fileAttach));
+            System.out.println(request.getFileAttach());
+            return ResponseEntity.ok().body(courseService.uploadMaterial(courseId, request));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
         }
@@ -138,15 +132,11 @@ public class AdminCourseController {
 
     //Edit material - Nam
     @PutMapping(value = "/{courseId}/material/{materialId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    @PreAuthorize("hasAuthority('TUTOR')")
-    public ResponseEntity<?> updateMaterial(
-            @PathVariable(name = "courseId") Long courseId,
-            @PathVariable(name = "materialId") Long materialId,
-            MaterialCreationRequest request,
-            @RequestPart(value = "fileAttach", required = false) MultipartFile fileAttach
-    ) {
+    @PreAuthorize("hasAuthority('TUTOR')  or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
+    public ResponseEntity<?> updateMaterial(@PathVariable(name = "courseId") Long courseId,
+                                            @PathVariable(name = "materialId") Long materialId, MaterialCreationRequest request) {
         try {
-            return ResponseEntity.ok().body(courseService.updateMaterial(courseId, materialId, request, fileAttach));
+            return ResponseEntity.ok().body(courseService.updateMaterial(courseId, materialId, request));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
         }
