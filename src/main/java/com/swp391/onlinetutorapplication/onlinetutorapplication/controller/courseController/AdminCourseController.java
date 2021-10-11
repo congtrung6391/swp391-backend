@@ -32,6 +32,66 @@ public class AdminCourseController {
     @Autowired
     private CourseServiceInterface courseService;
 
+    // Phần này làm demo thôi, ai có task này thì modify lại - Name
+    @GetMapping("/{courseId}/material/")
+    @PreAuthorize("hasAuthority('TUTOR') or hasAuthority('STUDENT') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
+    public ResponseEntity<?> getAllMaterial(@PathVariable(name = "courseId") Long courseId, @RequestHeader(name = "Authorization") String accessToken) {
+        try {
+            return ResponseEntity.ok().body(new MaterialListResponse(courseService.getCourseMaterial(courseId, accessToken)));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
+        }
+    }
+
+    // Tạo material - Nam
+    //  /Course/:courseId/material
+    @PostMapping(value = "/{courseId}/material", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasAuthority('TUTOR')")
+    public ResponseEntity<?> uploadMaterial(@PathVariable(name = "courseId") Long courseId, MaterialCreationRequest request, @RequestPart(value = "fileAttach", required = false) MultipartFile fileAttach) {
+        try {
+            return ResponseEntity.ok().body(courseService.uploadMaterial(courseId, request, fileAttach));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
+        }
+    }
+
+
+    //Edit material - Nam
+    @PutMapping(value = "/{courseId}/material/{materialId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PreAuthorize("hasAuthority('TUTOR')")
+    public ResponseEntity<?> updateMaterial(@PathVariable(name = "courseId") Long courseId, @PathVariable(name = "materialId") Long materialId, MaterialCreationRequest request, @RequestPart("fileAttach") MultipartFile fileAttach) {
+        try {
+            return ResponseEntity.ok().body(courseService.updateMaterial(courseId, materialId, request, fileAttach));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
+        }
+    }
+
+    //Phần này làm demo thôi, ai có task này thì modify lại - Name
+    @GetMapping("/{courseId}/material/{materialId}/get-link")
+    public ResponseEntity<?> getSharableLink(@PathVariable(name = "courseId") Long courseId, @PathVariable(name = "materialId") String materialId, @RequestParam(name = "fileName") String fileName) {
+        try {
+            return ResponseEntity.ok().body(courseService.getShareableLink(courseId, materialId, fileName));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("{courseId}/material/{materialId}")
+    @PreAuthorize("hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
+    public ResponseEntity<?> deleteMaterial(@PathVariable(name = "courseId")Long courseId,@PathVariable(name = "materialId")Long materialId,@RequestHeader(name="Authorization") String accessToken) {
+        try{
+            courseService.deleteMaterial(materialId,courseId,accessToken);
+            return ResponseEntity.ok().body(new SuccessfulMessageResponse("Delete Sucess"));
+
+        } catch (NoSuchElementException ex){
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
+        } catch (Exception ex){
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
+        }
+    }
+
     //Get all course for admin - by Nam
     // localhost:8080/api/admin/course/
     @GetMapping("")
@@ -87,71 +147,12 @@ public class AdminCourseController {
     // localhost:8080/api/admin/course/id
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN') or hasAuthority('TUTOR')")
-    public ResponseEntity<?> deleteCourse(@PathVariable("id") Long id){
-        try{
+    public ResponseEntity<?> deleteCourse(@PathVariable("id") Long id) {
+        try {
             courseService.deleteCourse(id);
             return ResponseEntity.ok().body(new MessageResponse("Course has been successfully deleted."));
-        }catch (NoSuchElementException ex){
+        } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
-        }
-    }
-
-    //Tạo material - Nam
-    @PostMapping(value = "/{courseId}/material", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasAuthority('TUTOR')")
-    public ResponseEntity<?> uploadMaterial(@PathVariable(name = "courseId") Long courseId, MaterialCreationRequest request, @RequestPart(value = "fileAttach", required = false) MultipartFile fileAttach) {
-        try {
-            return ResponseEntity.ok().body(courseService.uploadMaterial(courseId, request, fileAttach));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
-        }
-    }//  /Course/:courseId/material
-
-
-    //Edit material - Nam
-    @PutMapping(value = "/{courseId}/material/{materialId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    @PreAuthorize("hasAuthority('TUTOR')")
-    public ResponseEntity<?> updateMaterial(@PathVariable(name = "courseId") Long courseId, @PathVariable(name = "materialId") Long materialId, MaterialCreationRequest request, @RequestPart("fileAttach") MultipartFile fileAttach) {
-        try {
-            return ResponseEntity.ok().body(courseService.updateMaterial(courseId, materialId, request, fileAttach));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
-        }
-    }
-
-    //Phần này làm demo thôi, ai có task này thì modify lại - Name
-    @GetMapping("/{courseId}/material/")
-    @PreAuthorize("hasAuthority('TUTOR') or hasAuthority('STUDENT') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
-    public ResponseEntity<?> getAllMaterial(@PathVariable(name = "courseId") Long courseId, @RequestHeader(name = "Authorization") String accessToken) {
-        try {
-            return ResponseEntity.ok().body(new MaterialListResponse(courseService.getCourseMaterial(courseId, accessToken)));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
-        }
-    }
-
-    //Phần này làm demo thôi, ai có task này thì modify lại - Name
-    @GetMapping("/{courseId}/material/{materialId}/get-link")
-    public ResponseEntity<?> getSharableLink(@PathVariable(name = "courseId") Long courseId, @PathVariable(name = "materialId") String materialId, @RequestParam(name = "fileName") String fileName) {
-        try {
-            return ResponseEntity.ok().body(courseService.getShareableLink(courseId, materialId, fileName));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
-        }
-    }
-
-    @DeleteMapping("{courseId}/material/{materialId}")
-    @PreAuthorize("hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
-    public ResponseEntity<?> deleteMaterial(@PathVariable(name = "courseId")Long courseId,@PathVariable(name = "materialId")Long materialId,@RequestHeader(name="Authorization") String accessToken) {
-        try{
-            courseService.deleteMaterial(materialId,courseId,accessToken);
-            return ResponseEntity.ok().body(new SuccessfulMessageResponse("Delete Sucess"));
-
-        } catch (NoSuchElementException ex){
-            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
-        } catch (Exception ex){
-            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }
     }
 }
