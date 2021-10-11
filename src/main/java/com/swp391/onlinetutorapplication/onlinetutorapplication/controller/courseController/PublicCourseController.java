@@ -16,24 +16,10 @@ import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api/public/course")
+@CrossOrigin(origins = "http://localhost:3000/")
 public class PublicCourseController {
     @Autowired
     private CourseServiceInterface courseService;
-
-    //Register course- Nam
-    // POST   localhost:8080/api/public/course/:id/register
-    @PostMapping("/{id}/register")
-    @PreAuthorize("hasAuthority('STUDENT')")
-    public ResponseEntity<?> registerCourse(@RequestHeader(name = "Authorization") String accessToken, @PathVariable(name = "id")Long id){
-        try{
-            courseService.handleCourseRegister(accessToken, id);
-            return ResponseEntity.ok().body(new SuccessfulMessageResponse("Register course successful"));
-        }catch (NoSuchElementException ex){
-            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
-        }catch (Exception ex){
-            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
-        }
-    }
 
     //Get course public - by Nam
     // Get   localhost:8080/api/public/course
@@ -52,6 +38,21 @@ public class PublicCourseController {
             return ResponseEntity.ok().body(courseService.getSubjectList());
         } catch (Exception ex) {
             return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
+        }
+    }
+
+    //Register course- Nam
+    // POST   localhost:8080/api/public/course/:id/register
+    @PostMapping("/{id}/register")
+    @PreAuthorize("hasAuthority('STUDENT')")
+    public ResponseEntity<?> registerCourse(@RequestHeader(name = "Authorization") String accessToken, @PathVariable(name = "id")Long id){
+        try{
+            courseService.handleCourseRegister(accessToken, id);
+            return ResponseEntity.ok().body(new SuccessfulMessageResponse("Register course successful"));
+        }catch (NoSuchElementException ex){
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
+        }catch (Exception ex){
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }
     }
 }
