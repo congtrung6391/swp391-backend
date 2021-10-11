@@ -103,20 +103,17 @@ public class CourseServiceImplement implements CourseServiceInterface {
                     return null;
             }
         }
-        if (listAllCourse.isEmpty()) {
-            throw new NoSuchElementException("Course empty");
-        }
 
         List<CourseInformationResponse> allCourseApi = new ArrayList<>();
-
-        for (Course course : listAllCourse) {
-            CourseInformationResponse response = new CourseInformationResponse(course);
-            response.setTutor(course.getTutor());
-            if (course.getStudent() != null) {
-                response.setStudent(course.getStudent());
+        if (!listAllCourse.isEmpty()) {
+            for (Course course : listAllCourse) {
+                CourseInformationResponse response = new CourseInformationResponse(course);
+                response.setTutor(course.getTutor());
+                if (course.getStudent() != null) {
+                    response.setStudent(course.getStudent());
+                }
+                allCourseApi.add(response);
             }
-            allCourseApi.add(response);
-
         }
         return allCourseApi;
     }
@@ -147,7 +144,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
                     case TUTOR:
 //                        if(course.getTutor().getId())
                         if (course.getTutor().getId() != currentUser.getId()) {
-                            if (course.getStudent() != null){
+                            if (course.getStudent() != null) {
                                 throw new IllegalArgumentException("You are not allow to view this course");
                             }
                         }
@@ -175,10 +172,12 @@ public class CourseServiceImplement implements CourseServiceInterface {
         }
 
         List<CourseInformationResponse> allCourseApi = new ArrayList<>();
-        for (Course course : listAllCourse) {
-            CourseInformationResponse response = new CourseInformationResponse(course);
-            response.setTutor(course.getTutor());
-            allCourseApi.add(response);
+        if(!listAllCourse.isEmpty()){
+            for (Course course : listAllCourse) {
+                CourseInformationResponse response = new CourseInformationResponse(course);
+                response.setTutor(course.getTutor());
+                allCourseApi.add(response);
+            }
         }
         return allCourseApi;
     }
@@ -384,7 +383,9 @@ public class CourseServiceImplement implements CourseServiceInterface {
                 case STUDENT:
                     if (course.getStudent() == null) {
                         throw new IllegalArgumentException("You are not allow to see other material");
-                    } else if (currentUser.getId() != course.getStudent().getId()) {
+                    }else if(course.getCourseStatus() == true){
+                        throw new IllegalArgumentException("You are not allow to see the material");
+                    } if (currentUser.getId() != course.getStudent().getId()) {
                         throw new IllegalArgumentException("You are not allow to see other material");
                     }
                     break;
