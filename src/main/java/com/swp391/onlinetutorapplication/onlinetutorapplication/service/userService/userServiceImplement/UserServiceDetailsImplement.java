@@ -72,7 +72,7 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
     public JwtResponse handleUserLogin(LoginRequest loginRequest) throws Exception {
         loadUserByUsername(loginRequest.getUsername());
         User user = userRepository.findByUsername(loginRequest.getUsername()).get();
-        if (user.getIsDisable()) {
+        if (!user.getStatus()) {
             throw new Exception("User not found");
         }
         Boolean isActivated = user.getActiveStatus();
