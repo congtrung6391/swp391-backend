@@ -34,8 +34,8 @@ public interface CourseServiceInterface {
     List<Subject> getSubjectList();
 
     Course updateCourse(CourseUpdateRequest request, Long courseID, String accessToken);
-    Object uploadMaterial(Long courseId, MaterialCreationRequest request,MultipartFile fileAttach) throws IOException, DbxException;
-    Object updateMaterial(Long courseId, Long materialId, MaterialCreationRequest request, MultipartFile file) throws IOException, DbxException;
+    Object uploadMaterial(Long courseId, MaterialCreationRequest request) throws IOException, DbxException;
+    Object updateMaterial(Long courseId, Long materialId, MaterialCreationRequest request) throws IOException, DbxException;
     List<MaterialCreationResponse> getCourseMaterial(Long courseId, String accessToken) throws IOException, DbxException;
     Object getShareableLink(Long courseId,String materialId,String fileName);
     void deleteCourse(Long id);
