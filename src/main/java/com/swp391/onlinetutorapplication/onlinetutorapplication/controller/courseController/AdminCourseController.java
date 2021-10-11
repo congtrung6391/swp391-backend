@@ -33,7 +33,7 @@ public class AdminCourseController {
     private CourseServiceInterface courseService;
 
     // Phần này làm demo thôi, ai có task này thì modify lại - Name
-    @GetMapping("/{courseId}/material/")
+    @GetMapping("/{courseId}/material")
     @PreAuthorize("hasAuthority('TUTOR') or hasAuthority('STUDENT') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
     public ResponseEntity<?> getAllMaterial(@PathVariable(name = "courseId") Long courseId, @RequestHeader(name = "Authorization") String accessToken) {
         try {
@@ -44,7 +44,7 @@ public class AdminCourseController {
     }
 
     // Tạo material - Nam
-    //  /Course/:courseId/material
+    //Course/:courseId/material
     @PostMapping(value = "/{courseId}/material", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('TUTOR')")
@@ -55,7 +55,6 @@ public class AdminCourseController {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
         }
     }
-
 
     //Edit material - Nam
     @PutMapping(value = "/{courseId}/material/{materialId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
