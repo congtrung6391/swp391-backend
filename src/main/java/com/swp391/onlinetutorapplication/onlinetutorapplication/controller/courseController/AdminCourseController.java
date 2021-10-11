@@ -128,12 +128,12 @@ public class AdminCourseController {
     public ResponseEntity<?> deleteMaterial(@PathVariable(name = "courseId")Long courseId,@PathVariable(name = "materialId")Long materialId,@RequestHeader(name="Authorization") String accessToken) {
         try{
             courseService.deleteMaterial(materialId,courseId,accessToken);
-            return ResponseEntity.ok().body(new StatusResponse("Delete success","true"));
+            return ResponseEntity.ok().body(new SuccessfulMessageResponse("Delete Sucess"));
 
         } catch (NoSuchElementException ex){
-            return ResponseEntity.badRequest().body(new StatusResponse(ex.getMessage(), "false"));
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         } catch (Exception ex){
-            return ResponseEntity.badRequest().body(new StatusResponse(ex.getMessage(), "false"));
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }
     }
 }
