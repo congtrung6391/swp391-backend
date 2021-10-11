@@ -155,13 +155,19 @@ public class UserManagementImplement implements UserManagementInterface{
     }
 
     @Override
-    public List<TutorListResponse> getListTutor() {
+    public List<UserInformationResponse> getListTutor() {
         Role role = roleRepository.findByUserRole(ERole.TUTOR)
                 .orElseThrow(() ->{
                     throw new NoSuchElementException("Not found role");
                 });
-
-        return null;
+        List<User> users = userRepository.findAllByRolesAndStatusIsTrue(role);
+        List<UserInformationResponse> tutorList = new ArrayList<>();
+        for (User user : users) {
+            UserInformationResponse response = new UserInformationResponse(user);
+            tutorList.add(response);
+        }
+        System.out.println(tutorList);
+        return tutorList;
     }
 }
 

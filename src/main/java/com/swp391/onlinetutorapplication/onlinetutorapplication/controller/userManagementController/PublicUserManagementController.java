@@ -49,8 +49,9 @@ public class PublicUserManagementController {
     @GetMapping("/tutor")
     public ResponseEntity<?> getListTutor(){
         try{
-            List<TutorListResponse> list = userManagement.getListTutor();
-            return ResponseEntity.ok().body(list);
+            List<UserInformationResponse> list = userManagement.getListTutor();
+            TutorListResponse listResponse = new TutorListResponse(list);
+            return ResponseEntity.ok().body(listResponse);
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
