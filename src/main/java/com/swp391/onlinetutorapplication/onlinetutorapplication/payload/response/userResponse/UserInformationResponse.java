@@ -17,12 +17,14 @@ import java.util.Set;
 @NoArgsConstructor
 
 public class UserInformationResponse {
+    private Long id;
     private String username;
     private String email;
     private String fullName;
     private Set<Role> role;
 
     public UserInformationResponse(User user){
+        this.id = user.getId();
         this.username = user.getUsername();
         this.email = user.getEmail();
         this.fullName = user.getFullName();
