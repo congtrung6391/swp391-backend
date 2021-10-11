@@ -104,7 +104,6 @@ public class CourseServiceImplement implements CourseServiceInterface {
             }
         }
 
-
         List<CourseInformationResponse> allCourseApi = new ArrayList<>();
         if (!listAllCourse.isEmpty()) {
             for (Course course : listAllCourse) {
@@ -114,7 +113,6 @@ public class CourseServiceImplement implements CourseServiceInterface {
                     response.setStudent(course.getStudent());
                 }
                 allCourseApi.add(response);
-
             }
         }
         return allCourseApi;
