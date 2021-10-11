@@ -339,9 +339,24 @@ public class CourseServiceImplement implements CourseServiceInterface {
                 orElseThrow(()->{
                     throw new NoSuchElementException("Material unauthorizated");
                 });
-        if(currentUser.getRoles().contains(ERole.TUTOR)){
-            if(currentUser.getId() != course.getTutor().getId()){
-                throw new IllegalArgumentException("You are not allow to see other material");
+//        if(currentUser.getRoles().contains(ERole.TUTOR)){
+//            if(currentUser.getId() != course.getTutor().getId()){
+//                throw new IllegalArgumentException("You are not allow to see other material");
+//            }
+//        }
+        Set<Role> roles = currentUser.getRoles();
+        for (Role role : roles) {
+            switch (role.getUserRole()) {
+                case SUPER_ADMIN:
+                case ADMIN: break;
+                case TUTOR:
+                    course = courseRepository.findByIdAndTutorAndStatusIsTrue(courseId, currentUser).get();
+                    break;
+                case STUDENT:
+                    course = courseRepository.findByIdAndStudentAndStatusIsTrue(courseId, user).get();
+                    break;
+                default:
+                    throw new NoSuchElementException("Material not found");
             }
         }
         List<CourseMaterial> materialList = courseMaterialRepository.findAllByCourseAndStatusIsTrue(course);
