@@ -14,12 +14,11 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserListResponse {
-    private Boolean status;
+    private Boolean status = true;
     private int totalUser;
     List<UserInformationResponse> userList;
 
-    public UserListResponse(Boolean status, List<UserInformationResponse> userList) {
-        this.status = status;
+    public UserListResponse(List<UserInformationResponse> userList) {
         this.totalUser = userList.size();
         this.userList = userList;
     }
