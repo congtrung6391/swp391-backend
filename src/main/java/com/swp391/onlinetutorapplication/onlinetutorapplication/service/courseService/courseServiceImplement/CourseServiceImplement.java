@@ -123,7 +123,6 @@ public class CourseServiceImplement implements CourseServiceInterface {
 
     @Override
     public CourseInformationResponse getOneCourseApi(String accessToken, Long courseId) {
-        accessToken = accessToken.replaceAll("Bearer ", "");
         Course course = courseRepository.findByIdAndStatusIsTrue(courseId)
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Course not found");
@@ -134,6 +133,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
                 throw new IllegalArgumentException("You are not allowed to see this content");
             }
         } else {
+            accessToken = accessToken.replaceAll("Bearer ", "");
             User currentUser = userRepository.findByAuthorizationToken(accessToken)
                     .orElseThrow(() -> {
                         throw new NoSuchElementException("User is not authorized");
