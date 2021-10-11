@@ -28,5 +28,5 @@ public interface UserManagementInterface {
 
     void deleteUser(Long id)throws Exception;
 
-    List<TutorListResponse> getListTutor();
+    List<UserInformationResponse> getListTutor();
 }
