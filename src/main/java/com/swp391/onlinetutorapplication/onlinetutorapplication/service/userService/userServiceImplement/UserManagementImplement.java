@@ -1,9 +1,12 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceImplement;
 
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Course;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.ERole;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.UpdateProfileRequest;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.CourseInformationResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserInformationResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserProfileResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.role.RoleRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.user.UserRepository;
@@ -25,7 +28,6 @@ public class UserManagementImplement implements UserManagementInterface{
 
     @Autowired
     private RoleRepository roleRepository;
-
 
     @Override
     public User getUser(String username) {
@@ -68,7 +70,7 @@ public class UserManagementImplement implements UserManagementInterface{
     public void saveUser(User user) { userRepository.save(user);}
 
     @Override
-    public void updateUser(String accessToken, Long id, UpdateProfileRequest updateProfileRequest   ) {
+    public void updateUser(String accessToken, Long id, UpdateProfileRequest updateProfileRequest) {
         accessToken = accessToken.replaceAll("Bearer ","");
         User user = userRepository.findByAuthorizationToken(accessToken)
                 .orElseThrow(()-> {
@@ -113,17 +115,19 @@ public class UserManagementImplement implements UserManagementInterface{
         if(!updateProfileRequest.getGpa().equals(user.getGpa())){
             user.setGpa(updateProfileRequest.getGpa());
         }
-
-
-
         userRepository.save(user);
 
     }
 
     @Override
-    public List<User> getAllUser() {
-        log.info("Fetching all users");
-        return userRepository.findAllByIsDisableIsFalse();
+    public List<UserInformationResponse> getAllUser() {
+        List<User> users = userRepository.findAllByStatusIsTrue();
+        List<UserInformationResponse> userList = new ArrayList<>();
+        for (User user : users) {
+            UserInformationResponse response = new UserInformationResponse(user);
+            userList.add(response);
+        }
+        return userList;
     }
 
     @Override
@@ -144,7 +148,7 @@ public class UserManagementImplement implements UserManagementInterface{
             throw new Exception();
         }
         else {
-            user.setIsDisable(true);
+            user.setStatus(false);
             userRepository.save(user);
         }
     }

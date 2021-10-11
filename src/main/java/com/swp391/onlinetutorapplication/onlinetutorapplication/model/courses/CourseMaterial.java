@@ -1,5 +1,6 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,12 +17,14 @@ public class CourseMaterial {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(columnDefinition = "nvarchar")
+    @Column(columnDefinition = "nvarchar(155)")
     private String description;
-    @Column(columnDefinition = "nvarchar")
+    @Column(columnDefinition = "nvarchar(155)")
     private String title;
     private String fileAttach;
     private String linkShare;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private Boolean status = true;
 
     @ManyToOne
     @JoinColumn(name = "course_id")
