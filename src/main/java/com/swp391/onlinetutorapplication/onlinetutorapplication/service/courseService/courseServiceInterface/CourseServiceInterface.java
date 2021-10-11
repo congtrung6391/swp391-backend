@@ -8,6 +8,7 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.CourseUpdateRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.MaterialCreationRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.CourseInformationResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.MaterialCreationResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.utils.dropboxUtil.DropboxAction;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,7 +35,7 @@ public interface CourseServiceInterface {
     Course updateCourse(CourseUpdateRequest request, Long courseID, String accessToken);
     Object uploadMaterial(Long courseId, MaterialCreationRequest request,MultipartFile fileAttach) throws IOException, DbxException;
     Object updateMaterial(Long courseId, Long materialId, MaterialCreationRequest request, MultipartFile file) throws IOException, DbxException;
-    List<CourseMaterial> getCourseMaterial(Long courseId, String accessToken) throws IOException, DbxException;
+    List<MaterialCreationResponse> getCourseMaterial(Long courseId, String accessToken) throws IOException, DbxException;
     Object getShareableLink(Long courseId,String materialId,String fileName);
     void deleteCourse(Long id);
     void deleteMaterial(Long materialId, Long courseId, String accessToken ) throws Exception;
