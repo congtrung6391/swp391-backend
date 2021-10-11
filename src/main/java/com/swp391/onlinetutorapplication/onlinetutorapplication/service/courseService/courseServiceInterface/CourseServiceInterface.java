@@ -34,5 +34,5 @@ public interface CourseServiceInterface {
     List<Map<String, Object>> getCourseMaterial(Long courseId,Long materialId) throws IOException, DbxException;
     Object getShareableLink(Long courseId,String materialId,String fileName);
     void deleteCourse(Long id);
-
+    void deleteMaterial(Long materialId, Long courseId, String accessToken ) throws Exception;
 }
