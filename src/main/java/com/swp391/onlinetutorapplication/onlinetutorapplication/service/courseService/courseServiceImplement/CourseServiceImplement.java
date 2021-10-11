@@ -299,7 +299,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
 
         //nếu file trống thì xóa file ở database
         if (file.isEmpty()) {
-            return new MaterialCreationResponse(courseMaterial.getTitle(),
+            return new MaterialCreationResponse(courseMaterial.getId(),courseMaterial.getTitle(),
                     courseMaterial.getDescription(), courseMaterial.getFileAttach(), courseMaterial.getLinkShare(), true);
         }
         return dropboxService.uploadOverwrittenFile(file, Long.toString(courseId), Long.toString(materialId));
