@@ -22,6 +22,7 @@ public class CourseMaterial {
     private String title;
     private String fileAttach;
     private String linkShare;
+    private Boolean status = true;
 
     @ManyToOne
     @JoinColumn(name = "course_id")

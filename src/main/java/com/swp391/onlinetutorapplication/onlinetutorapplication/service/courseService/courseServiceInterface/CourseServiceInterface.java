@@ -17,16 +17,22 @@ import java.util.Map;
 
 public interface CourseServiceInterface {
     Course handleCourseCreate(CourseCreationRequest courseCreationRequest, String accessToken);
-     List<CourseInformationResponse> getAllCourseInformationForAdmin();
+
+    List<CourseInformationResponse> getAllCourseInformationForAdmin(String accessToken);
+
     List<CourseInformationResponse> getAllCourseInformationForStudent();
+
     void handleCourseRegister(String accessToken, Long id);
+
     void saveSubject(Subject subject);
+
     List<Subject> getSubjectList();
+
     Course updateCourse(CourseUpdateRequest request, Long courseID, String accessToken);
     Object uploadMaterial(Long courseId, MaterialCreationRequest request,MultipartFile fileAttach) throws IOException, DbxException;
     Object updateMaterial(Long courseId, Long materialId, MaterialCreationRequest request, MultipartFile file) throws IOException, DbxException;
     List<Map<String, Object>> getCourseMaterial(Long courseId,Long materialId) throws IOException, DbxException;
     Object getShareableLink(Long courseId,String materialId,String fileName);
     void deleteCourse(Long id);
-
+    void deleteMaterial(Long materialId, Long courseId, String accessToken ) throws Exception;
 }

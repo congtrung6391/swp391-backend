@@ -33,7 +33,7 @@ public class PublicUserManagementController {
         }
     }
 
-    @GetMapping("/user/{id}")
+    @GetMapping("/user/{id}/profile")
     public ResponseEntity<?> responseUserProfile(@PathVariable("id") Long id){
         try{
             return ResponseEntity.ok().body(userManagement.getUserProfile(id));
