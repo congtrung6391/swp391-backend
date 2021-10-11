@@ -1,6 +1,7 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.controller.courseController;
 
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Course;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.ActionApproveOrRejectRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.CourseMaterial;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.CourseCreationRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.CourseUpdateRequest;
@@ -88,6 +89,21 @@ public class AdminCourseController {
             return ResponseEntity.ok().body(new CourseResponse(course, "true"));
         } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse("Create failed"));
+        }
+    }
+
+    // Approve or reject course
+    // localhost:8080/api/public/course/:id/register
+    @PutMapping("/{id}/register")
+    @PreAuthorize("hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
+    public ResponseEntity<?> handleCourseRegisterRequest(@RequestHeader(name = "Authorization") String accessToken, @PathVariable(name = "id") String id, @RequestBody ActionApproveOrRejectRequest  request){
+        try{
+            courseService.handleCourseRegisterRequest(accessToken, Long.parseLong(id), request);
+            return ResponseEntity.ok().body(new SuccessfulMessageResponse("Course has been processed."));
+        }catch (NoSuchElementException ex){
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
+        }catch (Exception ex){
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }
     }
 

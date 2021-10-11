@@ -25,6 +25,7 @@ public class MaterialCreationResponse {
         this.title = material.getTitle();
         this.description = material.getDescription();
         this.fileAttach = material.getFileAttach();
+        this.linkSharing = material.getLinkShare();
         this.status = material.getStatus();
     }
 

@@ -4,6 +4,7 @@ import com.dropbox.core.DbxException;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Course;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.CourseMaterial;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Subject;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.ActionApproveOrRejectRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.CourseCreationRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.CourseUpdateRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.MaterialCreationRequest;
@@ -39,4 +40,6 @@ public interface CourseServiceInterface {
     Object getShareableLink(Long courseId,String materialId,String fileName);
     void deleteCourse(Long id);
     void deleteMaterial(Long materialId, Long courseId, String accessToken ) throws Exception;
+    void handleCourseRegisterRequest(String accessToken, Long id, ActionApproveOrRejectRequest actionApproveOrRejectRequest);
+
 }
