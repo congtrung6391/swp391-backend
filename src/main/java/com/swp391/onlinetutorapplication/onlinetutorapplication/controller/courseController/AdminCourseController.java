@@ -90,7 +90,7 @@ public class AdminCourseController {
 
     // Approve or reject course
     // localhost:8080/api/public/course/:id/register
-    @PostMapping("/{id}/register")
+    @PutMapping("/{id}/register")
     @PreAuthorize("hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
     public ResponseEntity<?> handleCourseRegisterRequest(@RequestHeader(name = "Authorization") String accessToken, @PathVariable(name = "id") String id, @RequestBody ActionApproveOrRejectRequest request){
         try{
