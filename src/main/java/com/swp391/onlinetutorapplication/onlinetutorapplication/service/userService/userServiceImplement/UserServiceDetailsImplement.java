@@ -4,6 +4,7 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.ERole
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.resetPasswordRequest.ResetPasswordRequest;
+// import com.swp391.onlinetutorapplication.onlinetutorapplication.service.tokenService.RefreshTokenService;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.utils.jwtUtils.JWTUtils;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.LoginRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.RegistrationRequest;
@@ -54,6 +55,9 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
     @Autowired
     private JWTUtils jwtUtils;
 
+    // @Autowired
+    // private RefreshTokenService refreshTokenService;
+
     @Autowired
     private MailSenderService mailSenderService;
 
@@ -68,6 +72,7 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
     }
 
 
+
     @Override
     public JwtResponse handleUserLogin(LoginRequest loginRequest) throws Exception {
         loadUserByUsername(loginRequest.getUsername());
@@ -76,7 +81,7 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
             throw new Exception("User not found");
         }
         Boolean isActivated = user.getActiveStatus();
-        if (!isActivated) {
+        if(!isActivated){
             throw new Exception("User must be activated!");
         }
         Authentication authentication = authenticationManager.authenticate(
@@ -84,7 +89,7 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        UserDetailsImplement userDetails = (UserDetailsImplement) authentication.getPrincipal();
+        UserDetailsImplement userDetails  = (UserDetailsImplement) authentication.getPrincipal();
         String jwt = jwtUtils.generateJwtToken(userDetails);
 
         user.setAuthorizationToken(jwt);
