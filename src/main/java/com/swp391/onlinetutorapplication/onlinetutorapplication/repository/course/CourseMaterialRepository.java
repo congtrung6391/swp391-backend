@@ -10,5 +10,5 @@ import java.util.Optional;
 
 @Repository
 public interface CourseMaterialRepository extends JpaRepository<CourseMaterial,Long> {
-    List<CourseMaterial> findAllByCourse(Course course);
+    List<CourseMaterial> findAllByCourseAndStatusIsTrue(Course course);
 }

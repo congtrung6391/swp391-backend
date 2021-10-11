@@ -139,10 +139,10 @@ public class DropboxService {
                 if (metadata instanceof FileMetadata) {
                     log.info("{} is file " + metadata.getName());
                 }
-                String metadatString = metadata.toString();
+                String metadataString = metadata.toString();
                 ObjectMapper mapper = new ObjectMapper();
                 Map<String, Object> map = new HashMap<>();
-                map = mapper.readValue(metadatString, new TypeReference<Map<String, Object>>() {
+                map = mapper.readValue(metadataString, new TypeReference<Map<String, Object>>() {
                 });
                 result.add(map);
             }
