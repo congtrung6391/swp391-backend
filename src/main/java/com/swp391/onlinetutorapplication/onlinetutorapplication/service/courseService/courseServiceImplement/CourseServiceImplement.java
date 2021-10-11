@@ -5,6 +5,7 @@ import com.dropbox.core.DbxException;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Course;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.CourseMaterial;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Subject;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.ERole;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.CourseCreationRequest;
@@ -87,8 +88,8 @@ public class CourseServiceImplement implements CourseServiceInterface {
         List<Course> listAllCourse = null;
         accessToken = accessToken.replaceAll("Bearer ", "");
         User user = userRepository.findByAuthorizationToken(accessToken).get();
-        Set<Role> Roles = user.getRoles();
-        for (Role role : Roles) {
+        Set<Role> roles = user.getRoles();
+        for (Role role : roles) {
             switch (role.getUserRole()) {
                 case SUPER_ADMIN:
                 case ADMIN:
@@ -120,8 +121,40 @@ public class CourseServiceImplement implements CourseServiceInterface {
     }
 
     @Override
+    public CourseInformationResponse getOneCourseApi(String accessToken, Long courseId) {
+        accessToken = accessToken.replaceAll("Bearer ", "");
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(()->{
+                    throw new NoSuchElementException("Course not found");
+                });
+        System.out.println(course.getStudent());
+        User currentUser = userRepository.findByAuthorizationToken(accessToken)
+                .orElseThrow(()->{
+                    throw new NoSuchElementException("User is not authorized");
+                });
+        Set<Role> roles = currentUser.getRoles();
+        for (Role role : roles) {
+            switch (role.getUserRole()) {
+                case TUTOR:
+                    if(course.getTutor().getId() != currentUser.getId()){
+                        throw new IllegalArgumentException("You are not allow to view this course");
+                    }
+                    break;
+                case STUDENT:
+                    if (course.getStudent().getId() != currentUser.getId()){
+                        throw new IllegalArgumentException("You are not allow to view this course");
+                    }
+                    break;
+            }
+        }
+        CourseInformationResponse courseInformationResponse = new CourseInformationResponse(course);
+        courseInformationResponse.setTutor(course.getTutor());
+        return courseInformationResponse;
+    }
+
+    @Override
     public List<CourseInformationResponse> getAllCourseInformationForStudent() {
-        List<Course> listAllCourse = courseRepository.findAllByStudentIsNullAndCourseStatusIsTrueAndStatusIsTrueAndStudentNotNull();
+        List<Course> listAllCourse = courseRepository.findAllByStudentIsNullAndCourseStatusIsTrueAndStatusIsTrue();
         if (listAllCourse.isEmpty()) {
             throw new NoSuchElementException("Course empty");
         }

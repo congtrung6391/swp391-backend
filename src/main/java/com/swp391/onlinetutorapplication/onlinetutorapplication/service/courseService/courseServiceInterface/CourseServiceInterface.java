@@ -20,6 +20,8 @@ public interface CourseServiceInterface {
 
     List<CourseInformationResponse> getAllCourseInformationForAdmin(String accessToken);
 
+    CourseInformationResponse getOneCourseApi(String accessToken, Long courseId);
+
     List<CourseInformationResponse> getAllCourseInformationForStudent();
 
     void handleCourseRegister(String accessToken, Long id);

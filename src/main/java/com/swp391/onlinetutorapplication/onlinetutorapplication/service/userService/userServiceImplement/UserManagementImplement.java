@@ -6,6 +6,7 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.ERole
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.UpdateProfileRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.CourseInformationResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.TutorListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserInformationResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserProfileResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.role.RoleRepository;
@@ -153,6 +154,15 @@ public class UserManagementImplement implements UserManagementInterface{
         }
     }
 
+    @Override
+    public List<TutorListResponse> getListTutor() {
+        Role role = roleRepository.findByUserRole(ERole.TUTOR)
+                .orElseThrow(() ->{
+                    throw new NoSuchElementException("Not found role");
+                });
+
+        return null;
+    }
 }
 
 

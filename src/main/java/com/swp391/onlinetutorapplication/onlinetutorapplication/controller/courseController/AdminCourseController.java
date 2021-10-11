@@ -56,6 +56,22 @@ public class AdminCourseController {
         }
     }
 
+
+    //Get one course api - byNam
+    // localhost:8080/api/admin/course/:id/info
+    @GetMapping("/{courseId}/info")
+    @PreAuthorize("hasAuthority('STUDENT') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN') or hasAuthority('TUTOR')")
+    public ResponseEntity<?> getOneCourseApi( @RequestHeader(name = "Authorization") String accessToken, @PathVariable(name = "courseId") Long id){
+        if(accessToken.isEmpty()){
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse("You need login to view course"));
+        }
+        try{
+            return ResponseEntity.ok().body(courseService.getOneCourseApi(accessToken,id));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
+        }
+    }
+
     @PostMapping("")
     @PreAuthorize("hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
     public ResponseEntity<?> createCourse(@RequestHeader(name = "Authorization") String accessToken, @Valid @RequestBody CourseCreationRequest courseCreationRequest) {
