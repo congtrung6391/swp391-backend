@@ -70,11 +70,11 @@ public class AdminCourseController {
     }
 
     // Approve or reject course
-    @PostMapping("/{courseId}/register")
+    @PostMapping("/{id}/register")
     @PreAuthorize("hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
-    public ResponseEntity<?> handleCourseRegisterRequest(@RequestHeader(name = "Authorization") String accessToken, @PathVariable(name = "courseId") String id, @RequestBody ActionApproveOrRejectRequest actionApproveOrRejectRequest){
+    public ResponseEntity<?> handleCourseRegisterRequest(@RequestHeader(name = "Authorization") String accessToken, @PathVariable(name = "id") String id, @RequestBody ActionApproveOrRejectRequest request){
         try{
-            courseService.handleCourseRegisterRequest(accessToken, Long.parseLong(id), actionApproveOrRejectRequest);
+            courseService.handleCourseRegisterRequest(accessToken, Long.parseLong(id), request);
             return ResponseEntity.ok().body(new SuccessfulMessageResponse("Course has been processed."));
         }catch (NoSuchElementException ex){
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));

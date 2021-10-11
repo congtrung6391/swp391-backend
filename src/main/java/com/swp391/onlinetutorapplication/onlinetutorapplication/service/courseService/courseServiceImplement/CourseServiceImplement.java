@@ -185,9 +185,8 @@ public class CourseServiceImplement implements CourseServiceInterface {
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Course cannot be found.");
                 });
-        boolean var = request.isAction();
-        if(var = true){
-            course.setStatus(false);
+        if(request.isAction() == true){
+            course.setCourseStatus(false);
             courseRepository.save(course);
 
         }else{
