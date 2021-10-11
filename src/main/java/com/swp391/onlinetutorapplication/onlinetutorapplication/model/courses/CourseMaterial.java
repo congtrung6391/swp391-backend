@@ -26,6 +26,7 @@ public class CourseMaterial {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Boolean status = true;
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @ManyToOne
     @JoinColumn(name = "course_id")
     private Course course;

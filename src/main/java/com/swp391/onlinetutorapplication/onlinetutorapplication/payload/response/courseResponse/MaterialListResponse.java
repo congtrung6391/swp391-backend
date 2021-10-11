@@ -13,9 +13,9 @@ import java.util.List;
 public class MaterialListResponse {
     private Boolean status = true;
     private int totalMaterial;
-    List<CourseMaterial> materialList;
+    List<MaterialCreationResponse> materialList;
 
-    public MaterialListResponse(List<CourseMaterial> materialList) {
+    public MaterialListResponse(List<MaterialCreationResponse> materialList) {
         this.totalMaterial = materialList.size();
         this.materialList = materialList;
     }

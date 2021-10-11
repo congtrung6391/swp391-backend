@@ -5,8 +5,10 @@ import com.dropbox.core.DbxException;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Course;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.CourseMaterial;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Subject;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.ERole;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.ActionApproveOrRejectRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.CourseCreationRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.CourseUpdateRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.MaterialCreationRequest;
@@ -87,8 +89,8 @@ public class CourseServiceImplement implements CourseServiceInterface {
         List<Course> listAllCourse = null;
         accessToken = accessToken.replaceAll("Bearer ", "");
         User user = userRepository.findByAuthorizationToken(accessToken).get();
-        Set<Role> Roles = user.getRoles();
-        for (Role role : Roles) {
+        Set<Role> roles = user.getRoles();
+        for (Role role : roles) {
             switch (role.getUserRole()) {
                 case SUPER_ADMIN:
                 case ADMIN:
@@ -117,6 +119,38 @@ public class CourseServiceImplement implements CourseServiceInterface {
 
         }
         return allCourseApi;
+    }
+
+    @Override
+    public CourseInformationResponse getOneCourseApi(String accessToken, Long courseId) {
+        accessToken = accessToken.replaceAll("Bearer ", "");
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> {
+                    throw new NoSuchElementException("Course not found");
+                });
+        System.out.println(course.getStudent());
+        User currentUser = userRepository.findByAuthorizationToken(accessToken)
+                .orElseThrow(() -> {
+                    throw new NoSuchElementException("User is not authorized");
+                });
+        Set<Role> roles = currentUser.getRoles();
+        for (Role role : roles) {
+            switch (role.getUserRole()) {
+                case TUTOR:
+                    if (course.getTutor().getId() != currentUser.getId()) {
+                        throw new IllegalArgumentException("You are not allow to view this course");
+                    }
+                    break;
+                case STUDENT:
+                    if (course.getStudent().getId() != currentUser.getId()) {
+                        throw new IllegalArgumentException("You are not allow to view this course");
+                    }
+                    break;
+            }
+        }
+        CourseInformationResponse courseInformationResponse = new CourseInformationResponse(course);
+        courseInformationResponse.setTutor(course.getTutor());
+        return courseInformationResponse;
     }
 
     @Override
@@ -149,13 +183,12 @@ public class CourseServiceImplement implements CourseServiceInterface {
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Course not found");
                 });
-        if(course.getStudent() != null){
+        if (course.getStudent() != null) {
             throw new NoSuchElementException("Course not available now");
         }
         course.setStudent(student);
         courseRepository.save(course);
     }
-    
 
     @Override
     public void saveSubject(Subject subject) {
@@ -172,6 +205,27 @@ public class CourseServiceImplement implements CourseServiceInterface {
         Course course = courseRepository.findById(id).get();
         course.setStatus(false);
         courseRepository.save(course);
+    }
+
+    @Override
+    public void handleCourseRegisterRequest(String accessToken, Long id, ActionApproveOrRejectRequest request) {
+        accessToken = accessToken.replaceAll("Bearer ", "");
+        User student = userRepository.findByAuthorizationToken(accessToken)
+                .orElseThrow(() -> {
+                    throw new NoSuchElementException("User cannot be found.");
+                });
+        Course course = courseRepository.findByIdAndStudentIsNotNullAndCourseStatusIsTrue(id)
+                .orElseThrow(() -> {
+                    throw new NoSuchElementException("Course cannot be found.");
+                });
+        if (request.isAction() == true) {
+            course.setCourseStatus(false);
+            courseRepository.save(course);
+
+        } else {
+            course.setStudent(null);
+            courseRepository.save(course);
+        }
     }
 
     @Override
@@ -275,29 +329,52 @@ public class CourseServiceImplement implements CourseServiceInterface {
 
     //Ai có task get material thì sửa lại api response của list materials - nam
     @Override
-    public List<CourseMaterial> getCourseMaterial(Long courseId, String accessToken) throws IOException, DbxException {
+    public List<MaterialCreationResponse> getCourseMaterial(Long courseId, String accessToken) throws IOException, DbxException {
         accessToken = accessToken.replaceAll("Bearer ", "");
-        User user = userRepository.findByAuthorizationToken(accessToken).get();
-        Course course = null;
-        Set<Role> Roles = user.getRoles();
-        for (Role role : Roles) {
+        User currentUser = userRepository.findByAuthorizationToken(accessToken).
+                orElseThrow(() -> {
+                    throw new NoSuchElementException("Not found user");
+                });
+        Course course = courseRepository.findByIdAndStatusIsTrue(courseId).
+                orElseThrow(() -> {
+                    throw new NoSuchElementException("Material unauthorizated");
+                });
+//        if(currentUser.getRoles().contains(ERole.TUTOR)){
+//            if(currentUser.getId() != course.getTutor().getId()){
+//                throw new IllegalArgumentException("You are not allow to see other material");
+//            }
+//        }
+        Set<Role> roles = currentUser.getRoles();
+        for (Role role : roles) {
             switch (role.getUserRole()) {
                 case SUPER_ADMIN:
                 case ADMIN:
-                    course = courseRepository.findByIdAndStatusIsTrue(courseId).get();
                     break;
                 case TUTOR:
-                    course = courseRepository.findByIdAndTutorAndStatusIsTrue(courseId, user).get();
+                    if (currentUser.getId() != course.getTutor().getId()) {
+                        throw new IllegalArgumentException("You are not allow to see other material");
+                    }
                     break;
                 case STUDENT:
-                    course = courseRepository.findByIdAndStudentAndStatusIsTrue(courseId, user).get();
+                    if(course.getStudent() == null ){
+                        throw new IllegalArgumentException("You are not allow to see other material");
+                    }else{
+                        if (currentUser.getId() != course.getStudent().getId()) {
+                            throw new IllegalArgumentException("You are not allow to see other material");
+                        }
+                    }
                     break;
                 default:
                     throw new NoSuchElementException("Material not found");
             }
         }
         List<CourseMaterial> materialList = courseMaterialRepository.findAllByCourseAndStatusIsTrue(course);
-        return materialList;
+        List<MaterialCreationResponse> materialCreationResponses = new ArrayList<>();
+        for (CourseMaterial courseMaterial : materialList) {
+            MaterialCreationResponse response = new MaterialCreationResponse(courseMaterial);
+            materialCreationResponses.add(response);
+        }
+        return materialCreationResponses;
     }
 
     //Link share đã lưu vào database, nên không cần dùng hàm này cũng được, sài getLinkShare là lấy đc link rồi - nam
@@ -307,10 +384,10 @@ public class CourseServiceImplement implements CourseServiceInterface {
     }
 
     @Override
-    public void deleteMaterial(Long materialId, Long courseId, String accessToken ) throws Exception{
+    public void deleteMaterial(Long materialId, Long courseId, String accessToken) throws Exception {
         accessToken = accessToken.replaceAll("Bearer ", "");
         // check existed
-        User tutor = userRepository.findByAuthorizationToken(accessToken).orElseThrow(()->{
+        User tutor = userRepository.findByAuthorizationToken(accessToken).orElseThrow(() -> {
             throw new NoSuchElementException("User not found");
         });
         Course course = courseRepository.findByIdAndCourseStatusIsTrue(courseId)
@@ -322,10 +399,9 @@ public class CourseServiceImplement implements CourseServiceInterface {
                     throw new NoSuchElementException("Material not found");
                 });
 
-        if(tutor != course.getTutor() ){
+        if (tutor != course.getTutor()) {
             throw new Exception("You are not allowed to delete");
-        }
-        else{
+        } else {
             courseMaterial.setStatus(false);
             courseMaterialRepository.save(courseMaterial);
         }

@@ -21,6 +21,6 @@ public class CourseTutorInformation {
         this.id = tutor.getId();
         this.fullName = tutor.getFullName();
         this.email = tutor.getEmail();
-        this. phone = tutor.getPhone();
+        this.phone = tutor.getPhone();
     }
 }

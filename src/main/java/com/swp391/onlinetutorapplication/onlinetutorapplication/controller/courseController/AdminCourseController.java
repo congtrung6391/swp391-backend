@@ -1,12 +1,15 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.controller.courseController;
 
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Course;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.ActionApproveOrRejectRequest;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.CourseMaterial;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.CourseCreationRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.CourseUpdateRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.MaterialCreationRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.authResponse.MessageResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.CourseListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.CourseResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.MaterialCreationResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.MaterialListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.ErrorMessageResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.SuccessfulMessageResponse;
@@ -22,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.annotation.MultipartConfig;
 import javax.validation.Valid;
 import java.net.http.HttpResponse;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @RestController
@@ -57,6 +61,22 @@ public class AdminCourseController {
         }
     }
 
+
+    //Get one course api - byNam
+    // localhost:8080/api/admin/course/:id/info
+    @GetMapping("/{courseId}/info")
+    @PreAuthorize("hasAuthority('STUDENT') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN') or hasAuthority('TUTOR')")
+    public ResponseEntity<?> getOneCourseApi( @RequestHeader(name = "Authorization") String accessToken, @PathVariable(name = "courseId") Long id){
+        if(accessToken.isEmpty()){
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse("You need login to view course"));
+        }
+        try{
+            return ResponseEntity.ok().body(courseService.getOneCourseApi(accessToken,id));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
+        }
+    }
+
     @PostMapping("")
     @PreAuthorize("hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
     public ResponseEntity<?> createCourse(@RequestHeader(name = "Authorization") String accessToken, @Valid @RequestBody CourseCreationRequest courseCreationRequest) {
@@ -65,6 +85,21 @@ public class AdminCourseController {
             return ResponseEntity.ok().body(new CourseResponse(course, "true"));
         } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse("Create failed"));
+        }
+    }
+
+    // Approve or reject course
+    // localhost:8080/api/public/course/:id/register
+    @PutMapping("/{id}/register")
+    @PreAuthorize("hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
+    public ResponseEntity<?> handleCourseRegisterRequest(@RequestHeader(name = "Authorization") String accessToken, @PathVariable(name = "id") String id, @RequestBody ActionApproveOrRejectRequest  request){
+        try{
+            courseService.handleCourseRegisterRequest(accessToken, Long.parseLong(id), request);
+            return ResponseEntity.ok().body(new SuccessfulMessageResponse("Course has been processed."));
+        }catch (NoSuchElementException ex){
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
+        }catch (Exception ex){
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }
     }
 
@@ -105,11 +140,12 @@ public class AdminCourseController {
     }
 
     //Phần này làm demo thôi, ai có task này thì modify lại - Name
-    @GetMapping("/{courseId}/material/")
+    @GetMapping("/{courseId}/material")
     @PreAuthorize("hasAuthority('TUTOR') or hasAuthority('STUDENT') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
     public ResponseEntity<?> getAllMaterial(@PathVariable(name = "courseId") Long courseId, @RequestHeader(name = "Authorization") String accessToken) {
         try {
-            return ResponseEntity.ok().body(new MaterialListResponse(courseService.getCourseMaterial(courseId, accessToken)));
+            List<MaterialCreationResponse> materials = courseService.getCourseMaterial(courseId,accessToken);
+            return ResponseEntity.ok().body(new MaterialListResponse(materials));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
         }
