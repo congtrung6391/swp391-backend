@@ -68,7 +68,7 @@ public class UserManagementImplement implements UserManagementInterface{
     public void saveUser(User user) { userRepository.save(user);}
 
     @Override
-    public void updateUser(String accessToken, Long id, UpdateProfileRequest updateProfileRequest) {
+    public void updateUser(String accessToken, Long id, UpdateProfileRequest updateProfileRequest   ) {
         accessToken = accessToken.replaceAll("Bearer ","");
         User user = userRepository.findByAuthorizationToken(accessToken)
                 .orElseThrow(()-> {
@@ -123,7 +123,7 @@ public class UserManagementImplement implements UserManagementInterface{
     @Override
     public List<User> getAllUser() {
         log.info("Fetching all users");
-        return userRepository.findAll();
+        return userRepository.findAllByIsDisableIsFalse();
     }
 
     @Override

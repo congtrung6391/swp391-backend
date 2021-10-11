@@ -3,6 +3,7 @@ package com.swp391.onlinetutorapplication.onlinetutorapplication.service.courseS
 import com.dropbox.core.DbxException;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Course;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Subject;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.ActionApproveOrRejectRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.CourseCreationRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.CourseUpdateRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.MaterialCreationRequest;
@@ -28,5 +29,6 @@ public interface CourseServiceInterface {
     List<Map<String, Object>> getCourseMaterial(Long courseId,Long materialId) throws IOException, DbxException;
     Object getShareableLink(Long courseId,String materialId,String fileName);
     void deleteCourse(Long id);
+    void handleCourseRegisterRequest(String accessToken, Long id, ActionApproveOrRejectRequest actionApproveOrRejectRequest);
 
 }

@@ -7,6 +7,7 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Su
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.ERole;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.ActionApproveOrRejectRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.CourseCreationRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.CourseUpdateRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.MaterialCreationRequest;
@@ -160,7 +161,6 @@ public class CourseServiceImplement implements CourseServiceInterface {
         course.setStudent(student);
         courseRepository.save(course);
     }
-    
 
     @Override
     public void saveSubject(Subject subject) {
@@ -177,6 +177,26 @@ public class CourseServiceImplement implements CourseServiceInterface {
         Course course = courseRepository.findById(id).get();
         course.setStatus(false);
         courseRepository.save(course);
+    }
+
+    @Override
+    public void handleCourseRegisterRequest(String accessToken, Long id, ActionApproveOrRejectRequest actionApproveOrRejectRequest) {
+        accessToken = accessToken.replaceAll("Bearer ", "");
+        User student = userRepository.findByAuthorizationToken(accessToken)
+                .orElseThrow(() -> {
+                    throw new NoSuchElementException("User cannot be found.");
+                });
+        Course course = courseRepository.findByIdAndCourseStatusIsFalseAndStatusIsTrue(id)
+                .orElseThrow(() -> {
+                    throw new NoSuchElementException("Course not found");
+                });
+        if(){
+            course.setStatus(false);
+            courseRepository.save(course);
+        }else{
+            course.setCourseStatus(true);
+            courseRepository.save(course);
+        }
     }
 
     @Override
