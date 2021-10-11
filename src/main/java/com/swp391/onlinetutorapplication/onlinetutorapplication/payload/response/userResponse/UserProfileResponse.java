@@ -14,6 +14,7 @@ import javax.validation.constraints.Size;
 @NoArgsConstructor
 public class UserProfileResponse {
     private String username;
+
     private String fullName;
 
     private String email;
