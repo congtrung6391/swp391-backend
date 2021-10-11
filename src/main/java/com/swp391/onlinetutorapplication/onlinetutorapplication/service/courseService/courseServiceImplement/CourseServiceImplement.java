@@ -280,8 +280,16 @@ public class CourseServiceImplement implements CourseServiceInterface {
     }
 
     @Override
-    public Object uploadMaterial(Long courseId, MaterialCreationRequest request, MultipartFile fileAttach) throws IOException, DbxException {
-        CourseMaterial courseMaterial = new CourseMaterial(request.getDescription(), request.getTitle(), fileAttach.getOriginalFilename());
+    public Object uploadMaterial(Long courseId, MaterialCreationRequest request) throws IOException, DbxException {
+        if(request.getTitle().isEmpty()){
+            throw new IllegalArgumentException("Title not null");
+        }
+        CourseMaterial courseMaterial = null;
+        if(request.getFileAttach() == null) {
+            courseMaterial = new CourseMaterial(request.getDescription(), request.getTitle());
+        }else{
+            courseMaterial = new CourseMaterial(request.getDescription(), request.getTitle(), request.getFileAttach().getOriginalFilename());
+        }
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Course not found");
@@ -290,40 +298,44 @@ public class CourseServiceImplement implements CourseServiceInterface {
         courseRepository.save(course);
         courseMaterialRepository.save(courseMaterial);
         //file được phép null
-        if (fileAttach.isEmpty()) {
-            return new MaterialCreationResponse(courseMaterial.getTitle(),
-                    courseMaterial.getDescription(), courseMaterial.getFileAttach(), courseMaterial.getLinkShare(), true);
+        if (request.getFileAttach() == null) {
+            dropboxService.createFolder(Long.toString(courseId),Long.toString(courseMaterialRepository.count()));
+            return new MaterialCreationResponse(courseMaterialRepository.count(),courseMaterial.getTitle(),
+                    courseMaterial.getDescription(), null, null, true);
         }
-        return dropboxService.uploadFile(fileAttach, Long.toString(courseId), Long.toString(courseMaterialRepository.count()));
+        return dropboxService.uploadFile(request.getFileAttach(), Long.toString(courseId), Long.toString(courseMaterialRepository.count()));
     }
 
     @Override
-    public Object updateMaterial(Long courseId, Long materialId, MaterialCreationRequest request, MultipartFile file) throws IOException, DbxException {
+    public Object updateMaterial(Long courseId, Long materialId, MaterialCreationRequest request) throws IOException, DbxException {
+        if(request.getTitle().isEmpty()){
+            throw new IllegalArgumentException("Title not null");
+        }
         CourseMaterial courseMaterial = courseMaterialRepository.findById(materialId)
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Course material not found");
                 });
         //Nếu giá trị nhập vào trống thì lấy lại giá trị cũ
-        if (!request.getTitle().isEmpty()) {
+        if (request.getTitle() != null) {
             courseMaterial.setTitle(request.getTitle());
         }
-        if (!request.getDescription().isEmpty()) {
+        if(request.getDescription() != null ){
             courseMaterial.setDescription(request.getDescription());
         }
-        if (!request.getFileAttach().isEmpty()) {
-            courseMaterial.setFileAttach(file.getOriginalFilename());
+        if(request.getFileAttach() != null ){
+            courseMaterial.setFileAttach(request.getFileAttach().getOriginalFilename());
         }
         //nếu 3 cái trống hết thì ném lỗi
-        if (request.getTitle().isEmpty() && request.getDescription().isEmpty() && request.getFileAttach().isEmpty())
+        if (request.getTitle() == null && request.getDescription() == null && request.getFileAttach() == null)
             throw new IllegalArgumentException("All field must be fill");
         courseMaterialRepository.save(courseMaterial);
 
         //nếu file trống thì xóa file ở database
-        if (file.isEmpty()) {
-            return new MaterialCreationResponse(courseMaterial.getTitle(),
+        if (request.getFileAttach() == null) {
+            return new MaterialCreationResponse(courseMaterial.getId(),courseMaterial.getTitle(),
                     courseMaterial.getDescription(), courseMaterial.getFileAttach(), courseMaterial.getLinkShare(), true);
         }
-        return dropboxService.uploadOverwrittenFile(file, Long.toString(courseId), Long.toString(materialId));
+        return dropboxService.uploadOverwrittenFile(request.getFileAttach(), Long.toString(courseId), Long.toString(materialId));
     }
 
 
