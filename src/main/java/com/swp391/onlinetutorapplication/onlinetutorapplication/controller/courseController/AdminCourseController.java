@@ -7,6 +7,7 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.authResponse.MessageResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.CourseListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.CourseResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.MaterialListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.ErrorMessageResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.SuccessfulMessageResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.courseService.courseServiceInterface.CourseServiceInterface;
@@ -104,10 +105,11 @@ public class AdminCourseController {
     }
 
     //Phần này làm demo thôi, ai có task này thì modify lại - Name
-    @GetMapping("/{courseId}/material/{materialId}")
-    public ResponseEntity<?> getAllMaterial(@PathVariable(name = "courseId") Long courseId, @PathVariable(name = "materialId") Long materialId) {
+    @GetMapping("/{courseId}/material/")
+    @PreAuthorize("hasAuthority('TUTOR') or hasAuthority('STUDENT')")
+    public ResponseEntity<?> getAllMaterial(@PathVariable(name = "courseId") Long courseId, @RequestHeader(name = "Authorization") String accessToken) {
         try {
-            return ResponseEntity.ok().body(courseService.getCourseMaterial(courseId, materialId));
+            return ResponseEntity.ok().body(new MaterialListResponse(courseService.getCourseMaterial(courseId, accessToken)));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
         }

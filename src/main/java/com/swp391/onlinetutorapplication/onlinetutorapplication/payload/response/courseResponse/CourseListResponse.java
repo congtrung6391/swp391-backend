@@ -10,13 +10,13 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 public class CourseListResponse {
-    private Boolean status;
+    private Boolean status = true;
     private int totalCourse;
-    List<CourseInformationResponse> courses;
+    List<CourseInformationResponse> courseList;
 
-    public CourseListResponse(Boolean status, List<CourseInformationResponse> courses) {
+    public CourseListResponse(Boolean status, List<CourseInformationResponse> courseList) {
         this.status = status;
-        this.totalCourse = courses.size();
-        this.courses = courses;
+        this.totalCourse = courseList.size();
+        this.courseList = courseList;
     }
 }

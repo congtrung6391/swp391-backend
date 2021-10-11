@@ -275,16 +275,28 @@ public class CourseServiceImplement implements CourseServiceInterface {
 
     //Ai có task get material thì sửa lại api response của list materials - nam
     @Override
-    public List<Map<String, Object>> getCourseMaterial(Long courseId, Long materialId) throws IOException, DbxException {
-        Course course = courseRepository.findByIdAndCourseStatusIsTrue(courseId)
-                .orElseThrow(() -> {
-                    throw new NoSuchElementException("Course not found");
-                });
-        CourseMaterial courseMaterial = courseMaterialRepository.findById(materialId)
-                .orElseThrow(() -> {
+    public List<CourseMaterial> getCourseMaterial(Long courseId, String accessToken) throws IOException, DbxException {
+        accessToken = accessToken.replaceAll("Bearer ", "");
+        User user = userRepository.findByAuthorizationToken(accessToken).get();
+        Course course = null;
+        Set<Role> Roles = user.getRoles();
+        for (Role role : Roles) {
+            switch (role.getUserRole()) {
+                case SUPER_ADMIN:
+                case ADMIN:
+                    course = courseRepository.findByIdAndStatusIsTrue(courseId).get();
+                    break;
+                case TUTOR:
+                    course = courseRepository.findByIdAndTutorAndStatusIsTrue(courseId, user).get();
+                    break;
+                case STUDENT:
+                    course = courseRepository.findByIdAndStudentAndStatusIsTrue(courseId, user).get();
+                default:
                     throw new NoSuchElementException("Material not found");
-                });
-        return dropboxService.getFileList(Long.toString(courseId), Long.toString(materialId));
+            }
+        }
+        List<CourseMaterial> materialList = courseMaterialRepository.findAllByCourseAndStatusIsTrue(course);
+        return materialList;
     }
 
     //Link share đã lưu vào database, nên không cần dùng hàm này cũng được, sài getLinkShare là lấy đc link rồi - nam
