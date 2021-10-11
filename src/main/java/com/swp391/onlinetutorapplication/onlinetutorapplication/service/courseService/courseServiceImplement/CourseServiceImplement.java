@@ -1,10 +1,10 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.service.courseService.courseServiceImplement;
 
+import com.dropbox.core.BadRequestException;
 import com.dropbox.core.DbxException;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Course;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.CourseMaterial;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Subject;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.ERole;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.CourseCreationRequest;
@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.naming.ServiceUnavailableException;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -54,19 +55,18 @@ public class CourseServiceImplement implements CourseServiceInterface {
     private CourseMaterialRepository courseMaterialRepository;
 
 
-
     @Override
     public Course handleCourseCreate(CourseCreationRequest courseCreationRequest, String accessToken) {
-        accessToken = accessToken.replaceAll("Bearer ","");
+        accessToken = accessToken.replaceAll("Bearer ", "");
         User tutor = userRepository.findByAuthorizationToken(accessToken)
-                .orElseThrow(()-> {
+                .orElseThrow(() -> {
                     throw new NoSuchElementException("Not found user");
                 });
-        if(tutor.getExpireAuthorization().isBefore(Instant.now())){
+        if (tutor.getExpireAuthorization().isBefore(Instant.now())) {
             userService.handleUserLogout(accessToken);
         }
         Subject subject = subjectRepository.findById(courseCreationRequest.getSubjectId())
-                .orElseThrow(()-> {
+                .orElseThrow(() -> {
                     throw new NoSuchElementException("Not found subject");
                 });
         Course course = new Course();
@@ -82,11 +82,25 @@ public class CourseServiceImplement implements CourseServiceInterface {
         return course;
     }
 
-
-
-    @Override // by Nam
-    public List<CourseInformationResponse> getAllCourseInformationForAdmin() {
-        List<Course> listAllCourse = courseRepository.findAll();
+    @Override
+    public List<CourseInformationResponse> getAllCourseInformationForAdmin(String accessToken) {
+        List<Course> listAllCourse = null;
+        accessToken = accessToken.replaceAll("Bearer ", "");
+        User user = userRepository.findByAuthorizationToken(accessToken).get();
+        Set<Role> Roles = user.getRoles();
+        for (Role role : Roles) {
+            switch (role.getUserRole()) {
+                case SUPER_ADMIN:
+                case ADMIN:
+                    listAllCourse = courseRepository.findAllByStatusIsTrue();
+                    break;
+                case TUTOR:
+                    listAllCourse = courseRepository.findAllByTutorAndStatusIsTrue(user);
+                    break;
+                default:
+                    return null;
+            }
+        }
         if (listAllCourse.isEmpty()) {
             throw new NoSuchElementException("Course empty");
         }
@@ -94,49 +108,28 @@ public class CourseServiceImplement implements CourseServiceInterface {
         List<CourseInformationResponse> allCourseApi = new ArrayList<>();
 
         for (Course course : listAllCourse) {
-            CourseInformationResponse response = new CourseInformationResponse(
-                    course.getId(),
-                    course.getCourseName(),
-                    course.getCourseDescription(),
-                    course.getGrade(),
-                    course.getCost(),
-                    course.getLength(),
-                    course.getCourseStatus(),
-                    course.getSubject().getSubjectName().name(),
-                    course.getTutor(),
-                    course.getTutor().getFullName(),
-                    course.getTutor().getPhone(),
-                    course.getTutor().getEmail(),
-                    course.getStudent(),
-                    true
-            );
-
+            CourseInformationResponse response = new CourseInformationResponse(course);
+            response.setTutor(course.getTutor());
+            if (course.getStudent() != null) {
+                response.setStudent(course.getStudent());
+            }
             allCourseApi.add(response);
 
         }
         return allCourseApi;
     }
 
-    @Override //by Nam
+    @Override
     public List<CourseInformationResponse> getAllCourseInformationForStudent() {
-        List<Course> listAllCourse = courseRepository.findAllByCourseStatusIsTrue();
+        List<Course> listAllCourse = courseRepository.findAllByStudentIsNullAndCourseStatusIsTrueAndStatusIsTrueAndStudentNotNull();
         if (listAllCourse.isEmpty()) {
             throw new NoSuchElementException("Course empty");
         }
+
         List<CourseInformationResponse> allCourseApi = new ArrayList<>();
         for (Course course : listAllCourse) {
-            CourseInformationResponse response = new CourseInformationResponse(
-                    course.getId(),
-                    course.getCourseName(),
-                    course.getCourseDescription(),
-                    course.getGrade(),
-                    course.getCost(),
-                    course.getLength(),
-                    course.getSubject().getSubjectName().name(),
-                    course.getTutor().getFullName(),
-                    course.getTutor().getPhone(),
-                    course.getTutor().getEmail()
-            );
+            CourseInformationResponse response = new CourseInformationResponse(course);
+            response.setTutor(course.getTutor());
             allCourseApi.add(response);
         }
         return allCourseApi;
@@ -156,7 +149,9 @@ public class CourseServiceImplement implements CourseServiceInterface {
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Course not found");
                 });
-        course.setCourseStatus(false);
+        if(course.getStudent() != null){
+            throw new NoSuchElementException("Course not available now");
+        }
         course.setStudent(student);
         courseRepository.save(course);
     }
@@ -218,6 +213,9 @@ public class CourseServiceImplement implements CourseServiceInterface {
                 Subject subject = subjectRepository.findById(request.getSubjectId()).get();
                 course.setSubject(subject);
             }
+            if (request.getCourse_status() != null) {//missing courseStatus or not
+                course.setCourseStatus(request.getCourse_status());
+            }
 
             courseRepository.save(course);
             return courseRepository.getById(courseID);
@@ -238,9 +236,9 @@ public class CourseServiceImplement implements CourseServiceInterface {
         courseRepository.save(course);
         courseMaterialRepository.save(courseMaterial);
         //file được phép null
-        if(fileAttach.isEmpty()){
+        if (fileAttach.isEmpty()) {
             return new MaterialCreationResponse(courseMaterial.getTitle(),
-                    courseMaterial.getDescription(), courseMaterial.getFileAttach(),courseMaterial.getLinkShare(),true);
+                    courseMaterial.getDescription(), courseMaterial.getFileAttach(), courseMaterial.getLinkShare(), true);
         }
         return dropboxService.uploadFile(fileAttach, Long.toString(courseId), Long.toString(courseMaterialRepository.count()));
     }
@@ -262,14 +260,14 @@ public class CourseServiceImplement implements CourseServiceInterface {
             courseMaterial.setFileAttach(file.getOriginalFilename());
         }
         //nếu 3 cái trống hết thì ném lỗi
-        if(request.getTitle().isEmpty() && request.getDescription().isEmpty() && request.getFileAttach().isEmpty())
+        if (request.getTitle().isEmpty() && request.getDescription().isEmpty() && request.getFileAttach().isEmpty())
             throw new IllegalArgumentException("All field must be fill");
         courseMaterialRepository.save(courseMaterial);
 
         //nếu file trống thì xóa file ở database
-        if(file.isEmpty()){
+        if (file.isEmpty()) {
             return new MaterialCreationResponse(courseMaterial.getTitle(),
-                    courseMaterial.getDescription(), courseMaterial.getFileAttach(),courseMaterial.getLinkShare(),true);
+                    courseMaterial.getDescription(), courseMaterial.getFileAttach(), courseMaterial.getLinkShare(), true);
         }
         return dropboxService.uploadOverwrittenFile(file, Long.toString(courseId), Long.toString(materialId));
     }
@@ -294,5 +292,33 @@ public class CourseServiceImplement implements CourseServiceInterface {
     public Object getShareableLink(Long courseId, String materialId, String fileName) {
         return dropboxService.getShareLink(Long.toString(courseId), materialId, fileName);
     }
+
+    @Override
+    public void deleteMaterial(Long materialId, Long courseId, String accessToken ) throws Exception{
+        accessToken = accessToken.replaceAll("Bearer ", "");
+        // check existed
+        User tutor = userRepository.findByAuthorizationToken(accessToken).orElseThrow(()->{
+            throw new NoSuchElementException("User not found");
+        });
+        Course course = courseRepository.findByIdAndCourseStatusIsTrue(courseId)
+                .orElseThrow(() -> {
+                    throw new NoSuchElementException("Course not found");
+                });
+        CourseMaterial courseMaterial = courseMaterialRepository.findById(materialId)
+                .orElseThrow(() -> {
+                    throw new NoSuchElementException("Material not found");
+                });
+
+        if(tutor != course.getTutor() ){
+            throw new Exception("You are not allowed to delete");
+        }
+        else{
+            courseMaterial.setStatus(false);
+            courseMaterialRepository.save(courseMaterial);
+        }
+
+
+    }
+
 
 }

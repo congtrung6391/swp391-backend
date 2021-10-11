@@ -34,7 +34,7 @@ public class UserProfileResponse {
 
     private Boolean status = true;
 
-    public UserProfileResponse(String username,String fullName, String email, String phone, Integer grade, String address, String facebookUrl, String affiliate, Double gpa, String gender) {
+    public UserProfileResponse(String username, String fullName, String email, String phone, Integer grade, String address, String facebookUrl, String affiliate, Double gpa, String gender) {
         this.username = username;
         this.fullName = fullName;
         this.email = email;
