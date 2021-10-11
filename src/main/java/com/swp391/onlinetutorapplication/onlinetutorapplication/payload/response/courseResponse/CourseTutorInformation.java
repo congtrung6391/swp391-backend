@@ -12,11 +12,13 @@ import lombok.Setter;
 @AllArgsConstructor
 
 public class CourseTutorInformation {
+    private Long id;
     private String fullName;
     private String email;
     private String phone;
 
     public CourseTutorInformation(User tutor){
+        this.id = tutor.getId();
         this.fullName = tutor.getFullName();
         this.email = tutor.getEmail();
         this. phone = tutor.getPhone();
