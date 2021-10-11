@@ -124,28 +124,42 @@ public class CourseServiceImplement implements CourseServiceInterface {
     @Override
     public CourseInformationResponse getOneCourseApi(String accessToken, Long courseId) {
         accessToken = accessToken.replaceAll("Bearer ", "");
-        Course course = courseRepository.findById(courseId)
+        Course course = courseRepository.findByIdAndStatusIsTrue(courseId)
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Course not found");
                 });
-        System.out.println(course.getStudent());
-        User currentUser = userRepository.findByAuthorizationToken(accessToken)
-                .orElseThrow(() -> {
-                    throw new NoSuchElementException("User is not authorized");
-                });
-        Set<Role> roles = currentUser.getRoles();
-        for (Role role : roles) {
-            switch (role.getUserRole()) {
-                case TUTOR:
-                    if (course.getTutor().getId() != currentUser.getId()) {
-                        throw new IllegalArgumentException("You are not allow to view this course");
-                    }
-                    break;
-                case STUDENT:
-                    if (course.getStudent().getId() != currentUser.getId()) {
-                        throw new IllegalArgumentException("You are not allow to view this course");
-                    }
-                    break;
+//        System.out.println(course.getStudent());
+        if (accessToken.isEmpty()) {
+            if (course.getStudent() != null) {
+                throw new IllegalArgumentException("You are not allowed to see this content");
+            }
+        } else {
+            User currentUser = userRepository.findByAuthorizationToken(accessToken)
+                    .orElseThrow(() -> {
+                        throw new NoSuchElementException("User is not authorized");
+                    });
+            Set<Role> roles = currentUser.getRoles();
+            for (Role role : roles) {
+                switch (role.getUserRole()) {
+                    case ADMIN:
+                    case SUPER_ADMIN:
+                        break;
+                    case TUTOR:
+//                        if(course.getTutor().getId())
+                        if (course.getTutor().getId() != currentUser.getId()) {
+                            if (course.getStudent() != null){
+                                throw new IllegalArgumentException("You are not allow to view this course");
+                            }
+                        }
+                        break;
+                    case STUDENT:
+                        if (course.getStudent() != null) {
+                            if (course.getStudent().getId() != currentUser.getId()) {
+                                throw new IllegalArgumentException("You are not allow to view this course");
+                            }
+                        }
+                        break;
+                }
             }
         }
         CourseInformationResponse courseInformationResponse = new CourseInformationResponse(course);
@@ -281,13 +295,13 @@ public class CourseServiceImplement implements CourseServiceInterface {
 
     @Override
     public Object uploadMaterial(Long courseId, MaterialCreationRequest request) throws IOException, DbxException {
-        if(request.getTitle().isEmpty()){
+        if (request.getTitle().isEmpty()) {
             throw new IllegalArgumentException("Title not null");
         }
         CourseMaterial courseMaterial = null;
-        if(request.getFileAttach() == null) {
+        if (request.getFileAttach() == null) {
             courseMaterial = new CourseMaterial(request.getDescription(), request.getTitle());
-        }else{
+        } else {
             courseMaterial = new CourseMaterial(request.getDescription(), request.getTitle(), request.getFileAttach().getOriginalFilename());
         }
         Course course = courseRepository.findById(courseId)
@@ -299,8 +313,8 @@ public class CourseServiceImplement implements CourseServiceInterface {
         courseMaterialRepository.save(courseMaterial);
         //file được phép null
         if (request.getFileAttach() == null) {
-            dropboxService.createFolder(Long.toString(courseId),Long.toString(courseMaterialRepository.count()));
-            return new MaterialCreationResponse(courseMaterialRepository.count(),courseMaterial.getTitle(),
+            dropboxService.createFolder(Long.toString(courseId), Long.toString(courseMaterialRepository.count()));
+            return new MaterialCreationResponse(courseMaterialRepository.count(), courseMaterial.getTitle(),
                     courseMaterial.getDescription(), null, null, true);
         }
         return dropboxService.uploadFile(request.getFileAttach(), Long.toString(courseId), Long.toString(courseMaterialRepository.count()));
@@ -308,7 +322,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
 
     @Override
     public Object updateMaterial(Long courseId, Long materialId, MaterialCreationRequest request) throws IOException, DbxException {
-        if(request.getTitle().isEmpty()){
+        if (request.getTitle().isEmpty()) {
             throw new IllegalArgumentException("Title not null");
         }
         CourseMaterial courseMaterial = courseMaterialRepository.findById(materialId)
@@ -319,10 +333,10 @@ public class CourseServiceImplement implements CourseServiceInterface {
         if (request.getTitle() != null) {
             courseMaterial.setTitle(request.getTitle());
         }
-        if(request.getDescription() != null ){
+        if (request.getDescription() != null) {
             courseMaterial.setDescription(request.getDescription());
         }
-        if(request.getFileAttach() != null ){
+        if (request.getFileAttach() != null) {
             courseMaterial.setFileAttach(request.getFileAttach().getOriginalFilename());
         }
         //nếu 3 cái trống hết thì ném lỗi
@@ -332,7 +346,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
 
         //nếu file trống thì xóa file ở database
         if (request.getFileAttach() == null) {
-            return new MaterialCreationResponse(courseMaterial.getId(),courseMaterial.getTitle(),
+            return new MaterialCreationResponse(courseMaterial.getId(), courseMaterial.getTitle(),
                     courseMaterial.getDescription(), courseMaterial.getFileAttach(), courseMaterial.getLinkShare(), true);
         }
         return dropboxService.uploadOverwrittenFile(request.getFileAttach(), Long.toString(courseId), Long.toString(materialId));

@@ -9,5 +9,5 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ActionApproveOrRejectRequest {
-    private Boolean action;
+    private boolean action;
 }

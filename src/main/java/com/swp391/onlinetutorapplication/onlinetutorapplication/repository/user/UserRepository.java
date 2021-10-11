@@ -21,6 +21,7 @@ public interface UserRepository extends JpaRepository<User,Long> {
     Optional<User> findByActivateToken(String token);
     Optional<User> findByResetPasswordCode(Long code);
     Optional<User> findByAuthorizationToken(String accessToken);
+    User findByAuthorizationTokenAndStatusIsTrue (String accessToken);
     List<User> findAllByStatusIsTrue();
     List<User> findAllByRolesAndStatusIsTrue(Role role);
 
