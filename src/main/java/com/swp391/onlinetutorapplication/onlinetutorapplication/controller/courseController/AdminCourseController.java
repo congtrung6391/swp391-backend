@@ -51,7 +51,11 @@ public class AdminCourseController {
     // localhost:8080/api/admin/course/:id
     @PutMapping("/{courseId}")
     @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN') or hasAuthority('TUTOR')")
-    public ResponseEntity<?> updateCourse(@RequestBody CourseUpdateRequest request, @RequestHeader(name = "Authorization") String accessToken, @PathVariable(name = "courseId") String id) {
+    public ResponseEntity<?> updateCourse(
+            @RequestBody CourseUpdateRequest request,
+            @RequestHeader(name = "Authorization") String accessToken,
+            @PathVariable(name = "courseId") String id
+    ) {
         Course course = courseService.updateCourse(request, Long.parseLong(id), accessToken);
         if (course == null) {
             return ResponseEntity.badRequest().body(new SuccessfulMessageResponse("Update Failed"));
@@ -103,7 +107,11 @@ public class AdminCourseController {
     @PostMapping(value = "/{courseId}/material", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('TUTOR')")
-    public ResponseEntity<?> uploadMaterial(@PathVariable(name = "courseId") Long courseId, MaterialCreationRequest request, @RequestPart(value = "fileAttach", required = false) MultipartFile fileAttach) {
+    public ResponseEntity<?> uploadMaterial(
+            @PathVariable(name = "courseId") Long courseId,
+            MaterialCreationRequest request,
+            @RequestPart(value = "fileAttach", required = false) MultipartFile fileAttach
+    ) {
         try {
             return ResponseEntity.ok().body(courseService.uploadMaterial(courseId, request, fileAttach));
         } catch (Exception e) {
@@ -115,7 +123,12 @@ public class AdminCourseController {
     //Edit material - Nam
     @PutMapping(value = "/{courseId}/material/{materialId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @PreAuthorize("hasAuthority('TUTOR')")
-    public ResponseEntity<?> updateMaterial(@PathVariable(name = "courseId") Long courseId, @PathVariable(name = "materialId") Long materialId, MaterialCreationRequest request, @RequestPart("fileAttach") MultipartFile fileAttach) {
+    public ResponseEntity<?> updateMaterial(
+            @PathVariable(name = "courseId") Long courseId,
+            @PathVariable(name = "materialId") Long materialId,
+            MaterialCreationRequest request,
+            @RequestPart(value = "fileAttach", required = false) MultipartFile fileAttach
+    ) {
         try {
             return ResponseEntity.ok().body(courseService.updateMaterial(courseId, materialId, request, fileAttach));
         } catch (Exception e) {

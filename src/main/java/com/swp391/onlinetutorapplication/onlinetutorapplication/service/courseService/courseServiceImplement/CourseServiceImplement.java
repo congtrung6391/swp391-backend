@@ -282,6 +282,12 @@ public class CourseServiceImplement implements CourseServiceInterface {
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Course material not found");
                 });
+        System.out.println("\n\n\n");
+        System.out.println(file == null);
+        System.out.println(request.getTitle());
+        System.out.println(request.getDescription());
+        System.out.println(file);
+        System.out.println("\n\n\n");
         //Nếu giá trị nhập vào trống thì lấy lại giá trị cũ
         if (!request.getTitle().isEmpty()) {
             courseMaterial.setTitle(request.getTitle());
@@ -289,7 +295,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
         if (!request.getDescription().isEmpty()) {
             courseMaterial.setDescription(request.getDescription());
         }
-        if (!request.getFileAttach().isEmpty()) {
+        if (!request.getFileAttach().isEmpty() && file != null) {
             courseMaterial.setFileAttach(file.getOriginalFilename());
         }
         //nếu 3 cái trống hết thì ném lỗi
