@@ -13,7 +13,7 @@ import java.util.List;
 public class MaterialListResponse {
     private Boolean status = true;
     private int totalMaterial;
-    List<CourseInformationResponse> materialList;
+    List<CourseMaterial> materialList;
 
     public MaterialListResponse(List<CourseMaterial> materials) {
         this.totalMaterial = materialList.size();
