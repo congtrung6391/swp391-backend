@@ -26,6 +26,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String username;
     private String email;
     @Column(columnDefinition = "nvarchar(100)")

@@ -60,7 +60,7 @@ public class AdminUserManagementController {
     public ResponseEntity<?> getAllUser() {
         try {
             List<UserInformationResponse> listUsers = userManagement.getAllUser();
-            return ResponseEntity.ok().body(new UserListResponse(true, listUsers));
+            return ResponseEntity.ok().body(new UserListResponse(listUsers));
         } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }
