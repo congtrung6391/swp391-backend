@@ -1,8 +1,11 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.controller.userManagementController;
 
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.UpdateProfileRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.authResponse.MessageResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.ErrorMessageResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.TutorListResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserInformationResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceInterface.UserManagementInterface;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceInterface.UserServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
@@ -33,12 +37,22 @@ public class PublicUserManagementController {
         }
     }
 
-    @GetMapping("/user/{id}")
+    @GetMapping("/user/{id}/profile")
     public ResponseEntity<?> responseUserProfile(@PathVariable("id") Long id){
         try{
             return ResponseEntity.ok().body(userManagement.getUserProfile(id));
         }catch (Exception ex){
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
+        }
+    }
+
+    @GetMapping("/tutor")
+    public ResponseEntity<?> getListTutor(){
+        try{
+            List<TutorListResponse> list = userManagement.getListTutor();
+            return ResponseEntity.ok().body(list);
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 }

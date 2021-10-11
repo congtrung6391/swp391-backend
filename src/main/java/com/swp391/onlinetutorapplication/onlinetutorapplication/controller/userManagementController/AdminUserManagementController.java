@@ -3,8 +3,10 @@ package com.swp391.onlinetutorapplication.onlinetutorapplication.controller.user
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.superAdminRequest.ChangeRoleUserRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.UpdateProfileRequest;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.authResponse.MessageResponse;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.authResponse.StatusResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.ErrorMessageResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.SuccessfulMessageResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserInformationResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceInterface.UserManagementInterface;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceInterface.UserServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,14 +30,14 @@ public class AdminUserManagementController {
     private UserManagementInterface userManagement;
 
     // localhost:8080/api/admin/user/{username}
-    @PostMapping("/user/{username}")
+    @PutMapping("/user/{username}/change-role")
     @PreAuthorize("hasAuthority('SUPER_ADMIN')")
-    public ResponseEntity<?> changeRoleUser(@PathVariable String username, @RequestBody ChangeRoleUserRequest role){
+    public ResponseEntity<?> changeRoleUser(@PathVariable String username, @RequestBody ChangeRoleUserRequest role) {
         boolean result = userService.changeRole(username, role.getRole());
-        if(result){
-            return ResponseEntity.ok(new StatusResponse("Update Successful", "true"));
-        }else{
-            return ResponseEntity.badRequest().body(new StatusResponse("Update Failed", "false"));
+        if (result) {
+            return ResponseEntity.ok(new SuccessfulMessageResponse("Update Successful"));
+        } else {
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse("Update Failed"));
         }
     }
 
@@ -43,24 +45,24 @@ public class AdminUserManagementController {
     @DeleteMapping("/user/{id}")
     @PreAuthorize("hasAuthority('SUPER_ADMIN')")
     public ResponseEntity<?> deleteUser(@PathVariable("id") Long id) {
-        try{
+        try {
             userManagement.deleteUser(id);
-            return ResponseEntity.ok().body(new StatusResponse("User id: "+id + " is deleted", "true"));
-        }catch (NoSuchElementException ex){
-            return ResponseEntity.badRequest().body(new StatusResponse("Delete Failed", "false"));
-        }catch (Exception ex){
-            return ResponseEntity.badRequest().body(new StatusResponse("Not allowed", "false"));
+            return ResponseEntity.ok().body(new SuccessfulMessageResponse("User id: " + id + " is deleted"));
+        } catch (NoSuchElementException ex) {
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse("Delete Failed"));
+        } catch (Exception ex) {
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse("Not allowed"));
         }
     }
 
     @GetMapping("/get-user-list")
     @PreAuthorize("hasAuthority('SUPER_ADMIN')")
-    public ResponseEntity<?> getAllUser(){
+    public ResponseEntity<?> getAllUser() {
         try {
-            List<User> listUsers = userManagement.getAllUser();
-            return ResponseEntity.ok().body(listUsers);
-        }catch(NoSuchElementException ex){
-            return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
+            List<UserInformationResponse> listUsers = userManagement.getAllUser();
+            return ResponseEntity.ok().body(new UserListResponse(listUsers));
+        } catch (NoSuchElementException ex) {
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }
     }
 
@@ -71,9 +73,24 @@ public class AdminUserManagementController {
             User user = userManagement.getUser(username);
             return ResponseEntity.ok().body(user);
         } catch (NoSuchElementException ex) {
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
+        }
+    }
+
+    /*
+
+    // Can be reused
+
+    @PutMapping("/update-user/{id}")
+    @PreAuthorize("hasAuthority('SUPER_ADMIN')")
+    public ResponseEntity<?> updateUser(@RequestHeader(name = "Authorization") String accessToken, @PathVariable("id") Long id, @RequestBody UpdateProfileRequest updateProfileRequest) {
+        try {
+            userManagement.updateUser(accessToken, id, updateProfileRequest);
+            return ResponseEntity.ok().body(new MessageResponse("User id: "+id + " has been updated."));
+        } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
         }
     }
 
-
+     */
 }

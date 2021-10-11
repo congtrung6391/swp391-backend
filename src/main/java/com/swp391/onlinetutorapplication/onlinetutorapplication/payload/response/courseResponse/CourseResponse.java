@@ -11,6 +11,15 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CourseResponse {
-    private Course course;
+    private CourseInformationResponse course;
     private String status;
+
+    public CourseResponse(Course course, String status){
+        this.course = new CourseInformationResponse(course);
+        this.course.setTutor(course.getTutor());
+        if(course.getStudent() != null){
+            this.course.setStudent(course.getStudent());
+        }
+        this.status = status;
+    }
 }
