@@ -308,29 +308,28 @@ public class CourseServiceImplement implements CourseServiceInterface {
 
     //Ai có task get material thì sửa lại api response của list materials - nam
     @Override
-    public List<CourseMaterial> getCourseMaterial(Long courseId, String accessToken) throws IOException, DbxException {
+    public List<MaterialCreationResponse> getCourseMaterial(Long courseId, String accessToken) throws IOException, DbxException {
         accessToken = accessToken.replaceAll("Bearer ", "");
-        User user = userRepository.findByAuthorizationToken(accessToken).get();
-        Course course = null;
-        Set<Role> Roles = user.getRoles();
-        for (Role role : Roles) {
-            switch (role.getUserRole()) {
-                case SUPER_ADMIN:
-                case ADMIN:
-                    course = courseRepository.findByIdAndStatusIsTrue(courseId).get();
-                    break;
-                case TUTOR:
-                    course = courseRepository.findByIdAndTutorAndStatusIsTrue(courseId, user).get();
-                    break;
-                case STUDENT:
-                    course = courseRepository.findByIdAndStudentAndStatusIsTrue(courseId, user).get();
-                    break;
-                default:
-                    throw new NoSuchElementException("Material not found");
+        User currentUser = userRepository.findByAuthorizationToken(accessToken).
+                orElseThrow(() -> {
+                    throw new NoSuchElementException("Not found user");
+                });
+        Course course = courseRepository.findByIdAndStatusIsTrue(courseId).
+                orElseThrow(()->{
+                    throw new NoSuchElementException("Material unauthorizated");
+                });
+        if(currentUser.getRoles().contains(ERole.TUTOR)){
+            if(currentUser.getId() != course.getTutor().getId()){
+                throw new IllegalArgumentException("You are not allow to see other material");
             }
         }
         List<CourseMaterial> materialList = courseMaterialRepository.findAllByCourseAndStatusIsTrue(course);
-        return materialList;
+        List<MaterialCreationResponse> materialCreationResponses = new ArrayList<>();
+        for(CourseMaterial courseMaterial : materialList){
+            MaterialCreationResponse response = new MaterialCreationResponse(courseMaterial);
+            materialCreationResponses.add(response);
+        }
+        return materialCreationResponses;
     }
 
     //Link share đã lưu vào database, nên không cần dùng hàm này cũng được, sài getLinkShare là lấy đc link rồi - nam
