@@ -121,7 +121,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
 
     @Override
     public List<CourseInformationResponse> getAllCourseInformationForStudent() {
-        List<Course> listAllCourse = courseRepository.findAllByStudentIsNullAndCourseStatusIsTrueAndStatusIsTrueAndStudentNotNull();
+        List<Course> listAllCourse = courseRepository.findAllByStudentIsNullAndCourseStatusIsTrueAndStatusIsTrue();
         if (listAllCourse.isEmpty()) {
             throw new NoSuchElementException("Course empty");
         }
@@ -291,6 +291,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
                     break;
                 case STUDENT:
                     course = courseRepository.findByIdAndStudentAndStatusIsTrue(courseId, user).get();
+                    break;
                 default:
                     throw new NoSuchElementException("Material not found");
             }

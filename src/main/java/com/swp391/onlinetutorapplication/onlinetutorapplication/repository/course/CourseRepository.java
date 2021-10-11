@@ -44,5 +44,5 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     @Override
     List<Course> findAll();
 
-    List<Course> findAllByStudentIsNullAndCourseStatusIsTrueAndStatusIsTrueAndStudentNotNull();
+    List<Course> findAllByStudentIsNullAndCourseStatusIsTrueAndStatusIsTrue();
 }

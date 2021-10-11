@@ -106,7 +106,7 @@ public class AdminCourseController {
 
     //Phần này làm demo thôi, ai có task này thì modify lại - Name
     @GetMapping("/{courseId}/material/")
-    @PreAuthorize("hasAuthority('TUTOR') or hasAuthority('STUDENT')")
+    @PreAuthorize("hasAuthority('TUTOR') or hasAuthority('STUDENT') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
     public ResponseEntity<?> getAllMaterial(@PathVariable(name = "courseId") Long courseId, @RequestHeader(name = "Authorization") String accessToken) {
         try {
             return ResponseEntity.ok().body(new MaterialListResponse(courseService.getCourseMaterial(courseId, accessToken)));
