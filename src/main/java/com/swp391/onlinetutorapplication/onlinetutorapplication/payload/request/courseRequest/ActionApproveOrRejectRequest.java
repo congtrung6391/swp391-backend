@@ -3,10 +3,11 @@ package com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request
 import lombok.*;
 import lombok.AllArgsConstructor;
 
-@AllArgsConstructor
+
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class ActionApproveOrRejectRequest {
     private boolean action;
-
 }
