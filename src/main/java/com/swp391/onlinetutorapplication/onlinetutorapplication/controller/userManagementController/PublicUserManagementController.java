@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://swp391-onlinetutor.herokuapp.com/")
 @RestController
 @RequestMapping("/api/public")
 public class PublicUserManagementController {
