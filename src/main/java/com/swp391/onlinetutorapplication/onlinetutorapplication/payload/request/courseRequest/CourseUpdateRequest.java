@@ -7,11 +7,12 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class CourseCreationRequest {
+public class CourseUpdateRequest {
     private String courseName;
     private String courseDescription;
-    private int grade;
-    private double cost;
-    private int length;
+    private Double cost;
+    private Integer grade;
+    private Integer length;
     private Long subjectId;
+    private Boolean course_status;
 }

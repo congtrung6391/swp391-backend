@@ -3,8 +3,8 @@ package com.swp391.onlinetutorapplication.onlinetutorapplication.service.userSer
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.ERole;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.model.refreshToken.RefreshToken;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.resetPasswordRequest.ResetPasswordRequest;
+// import com.swp391.onlinetutorapplication.onlinetutorapplication.service.tokenService.RefreshTokenService;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.utils.jwtUtils.JWTUtils;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.LoginRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.RegistrationRequest;
@@ -14,13 +14,11 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.role.
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.user.UserRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.userDetails.UserDetailsImplement;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.mailSenderService.MailSenderService;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.service.tokenService.RefreshTokenService;
 
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceInterface.UserServiceInterface;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -57,6 +55,9 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
     @Autowired
     private JWTUtils jwtUtils;
 
+    // @Autowired
+    // private RefreshTokenService refreshTokenService;
+
     @Autowired
     private MailSenderService mailSenderService;
 
@@ -71,15 +72,16 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
     }
 
 
+
     @Override
     public JwtResponse handleUserLogin(LoginRequest loginRequest) throws Exception {
         loadUserByUsername(loginRequest.getUsername());
         User user = userRepository.findByUsername(loginRequest.getUsername()).get();
-        if(user.getIsDisable()){
+        if (!user.getStatus()) {
             throw new Exception("User not found");
         }
         Boolean isActivated = user.getActiveStatus();
-        if (!isActivated) {
+        if(!isActivated){
             throw new Exception("User must be activated!");
         }
         Authentication authentication = authenticationManager.authenticate(
@@ -87,7 +89,7 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        UserDetailsImplement userDetails = (UserDetailsImplement) authentication.getPrincipal();
+        UserDetailsImplement userDetails  = (UserDetailsImplement) authentication.getPrincipal();
         String jwt = jwtUtils.generateJwtToken(userDetails);
 
         user.setAuthorizationToken(jwt);
@@ -109,6 +111,7 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
                 roles
         );
     }
+
 
 
     @Override
@@ -184,7 +187,7 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
 
     @Override
     public void sendTokenForgetPassword(String email) throws MessagingException {
-        User user = userRepository.findByEmail(email).orElseThrow(()->{
+        User user = userRepository.findByEmail(email).orElseThrow(() -> {
             throw new NoSuchElementException("Email not found");
         });
         Long resetCode = 100000 + (long) (Math.random() * (999999 - 100000));
@@ -196,7 +199,7 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
     @Override
     public User verifiedResetCode(Long resetCode) {
         User user = userRepository.findByResetPasswordCode(resetCode).
-                orElseThrow(()->{
+                orElseThrow(() -> {
                     throw new NoSuchElementException("Reset code not accepted");
                 });
         return user;
@@ -224,7 +227,6 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
     public boolean changeRole(String username, String role) {
         try {
             User user = userRepository.findByUsername(username).get();
-            user.getRoles().clear();
             Role newRole = null;
             switch (role) {
                 case "ADMIN":
@@ -236,14 +238,17 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
                 case "STUDENT":
                     newRole = roleRepository.findByUserRole(ERole.STUDENT).get();
                     break;
+                default:
+                    return false;
             }
             if (newRole != null) {
+                user.getRoles().clear();
                 user.getRoles().add(newRole);
                 userRepository.save(user);
                 return true;
             }
             return false;
-        } catch (Exception e) {
+        } catch (NoSuchElementException e) {
             log.info(e.getMessage());
             return false;
         }
