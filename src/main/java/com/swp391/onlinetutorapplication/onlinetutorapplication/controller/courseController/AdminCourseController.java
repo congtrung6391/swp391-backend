@@ -65,7 +65,7 @@ public class AdminCourseController {
     //Get one course api - byNam
     // localhost:8080/api/admin/course/:id/info
     @GetMapping("/{courseId}/info")
-    public ResponseEntity<?> getOneCourseApi(@RequestHeader(name = "Authorization") String accessToken, @PathVariable(name = "courseId") Long id) {
+    public ResponseEntity<?> getOneCourseApi(@RequestHeader(name = "Authorization", required = false) String accessToken, @PathVariable(name = "courseId") Long id) {
         try {
             return ResponseEntity.ok().body(courseService.getOneCourseApi(accessToken, id));
         } catch (Exception e) {
