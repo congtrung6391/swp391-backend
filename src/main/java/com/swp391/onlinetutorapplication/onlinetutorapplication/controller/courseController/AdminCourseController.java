@@ -30,7 +30,7 @@ import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api/admin/course")
-@CrossOrigin(origins = "http://swp391-onlinetutor.herokuapp.com/")
+@CrossOrigin(origins = "http://localhost:3000/")
 public class AdminCourseController {
 
     @Autowired
