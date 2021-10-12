@@ -57,4 +57,13 @@ public class PublicCourseController {
             return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
         }
     }
+
+    @GetMapping("/{courseId}/info")
+    public ResponseEntity<?> getOneCourseApiPublic(@PathVariable(name = "courseId") Long id) {
+        try {
+            return ResponseEntity.ok().body(courseService.getOneCourseApiPublic(id));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
+        }
+    }
 }
