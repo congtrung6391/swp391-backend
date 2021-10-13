@@ -1,13 +1,12 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.service.courseService.courseServiceImplement;
 
-import com.dropbox.core.BadRequestException;
 import com.dropbox.core.DbxException;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Course;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.CourseMaterial;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Subject;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.ERole;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.ActionApproveOrRejectRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.CourseCreationRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.CourseUpdateRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.MaterialCreationRequest;
@@ -23,14 +22,13 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userServ
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.RequestParam;
 
-import javax.naming.ServiceUnavailableException;
+import java.awt.print.Pageable;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -102,50 +100,69 @@ public class CourseServiceImplement implements CourseServiceInterface {
                     return null;
             }
         }
-        if (listAllCourse.isEmpty()) {
-            throw new NoSuchElementException("Course empty");
-        }
 
         List<CourseInformationResponse> allCourseApi = new ArrayList<>();
-
-        for (Course course : listAllCourse) {
-            CourseInformationResponse response = new CourseInformationResponse(course);
-            response.setTutor(course.getTutor());
-            if (course.getStudent() != null) {
-                response.setStudent(course.getStudent());
+        if (!listAllCourse.isEmpty()) {
+            for (Course course : listAllCourse) {
+                CourseInformationResponse response = new CourseInformationResponse(course);
+                response.setTutor(course.getTutor());
+                if (course.getStudent() != null) {
+                    response.setStudent(course.getStudent());
+                }
+                allCourseApi.add(response);
             }
-            allCourseApi.add(response);
-
         }
         return allCourseApi;
     }
 
     @Override
     public CourseInformationResponse getOneCourseApi(String accessToken, Long courseId) {
-        accessToken = accessToken.replaceAll("Bearer ", "");
-        Course course = courseRepository.findById(courseId)
-                .orElseThrow(()->{
+        Course course = courseRepository.findByIdAndStatusIsTrue(courseId)
+                .orElseThrow(() -> {
                     throw new NoSuchElementException("Course not found");
                 });
-        System.out.println(course.getStudent());
+
+        accessToken = accessToken.replaceAll("Bearer ", "");
         User currentUser = userRepository.findByAuthorizationToken(accessToken)
-                .orElseThrow(()->{
+                .orElseThrow(() -> {
                     throw new NoSuchElementException("User is not authorized");
                 });
         Set<Role> roles = currentUser.getRoles();
         for (Role role : roles) {
             switch (role.getUserRole()) {
+                case ADMIN:
+                case SUPER_ADMIN:
+                    break;
                 case TUTOR:
-                    if(course.getTutor().getId() != currentUser.getId()){
-                        throw new IllegalArgumentException("You are not allow to view this course");
+//                        if(course.getTutor().getId())
+                    if (course.getTutor().getId() != currentUser.getId()) {
+                        if (course.getStudent() != null) {
+                            throw new IllegalArgumentException("You are not allow to view this course");
+                        }
                     }
                     break;
                 case STUDENT:
-                    if (course.getStudent().getId() != currentUser.getId()){
-                        throw new IllegalArgumentException("You are not allow to view this course");
+                    if (course.getStudent() != null) {
+                        if (course.getStudent().getId() != currentUser.getId()) {
+                            throw new IllegalArgumentException("You are not allow to view this course");
+                        }
                     }
                     break;
             }
+        }
+
+        CourseInformationResponse courseInformationResponse = new CourseInformationResponse(course);
+        courseInformationResponse.setTutor(course.getTutor());
+        return courseInformationResponse;
+    }
+
+    public CourseInformationResponse getOneCourseApiPublic(Long courseId) {
+        Course course = courseRepository.findByIdAndStatusIsTrue(courseId)
+                .orElseThrow(() -> {
+                    throw new NoSuchElementException("Course not found");
+                });
+        if (course.getStudent() != null) {
+            throw new IllegalArgumentException("You are not allowed to see this content");
         }
         CourseInformationResponse courseInformationResponse = new CourseInformationResponse(course);
         courseInformationResponse.setTutor(course.getTutor());
@@ -155,15 +172,14 @@ public class CourseServiceImplement implements CourseServiceInterface {
     @Override
     public List<CourseInformationResponse> getAllCourseInformationForStudent() {
         List<Course> listAllCourse = courseRepository.findAllByStudentIsNullAndCourseStatusIsTrueAndStatusIsTrue();
-        if (listAllCourse.isEmpty()) {
-            throw new NoSuchElementException("Course empty");
-        }
 
         List<CourseInformationResponse> allCourseApi = new ArrayList<>();
-        for (Course course : listAllCourse) {
-            CourseInformationResponse response = new CourseInformationResponse(course);
-            response.setTutor(course.getTutor());
-            allCourseApi.add(response);
+        if (!listAllCourse.isEmpty()) {
+            for (Course course : listAllCourse) {
+                CourseInformationResponse response = new CourseInformationResponse(course);
+                response.setTutor(course.getTutor());
+                allCourseApi.add(response);
+            }
         }
         return allCourseApi;
     }
@@ -182,13 +198,12 @@ public class CourseServiceImplement implements CourseServiceInterface {
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Course not found");
                 });
-        if(course.getStudent() != null){
+        if (course.getStudent() != null) {
             throw new NoSuchElementException("Course not available now");
         }
         course.setStudent(student);
         courseRepository.save(course);
     }
-    
 
     @Override
     public void saveSubject(Subject subject) {
@@ -205,6 +220,27 @@ public class CourseServiceImplement implements CourseServiceInterface {
         Course course = courseRepository.findById(id).get();
         course.setStatus(false);
         courseRepository.save(course);
+    }
+
+    @Override
+    public void handleCourseRegisterRequest(String accessToken, Long id, ActionApproveOrRejectRequest request) {
+        accessToken = accessToken.replaceAll("Bearer ", "");
+        User student = userRepository.findByAuthorizationToken(accessToken)
+                .orElseThrow(() -> {
+                    throw new NoSuchElementException("User cannot be found.");
+                });
+        Course course = courseRepository.findByIdAndStudentIsNotNullAndCourseStatusIsTrue(id)
+                .orElseThrow(() -> {
+                    throw new NoSuchElementException("Course cannot be found.");
+                });
+        if (request.isAction() == true) {
+            course.setCourseStatus(false);
+            courseRepository.save(course);
+
+        } else {
+            course.setStudent(null);
+            courseRepository.save(course);
+        }
     }
 
     @Override
@@ -259,8 +295,16 @@ public class CourseServiceImplement implements CourseServiceInterface {
     }
 
     @Override
-    public Object uploadMaterial(Long courseId, MaterialCreationRequest request, MultipartFile fileAttach) throws IOException, DbxException {
-        CourseMaterial courseMaterial = new CourseMaterial(request.getDescription(), request.getTitle(), fileAttach.getOriginalFilename());
+    public Object uploadMaterial(Long courseId, MaterialCreationRequest request) throws IOException, DbxException {
+        if (request.getTitle().isEmpty()) {
+            throw new IllegalArgumentException("Title not null");
+        }
+        CourseMaterial courseMaterial = null;
+        if (request.getFileAttach() == null) {
+            courseMaterial = new CourseMaterial(request.getDescription(), request.getTitle());
+        } else {
+            courseMaterial = new CourseMaterial(request.getDescription(), request.getTitle(), request.getFileAttach().getOriginalFilename());
+        }
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Course not found");
@@ -269,40 +313,44 @@ public class CourseServiceImplement implements CourseServiceInterface {
         courseRepository.save(course);
         courseMaterialRepository.save(courseMaterial);
         //file được phép null
-        if (fileAttach.isEmpty()) {
-            return new MaterialCreationResponse(courseMaterial.getTitle(),
-                    courseMaterial.getDescription(), courseMaterial.getFileAttach(), courseMaterial.getLinkShare(), true);
+        if (request.getFileAttach() == null) {
+            dropboxService.createFolder(Long.toString(courseId), Long.toString(courseMaterialRepository.count()));
+            return new MaterialCreationResponse(courseMaterialRepository.count(), courseMaterial.getTitle(),
+                    courseMaterial.getDescription(), null, null, true);
         }
-        return dropboxService.uploadFile(fileAttach, Long.toString(courseId), Long.toString(courseMaterialRepository.count()));
+        return dropboxService.uploadFile(request.getFileAttach(), Long.toString(courseId), Long.toString(courseMaterialRepository.count()));
     }
 
     @Override
-    public Object updateMaterial(Long courseId, Long materialId, MaterialCreationRequest request, MultipartFile file) throws IOException, DbxException {
+    public Object updateMaterial(Long courseId, Long materialId, MaterialCreationRequest request) throws IOException, DbxException {
+        if (request.getTitle().isEmpty()) {
+            throw new IllegalArgumentException("Title not null");
+        }
         CourseMaterial courseMaterial = courseMaterialRepository.findById(materialId)
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Course material not found");
                 });
         //Nếu giá trị nhập vào trống thì lấy lại giá trị cũ
-        if (!request.getTitle().isEmpty()) {
+        if (request.getTitle() != null) {
             courseMaterial.setTitle(request.getTitle());
         }
-        if (!request.getDescription().isEmpty()) {
+        if (request.getDescription() != null) {
             courseMaterial.setDescription(request.getDescription());
         }
-        if (!request.getFileAttach().isEmpty()) {
-            courseMaterial.setFileAttach(file.getOriginalFilename());
+        if (request.getFileAttach() != null) {
+            courseMaterial.setFileAttach(request.getFileAttach().getOriginalFilename());
         }
         //nếu 3 cái trống hết thì ném lỗi
-        if (request.getTitle().isEmpty() && request.getDescription().isEmpty() && request.getFileAttach().isEmpty())
+        if (request.getTitle() == null && request.getDescription() == null && request.getFileAttach() == null)
             throw new IllegalArgumentException("All field must be fill");
         courseMaterialRepository.save(courseMaterial);
 
         //nếu file trống thì xóa file ở database
-        if (file.isEmpty()) {
-            return new MaterialCreationResponse(courseMaterial.getTitle(),
+        if (request.getFileAttach() == null) {
+            return new MaterialCreationResponse(courseMaterial.getId(), courseMaterial.getTitle(),
                     courseMaterial.getDescription(), courseMaterial.getFileAttach(), courseMaterial.getLinkShare(), true);
         }
-        return dropboxService.uploadOverwrittenFile(file, Long.toString(courseId), Long.toString(materialId));
+        return dropboxService.uploadOverwrittenFile(request.getFileAttach(), Long.toString(courseId), Long.toString(materialId));
     }
 
 
@@ -315,17 +363,42 @@ public class CourseServiceImplement implements CourseServiceInterface {
                     throw new NoSuchElementException("Not found user");
                 });
         Course course = courseRepository.findByIdAndStatusIsTrue(courseId).
-                orElseThrow(()->{
+                orElseThrow(() -> {
                     throw new NoSuchElementException("Material unauthorizated");
                 });
-        if(currentUser.getRoles().contains(ERole.TUTOR)){
-            if(currentUser.getId() != course.getTutor().getId()){
-                throw new IllegalArgumentException("You are not allow to see other material");
+//        if(currentUser.getRoles().contains(ERole.TUTOR)){
+//            if(currentUser.getId() != course.getTutor().getId()){
+//                throw new IllegalArgumentException("You are not allow to see other material");
+//            }
+//        }
+        Set<Role> roles = currentUser.getRoles();
+        for (Role role : roles) {
+            switch (role.getUserRole()) {
+                case SUPER_ADMIN:
+                case ADMIN:
+                    break;
+                case TUTOR:
+                    if (currentUser.getId() != course.getTutor().getId()) {
+                        throw new IllegalArgumentException("You are not allow to see other material");
+                    }
+                    break;
+                case STUDENT:
+                    if (course.getStudent() == null) {
+                        throw new IllegalArgumentException("You are not allow to see other material");
+                    } else if (course.getCourseStatus() == true) {
+                        throw new IllegalArgumentException("You are not allow to see the material");
+                    }
+                    if (currentUser.getId() != course.getStudent().getId()) {
+                        throw new IllegalArgumentException("You are not allow to see other material");
+                    }
+                    break;
+                default:
+                    throw new NoSuchElementException("Material not found");
             }
         }
         List<CourseMaterial> materialList = courseMaterialRepository.findAllByCourseAndStatusIsTrue(course);
         List<MaterialCreationResponse> materialCreationResponses = new ArrayList<>();
-        for(CourseMaterial courseMaterial : materialList){
+        for (CourseMaterial courseMaterial : materialList) {
             MaterialCreationResponse response = new MaterialCreationResponse(courseMaterial);
             materialCreationResponses.add(response);
         }
@@ -339,10 +412,10 @@ public class CourseServiceImplement implements CourseServiceInterface {
     }
 
     @Override
-    public void deleteMaterial(Long materialId, Long courseId, String accessToken ) throws Exception{
+    public void deleteMaterial(Long materialId, Long courseId, String accessToken) throws Exception {
         accessToken = accessToken.replaceAll("Bearer ", "");
         // check existed
-        User tutor = userRepository.findByAuthorizationToken(accessToken).orElseThrow(()->{
+        User tutor = userRepository.findByAuthorizationToken(accessToken).orElseThrow(() -> {
             throw new NoSuchElementException("User not found");
         });
         Course course = courseRepository.findByIdAndCourseStatusIsTrue(courseId)
@@ -354,10 +427,9 @@ public class CourseServiceImplement implements CourseServiceInterface {
                     throw new NoSuchElementException("Material not found");
                 });
 
-        if(tutor != course.getTutor() ){
+        if (tutor != course.getTutor()) {
             throw new Exception("You are not allowed to delete");
-        }
-        else{
+        } else {
             courseMaterial.setStatus(false);
             courseMaterialRepository.save(courseMaterial);
         }

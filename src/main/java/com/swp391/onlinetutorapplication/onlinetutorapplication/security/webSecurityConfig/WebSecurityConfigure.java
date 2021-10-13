@@ -8,6 +8,7 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.filter.tokenFilt
 import com.swp391.onlinetutorapplication.onlinetutorapplication.security.passwordEncoder.Encoder;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceImplement.UserServiceDetailsImplement;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,6 +19,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -62,7 +66,19 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
         http.addFilterBefore(tokenAuthFilter(), UsernamePasswordAuthenticationFilter.class);
     }
 
-
+//    @Bean
+//    public FilterRegistrationBean corsFilter() {
+//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//        CorsConfiguration config = new CorsConfiguration();
+//        config.setAllowCredentials(true);
+//        config.addAllowedOrigin("http://swp391-onlinetutor.herokuapp.com");
+//        config.addAllowedHeader("*");
+//        config.addAllowedMethod("*");
+//        source.registerCorsConfiguration("/**", config);
+//        FilterRegistrationBean bean = new FilterRegistrationBean(new CorsFilter(source));
+//        bean.setOrder(0);
+//        return bean;
+//    }
 
 }
 

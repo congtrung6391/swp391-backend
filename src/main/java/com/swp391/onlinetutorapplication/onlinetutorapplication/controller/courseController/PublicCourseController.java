@@ -40,10 +40,13 @@ public class PublicCourseController {
     //Get course public - by Nam
     // Get localhost:8080/api/public/course
     @GetMapping("")
-    public ResponseEntity<?> getAllCourseForPublic() {
+    public ResponseEntity<?> getAllCourseForPublic(@RequestParam(name = "page", required = false) int page,
+                                                   @RequestParam(name = "limit", required = false) int limit) {
         try {
-            return ResponseEntity.ok().body(new CourseListResponse(true
-                    , courseService.getAllCourseInformationForStudent()));
+            return ResponseEntity.ok().body(new CourseListResponse(
+                    courseService.getAllCourseInformationForStudent(),
+                    page,limit
+            ));
         } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }
@@ -55,6 +58,15 @@ public class PublicCourseController {
             return ResponseEntity.ok().body(courseService.getSubjectList());
         } catch (Exception ex) {
             return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
+        }
+    }
+
+    @GetMapping("/{courseId}/info")
+    public ResponseEntity<?> getOneCourseApiPublic(@PathVariable(name = "courseId") Long id) {
+        try {
+            return ResponseEntity.ok().body(courseService.getOneCourseApiPublic(id));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
         }
     }
 }
