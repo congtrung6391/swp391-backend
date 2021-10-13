@@ -24,6 +24,7 @@ public class TutorListResponse {
     }
 
     public TutorListResponse(List<UserInformationResponse> tutorList, int page, int limit) {
+        page = page-1;
         this.totalUser = tutorList.size();
         List<UserInformationResponse> responses = new ArrayList<>();
         int index = page*limit;

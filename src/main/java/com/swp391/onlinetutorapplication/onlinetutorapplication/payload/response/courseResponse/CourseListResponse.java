@@ -22,6 +22,7 @@ public class CourseListResponse {
     }
 
     public CourseListResponse(List<CourseInformationResponse> courseList, int page, int limit) {
+        page = page-1;
         this.totalCourse = courseList.size();
         List<CourseInformationResponse> responses = new ArrayList<>();
         int index = page*limit;

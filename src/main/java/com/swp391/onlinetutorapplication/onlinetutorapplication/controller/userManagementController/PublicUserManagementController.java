@@ -1,11 +1,14 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.controller.userManagementController;
 
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.rating.Rate;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.UpdateProfileRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.authResponse.MessageResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.ratingResponse.RatingListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.ErrorMessageResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.TutorListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserInformationResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.service.ratingService.ratingServiceInterface.RatingServiceInterface;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceInterface.UserManagementInterface;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceInterface.UserServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +28,9 @@ public class PublicUserManagementController {
 
     @Autowired
     private UserManagementInterface userManagement;
+
+    @Autowired
+    private RatingServiceInterface ratingService;
 
     @PostMapping("/user/{id}")
     @PreAuthorize("hasAuthority('SUPER_ADMIN') or hasAuthority('ADMIN') or hasAuthority('TUTOR') or hasAuthority('STUDENT')")
@@ -47,13 +53,27 @@ public class PublicUserManagementController {
     }
 
     @GetMapping("/tutor")
-    public ResponseEntity<?> getListTutor(){
+    public ResponseEntity<?> getListTutor(
+            @RequestParam(name = "page", required = false) int page,
+            @RequestParam(name = "limit", required = false) int limit
+    ){
         try{
             List<UserInformationResponse> list = userManagement.getListTutor();
-            TutorListResponse listResponse = new TutorListResponse(list);
+            TutorListResponse listResponse = new TutorListResponse(list,page,limit);
             return ResponseEntity.ok().body(listResponse);
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+    @GetMapping("/tutor/{tutorId}/rating")
+    public ResponseEntity<?> getTutorRating(@PathVariable(name = "tutorId")Long tutorId,
+                                            @RequestParam(name = "page", required = false) int page,
+                                            @RequestParam(name = "limit", required = false) int limit){
+        try{
+            List<Rate> rateList = ratingService.getAllRating(tutorId);
+            return ResponseEntity.ok().body(new RatingListResponse(rateList,page,limit));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
         }
     }
 }
