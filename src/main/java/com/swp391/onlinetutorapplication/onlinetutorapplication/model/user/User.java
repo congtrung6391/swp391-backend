@@ -1,6 +1,7 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.model.user;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.rating.Rate;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -57,6 +58,9 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     Set<Role> roles = new HashSet<>();
+
+    @OneToMany(mappedBy = "tutor")
+    private List<Rate> rate;
 
     public User(String username, String email, String phone, String fullName, String password, String activateToken) {
         this.username = username;

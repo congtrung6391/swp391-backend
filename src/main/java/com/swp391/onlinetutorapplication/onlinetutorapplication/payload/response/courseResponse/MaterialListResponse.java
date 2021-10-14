@@ -22,6 +22,7 @@ public class MaterialListResponse {
     }
 
     public MaterialListResponse(List<MaterialCreationResponse> materials, int page, int limit) {
+        page = page-1;
         this.totalMaterial = materials.size();
         List<MaterialCreationResponse> responses = new ArrayList<>();
         int index = page*limit;
