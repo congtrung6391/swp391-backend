@@ -24,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.annotation.MultipartConfig;
 import javax.validation.Valid;
+import java.awt.print.Pageable;
 import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -40,10 +41,14 @@ public class AdminCourseController {
     // localhost:8080/api/admin/course/
     @GetMapping("")
     @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN') or hasAuthority('TUTOR')")
-    public ResponseEntity<?> getAllCourseForAdmin(@RequestHeader(name = "Authorization") String accessToken) {
+    public ResponseEntity<?> getAllCourseForAdmin(@RequestHeader(name = "Authorization") String accessToken,
+                                                  @RequestParam(name = "page", required = false) int page,
+                                                  @RequestParam(name = "limit", required = false) int limit) {
         try {
-            return ResponseEntity.ok().body(new CourseListResponse(true
-                    , courseService.getAllCourseInformationForAdmin(accessToken)));
+            return ResponseEntity.ok().body(new CourseListResponse(
+                    courseService.getAllCourseInformationForAdmin(accessToken),
+                    page,limit
+            ));
         } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }
@@ -141,10 +146,13 @@ public class AdminCourseController {
     //Phần này làm demo thôi, ai có task này thì modify lại - Name
     @GetMapping("/{courseId}/material")
     @PreAuthorize("hasAuthority('TUTOR') or hasAuthority('STUDENT') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
-    public ResponseEntity<?> getAllMaterial(@PathVariable(name = "courseId") Long courseId, @RequestHeader(name = "Authorization") String accessToken) {
+    public ResponseEntity<?> getAllMaterial(@PathVariable(name = "courseId") Long courseId,
+                                            @RequestHeader(name = "Authorization") String accessToken,
+                                            @RequestParam(name = "page", required = false) int page,
+                                            @RequestParam(name = "limit", required = false) int limit) {
         try {
             List<MaterialCreationResponse> materials = courseService.getCourseMaterial(courseId, accessToken);
-            return ResponseEntity.ok().body(new MaterialListResponse(materials));
+            return ResponseEntity.ok().body(new MaterialListResponse(materials,page,limit));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
         }

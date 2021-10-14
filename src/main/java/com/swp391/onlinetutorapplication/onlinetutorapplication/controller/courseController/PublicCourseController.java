@@ -40,10 +40,13 @@ public class PublicCourseController {
     //Get course public - by Nam
     // Get localhost:8080/api/public/course
     @GetMapping("")
-    public ResponseEntity<?> getAllCourseForPublic() {
+    public ResponseEntity<?> getAllCourseForPublic(@RequestParam(name = "page", required = false) int page,
+                                                   @RequestParam(name = "limit", required = false) int limit) {
         try {
-            return ResponseEntity.ok().body(new CourseListResponse(true
-                    , courseService.getAllCourseInformationForStudent()));
+            return ResponseEntity.ok().body(new CourseListResponse(
+                    courseService.getAllCourseInformationForStudent(),
+                    page,limit
+            ));
         } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }
