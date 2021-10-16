@@ -21,7 +21,7 @@ public class CourseListResponse {
         this.courseList = courseList;
     }
 
-    public CourseListResponse(List<CourseInformationResponse> courseList, int page, int limit) {
+    public CourseListResponse(List<CourseInformationResponse> courseList, Integer page, Integer limit) {
         page = page-1;
         this.totalCourse = courseList.size();
         List<CourseInformationResponse> responses = new ArrayList<>();

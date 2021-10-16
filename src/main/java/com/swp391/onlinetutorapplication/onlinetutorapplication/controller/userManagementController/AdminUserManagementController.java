@@ -1,6 +1,7 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.controller.userManagementController;
 
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.searchParam.AdminSearchRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.superAdminRequest.ChangeRoleUserRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.UpdateProfileRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.ErrorMessageResponse;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -57,9 +59,15 @@ public class AdminUserManagementController {
 
     @GetMapping("/get-user-list")
     @PreAuthorize("hasAuthority('SUPER_ADMIN')")
-    public ResponseEntity<?> getAllUser(@RequestParam(name = "page", required = false) int page,
-                                        @RequestParam(name = "limit", required = false) int limit) {
+    public ResponseEntity<?> getAllUser(@RequestParam(name = "page", required = false) Integer page,
+                                        @RequestParam(name = "limit", required = false) Integer limit) {
         try {
+            if(page == null){
+                page = 1;
+            }
+            if(limit == null){
+                limit = 20;
+            }
             List<UserInformationResponse> listUsers = userManagement.getAllUser();
             return ResponseEntity.ok().body(new UserListResponse(listUsers,page,limit));
         } catch (NoSuchElementException ex) {
@@ -94,4 +102,18 @@ public class AdminUserManagementController {
     }
 
      */
+
+    //admin search user - by Nam
+    @GetMapping("/search")
+    @PreAuthorize("hasAuthority('SUPER_ADMIN') or hasAuthority('ADMIN')")
+    public ResponseEntity<?> adminSearchUser(
+            @RequestParam(required = false) String id,
+            @RequestParam(required = false) String name
+    ){
+        try{
+            return ResponseEntity.ok().body(userManagement.adminSearchUser(id,name));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

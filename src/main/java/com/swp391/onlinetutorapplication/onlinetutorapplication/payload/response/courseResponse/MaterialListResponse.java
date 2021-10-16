@@ -21,7 +21,7 @@ public class MaterialListResponse {
         this.materialList = materialList;
     }
 
-    public MaterialListResponse(List<MaterialCreationResponse> materials, int page, int limit) {
+    public MaterialListResponse(List<MaterialCreationResponse> materials, Integer page, Integer limit) {
         page = page-1;
         this.totalMaterial = materials.size();
         List<MaterialCreationResponse> responses = new ArrayList<>();
