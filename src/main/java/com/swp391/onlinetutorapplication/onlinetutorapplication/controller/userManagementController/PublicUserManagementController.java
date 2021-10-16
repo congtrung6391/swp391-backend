@@ -54,10 +54,16 @@ public class PublicUserManagementController {
 
     @GetMapping("/tutor")
     public ResponseEntity<?> getListTutor(
-            @RequestParam(name = "page", required = false) int page,
-            @RequestParam(name = "limit", required = false) int limit
+            @RequestParam(name = "page", required = false) Integer page,
+            @RequestParam(name = "limit", required = false) Integer limit
     ){
         try{
+            if(page == null){
+                page = 1;
+            }
+            if(limit == null){
+                limit = 20 ;
+            }
             List<UserInformationResponse> list = userManagement.getListTutor();
             TutorListResponse listResponse = new TutorListResponse(list,page,limit);
             return ResponseEntity.ok().body(listResponse);
@@ -68,9 +74,15 @@ public class PublicUserManagementController {
 
     @GetMapping("/tutor/{tutorId}/rating")
     public ResponseEntity<?> getTutorRating(@PathVariable(name = "tutorId")Long tutorId,
-                                            @RequestParam(name = "page", required = false) int page,
-                                            @RequestParam(name = "limit", required = false) int limit){
+                                            @RequestParam(name = "page", required = false) Integer page,
+                                            @RequestParam(name = "limit", required = false) Integer limit){
         try{
+            if(page == null){
+                page = 1;
+            }
+            if(limit == null){
+                limit = 20 ;
+            }
             List<Rate> rateList = ratingService.getAllRating(tutorId);
             return ResponseEntity.ok().body(new RatingListResponse(rateList,page,limit));
         }catch (Exception e){

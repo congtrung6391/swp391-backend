@@ -59,9 +59,15 @@ public class AdminUserManagementController {
 
     @GetMapping("/get-user-list")
     @PreAuthorize("hasAuthority('SUPER_ADMIN')")
-    public ResponseEntity<?> getAllUser(@RequestParam(name = "page", required = false) int page,
-                                        @RequestParam(name = "limit", required = false) int limit) {
+    public ResponseEntity<?> getAllUser(@RequestParam(name = "page", required = false) Integer page,
+                                        @RequestParam(name = "limit", required = false) Integer limit) {
         try {
+            if(page == null){
+                page = 1;
+            }
+            if(limit == null){
+                limit = 20;
+            }
             List<UserInformationResponse> listUsers = userManagement.getAllUser();
             return ResponseEntity.ok().body(new UserListResponse(listUsers,page,limit));
         } catch (NoSuchElementException ex) {
