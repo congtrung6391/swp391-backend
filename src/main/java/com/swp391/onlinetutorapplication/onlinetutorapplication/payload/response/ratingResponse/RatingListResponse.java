@@ -23,7 +23,7 @@ public class RatingListResponse {
         this.rateList = rateList;
     }
 
-    public RatingListResponse(List<Rate> rateList, int page, int limit) {
+    public RatingListResponse(List<Rate> rateList, Integer page, Integer limit) {
         page = page-1;
         this.totalRate = rateList.size();
         int sum = 0;

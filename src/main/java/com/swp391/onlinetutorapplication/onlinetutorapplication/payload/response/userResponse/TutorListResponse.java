@@ -23,7 +23,7 @@ public class TutorListResponse {
         this.tutorList = tutorList;
     }
 
-    public TutorListResponse(List<UserInformationResponse> tutorList, int page, int limit) {
+    public TutorListResponse(List<UserInformationResponse> tutorList, Integer page, Integer limit) {
         page = page-1;
         this.totalUser = tutorList.size();
         List<UserInformationResponse> responses = new ArrayList<>();

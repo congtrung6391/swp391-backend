@@ -2,6 +2,7 @@ package com.swp391.onlinetutorapplication.onlinetutorapplication.service.userSer
 
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.searchParam.AdminSearchRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.UpdateProfileRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.TutorListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserInformationResponse;
@@ -29,4 +30,9 @@ public interface UserManagementInterface {
     void deleteUser(Long id)throws Exception;
 
     List<UserInformationResponse> getListTutor();
+
+    //admin search user - by Nam
+    Object adminSearchUser(String id, String name);
+
+    Object publicSearchUser(String name);
 }

@@ -38,4 +38,5 @@ public interface CourseServiceInterface {
     void deleteMaterial(Long materialId, Long courseId, String accessToken ) throws Exception;
     void handleCourseRegisterRequest(String accessToken, Long id, ActionApproveOrRejectRequest actionApproveOrRejectRequest);
     CourseInformationResponse getOneCourseApiPublic(Long courseId);
+    void deleteTimeTable(Long timetableId, Long  courseId, String accessToken) throws  Exception;
 }

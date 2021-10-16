@@ -23,7 +23,17 @@ public interface UserRepository extends JpaRepository<User,Long> {
     Optional<User> findByAuthorizationToken(String accessToken);
     List<User> findAllByStatusIsTrue();
     List<User> findAllByRolesAndStatusIsTrue(Role role);
+    Optional<User> findByIdAndStatusIsTrue(Long id);
 
     @Override
     List<User> findAll();
+
+    Optional<User> findDistinctByIdAndStatusIsTrueAndEmailContainingOrFullNameContainingOrUsernameContaining
+            (Long id, String email, String fullName, String userName);
+
+    Optional<List<User>> findAllByStatusIsTrueAndEmailContainingOrStatusIsTrueAndFullNameContainingOrStatusIsTrueAndUsernameContaining
+            (String email, String fullName, String userName);
+
+    Optional<List<User>> findAllByStatusIsTrueAndRolesAndEmailContainsOrRolesAndFullNameContaining
+            (Role role, String email, Role role2, String fullName);
 }
