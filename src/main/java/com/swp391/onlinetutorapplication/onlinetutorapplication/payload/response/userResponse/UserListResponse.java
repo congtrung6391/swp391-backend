@@ -25,7 +25,7 @@ public class UserListResponse {
         this.userList = userList;
     }
 
-    public UserListResponse(List<UserInformationResponse> userList, int page, int limit) {
+    public UserListResponse(List<UserInformationResponse> userList, Integer page, Integer limit) {
         page = page-1;
         this.totalUser = userList.size();
         List<UserInformationResponse> responses = new ArrayList<>();

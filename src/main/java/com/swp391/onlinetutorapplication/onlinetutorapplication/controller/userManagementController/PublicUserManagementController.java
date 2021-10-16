@@ -6,6 +6,7 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.authResponse.MessageResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.ratingResponse.RatingListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.ErrorMessageResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.SuccessfulMessageResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.TutorListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserInformationResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.ratingService.ratingServiceInterface.RatingServiceInterface;
@@ -54,10 +55,16 @@ public class PublicUserManagementController {
 
     @GetMapping("/tutor")
     public ResponseEntity<?> getListTutor(
-            @RequestParam(name = "page", required = false) int page,
-            @RequestParam(name = "limit", required = false) int limit
+            @RequestParam(name = "page", required = false) Integer page,
+            @RequestParam(name = "limit", required = false) Integer limit
     ){
         try{
+            if(page == null){
+                page = 1;
+            }
+            if(limit == null){
+                limit = 20 ;
+            }
             List<UserInformationResponse> list = userManagement.getListTutor();
             TutorListResponse listResponse = new TutorListResponse(list,page,limit);
             return ResponseEntity.ok().body(listResponse);
@@ -65,15 +72,50 @@ public class PublicUserManagementController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
     @GetMapping("/tutor/{tutorId}/rating")
     public ResponseEntity<?> getTutorRating(@PathVariable(name = "tutorId")Long tutorId,
-                                            @RequestParam(name = "page", required = false) int page,
-                                            @RequestParam(name = "limit", required = false) int limit){
+                                            @RequestParam(name = "page", required = false) Integer page,
+                                            @RequestParam(name = "limit", required = false) Integer limit){
         try{
+            if(page == null){
+                page = 1;
+            }
+            if(limit == null){
+                limit = 20 ;
+            }
             List<Rate> rateList = ratingService.getAllRating(tutorId);
             return ResponseEntity.ok().body(new RatingListResponse(rateList,page,limit));
         }catch (Exception e){
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
         }
     }
+    @GetMapping("/tutor/{tutorId}/rating/subject/{subjectId}")
+    public ResponseEntity<?> getTutorRatingBySubject(@PathVariable(name = "tutorId")Long tutorId,
+                                                     @PathVariable(name = "subjectId")Long subjectId,
+                                                     @RequestParam(name = "page", required = false) Integer page,
+                                                     @RequestParam(name = "limit", required = false) Integer limit){
+        try {
+            if(page == null){
+                page = 1;
+            }
+            if(limit == null){
+                limit = 20 ;
+            }
+            List<Rate> rateList = (List<Rate>) ratingService.getTutorRatingBySubject(tutorId,subjectId);
+            return ResponseEntity.ok().body(new RatingListResponse(rateList,page,limit));
+        }catch (Exception e){
+            return null;
+        }
+    }
+
+    @GetMapping("/tutor/search")
+    public ResponseEntity<?> publicSearchTutor(@RequestParam(required = false)String name){
+        try {
+            return ResponseEntity.ok().body(userManagement.publicSearchUser(name));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
 }
