@@ -35,17 +35,17 @@ public class RatingServiceImplement implements RatingServiceInterface {
     @Autowired
     private RateRepository rateRepository;
 
-    private User checkTutorIsTrue(Long tutorId){
+    private User checkTutorIsTrue(Long tutorId) {
         User tutor = userRepository.findByIdAndStatusIsTrue(tutorId)
-                .orElseThrow(()->{
+                .orElseThrow(() -> {
                     throw new NoSuchElementException("User not found");
                 });
         Boolean isTutor = false;
-        for(Role role : tutor.getRoles()){
+        for (Role role : tutor.getRoles()) {
             isTutor = role.getUserRole().name().equals("TUTOR");
         }
 
-        if(!isTutor){
+        if (!isTutor) {
             throw new IllegalArgumentException("User is not tutor");
         }
         return tutor;
@@ -62,26 +62,26 @@ public class RatingServiceImplement implements RatingServiceInterface {
     public List<Rate> getTutorRatingBySubject(Long tutorId, Long subjectId) {
         User tutor = checkTutorIsTrue(tutorId);
         Subject subject = subjectRepository.findById(subjectId)
-                .orElseThrow(()->{
+                .orElseThrow(() -> {
                     throw new NoSuchElementException("Subject not found");
                 });
-        List<Rate> rateList = rateRepository.findAllByStatusIsTrueAndTutorAndSubject(tutor,subject);
+        List<Rate> rateList = rateRepository.findAllByStatusIsTrueAndTutorAndSubject(tutor, subject);
         return rateList;
     }
 
     @Override
     public void deleteRating(String accessToken, Long tutorId, Long ratingId) {
-        accessToken = accessToken.replaceAll("Bearer ","");
+        accessToken = accessToken.replaceAll("Bearer ", "");
         User student = userRepository.findByAuthorizationToken(accessToken)
-                .orElseThrow(()->{
+                .orElseThrow(() -> {
                     throw new NoSuchElementException("User not found");
                 });
         User tutor = checkTutorIsTrue(tutorId);
         Rate rate = rateRepository.findByIdAndStatusIsTrue(ratingId)
-                .orElseThrow(() ->{
-                   throw new NoSuchElementException("Rating not found");
+                .orElseThrow(() -> {
+                    throw new NoSuchElementException("Rating not found");
                 });
-        if(!student.getId().equals(rate.getStudent().getId())){
+        if (!student.getId().equals(rate.getStudent().getId())) {
             throw new IllegalArgumentException("You are not allow to delete this rating");
         }
         rate.setStatus(false);
@@ -89,9 +89,9 @@ public class RatingServiceImplement implements RatingServiceInterface {
     }
 
     @Override
-    public Rate addRating(String accessToken, Long tutorId, AddRatingRequest request){
-        accessToken = accessToken.replaceAll("Bearer ","");
-        User user = userRepository.findByAuthorizationToken(accessToken).orElseThrow(()->{
+    public Rate addRating(String accessToken, Long tutorId, AddRatingRequest request) {
+        accessToken = accessToken.replaceAll("Bearer ", "");
+        User user = userRepository.findByAuthorizationToken(accessToken).orElseThrow(() -> {
             throw new NoSuchElementException("User not found");
         });
         if (user.getExpireAuthorization().isBefore(Instant.now())) {
@@ -125,9 +125,9 @@ public class RatingServiceImplement implements RatingServiceInterface {
     }
 
     @Override
-    public Rate updateRating(String accessToken, Long tutorId, Long ratingId, UpdateRatingRequest request){
-        accessToken = accessToken.replaceAll("Bearer ","");
-        User user = userRepository.findByAuthorizationToken(accessToken).orElseThrow(()->{
+    public Rate updateRating(String accessToken, Long tutorId, Long ratingId, UpdateRatingRequest request) {
+        accessToken = accessToken.replaceAll("Bearer ", "");
+        User user = userRepository.findByAuthorizationToken(accessToken).orElseThrow(() -> {
             throw new NoSuchElementException("User not found");
         });
         if (user.getExpireAuthorization().isBefore(Instant.now())) {
@@ -157,11 +157,11 @@ public class RatingServiceImplement implements RatingServiceInterface {
             }
         }
 
-        if(request.getDescription() != null){
+        if (request.getDescription() != null) {
             rate.setDescription(request.getDescription());
         }
 
-        if(request.getValue() != null){
+        if (request.getValue() != null) {
             rate.setValue(request.getValue());
         }
         rateRepository.save(rate);

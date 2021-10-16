@@ -127,7 +127,7 @@ public class PublicUserManagementController {
     @PreAuthorize("hasAuthority('SUPER_ADMIN') or hasAuthority('STUDENT') or hasAuthority('ADMIN')")
     public ResponseEntity<?> addRating(@RequestHeader(name = "Authorization") String accessToken,
                                        @PathVariable(name = "userId") Long tutorId,
-                                       @RequestBody AddRatingRequest request){
+                                       @RequestBody AddRatingRequest request) {
         try {
             return ResponseEntity.ok().body(new RatingResponse(ratingService.addRating(accessToken, tutorId, request)));
         } catch (Exception e) {
@@ -138,9 +138,9 @@ public class PublicUserManagementController {
     @PutMapping("/user/{userId}/rating/{ratingId}")
     @PreAuthorize("hasAuthority('SUPER_ADMIN') or hasAuthority('STUDENT') or hasAuthority('ADMIN')")
     public ResponseEntity<?> updateRating(@RequestHeader(name = "Authorization") String accessToken,
-                                       @PathVariable(name = "userId") Long tutorId,
-                                       @PathVariable(name = "ratingId") Long ratingId,
-                                       @RequestBody UpdateRatingRequest request){
+                                          @PathVariable(name = "userId") Long tutorId,
+                                          @PathVariable(name = "ratingId") Long ratingId,
+                                          @RequestBody UpdateRatingRequest request) {
         try {
             return ResponseEntity.ok().body(new RatingResponse(ratingService.updateRating(accessToken, tutorId, ratingId, request)));
         } catch (Exception e) {
