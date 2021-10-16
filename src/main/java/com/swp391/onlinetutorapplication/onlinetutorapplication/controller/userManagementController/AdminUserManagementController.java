@@ -8,6 +8,7 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.SuccessfulMessageResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserInformationResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserListResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.service.ratingService.ratingServiceInterface.RatingServiceInterface;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceInterface.UserManagementInterface;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceInterface.UserServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,8 @@ public class AdminUserManagementController {
 
     @Autowired
     private UserManagementInterface userManagement;
+    @Autowired
+    private RatingServiceInterface ratingService;
 
     // localhost:8080/api/admin/user/{username}
     @PutMapping("/user/{username}/change-role")
@@ -114,6 +117,19 @@ public class AdminUserManagementController {
             return ResponseEntity.ok().body(userManagement.adminSearchUser(id,name));
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/tutor/{tutorId}/rating/{ratingId}")
+    @PreAuthorize("hasAuthority('SUPER_ADMIN') or hasAuthority('STUDENT')")
+    public ResponseEntity<?> deleteRating(@RequestHeader(name = "Authorization")String accessToken ,
+                                        @PathVariable(name = "tutorId") Long tutorId,
+                                          @PathVariable(name = "ratingId") Long ratingId){
+        try{
+            ratingService.deleteRating(accessToken,tutorId,ratingId);
+            return ResponseEntity.ok().body(new SuccessfulMessageResponse("Delete rating successful"));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
         }
     }
 }
