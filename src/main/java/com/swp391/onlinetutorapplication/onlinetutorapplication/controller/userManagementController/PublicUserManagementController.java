@@ -65,6 +65,7 @@ public class PublicUserManagementController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
     @GetMapping("/tutor/{tutorId}/rating")
     public ResponseEntity<?> getTutorRating(@PathVariable(name = "tutorId")Long tutorId,
                                             @RequestParam(name = "page", required = false) int page,
@@ -76,4 +77,14 @@ public class PublicUserManagementController {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
         }
     }
+
+    @GetMapping("/tutor/search")
+    public ResponseEntity<?> publicSearchTutor(@RequestParam(required = false)String name){
+        try {
+            return ResponseEntity.ok().body(userManagement.publicSearchUser(name));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
 }

@@ -58,7 +58,7 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     Set<Role> roles = new HashSet<>();
-
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @OneToMany(mappedBy = "tutor")
     private List<Rate> rate;
 
