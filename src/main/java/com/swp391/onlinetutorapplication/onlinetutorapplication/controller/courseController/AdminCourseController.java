@@ -181,5 +181,19 @@ public class AdminCourseController {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }
     }
+
+    @DeleteMapping("{courseId}/timetable/{timetableId}")
+    @PreAuthorize("hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
+    public ResponseEntity<?> deleteTimeTable(@PathVariable(name = "courseId") Long courseId, @PathVariable(name = "timetableId") Long timetableId, @RequestHeader(name = "Authorization")String accessToken){
+        try{
+            courseService.deleteTimeTable(timetableId, courseId, accessToken);
+            return ResponseEntity.ok().body(new SuccessfulMessageResponse("Delete Success"));
+        }
+        catch (NoSuchElementException ex){
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
+        }catch (Exception ex){
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
+        }
+    }
 }
 

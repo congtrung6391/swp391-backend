@@ -3,6 +3,7 @@ package com.swp391.onlinetutorapplication.onlinetutorapplication.service.courseS
 import com.dropbox.core.DbxException;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Course;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.CourseMaterial;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.CourseTimetable;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Subject;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
@@ -14,6 +15,7 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.MaterialCreationResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.CourseMaterialRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.CourseRepository;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.CourseTimeTableRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.SubjectRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.user.UserRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.courseService.courseServiceInterface.CourseServiceInterface;
@@ -22,9 +24,7 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userServ
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 
-import java.awt.print.Pageable;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -52,6 +52,9 @@ public class CourseServiceImplement implements CourseServiceInterface {
 
     @Autowired
     private CourseMaterialRepository courseMaterialRepository;
+
+    @Autowired
+    private CourseTimeTableRepository courseTimeTableRepository;
 
 
     @Override
@@ -168,6 +171,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
         courseInformationResponse.setTutor(course.getTutor());
         return courseInformationResponse;
     }
+
 
     @Override
     public List<CourseInformationResponse> getAllCourseInformationForStudent() {
@@ -436,6 +440,29 @@ public class CourseServiceImplement implements CourseServiceInterface {
 
 
     }
+    //Delete TimeTable
+    @Override
+    public void deleteTimeTable(Long timetableId, Long courseId, String accessToken) throws Exception {
+        accessToken = accessToken.replaceAll("Bearer ", "");
+        User tutor = userRepository.findByAuthorizationToken(accessToken).orElseThrow(() ->{
+            throw new NoSuchElementException("User not found");
+        });
+        Course course = courseRepository.findByIdAndCourseStatusIsTrue(courseId).orElseThrow(()->{
+            throw new NoSuchElementException("Course not found");
+        });
+        CourseTimetable timetable = courseTimeTableRepository.findById(timetableId).orElseThrow(()->{
+            throw new NoSuchElementException("TimeTable not found");
+        });
+        if(tutor != course.getTutor()){
+            throw new Exception("You are not allowed to delete ");
+        }
+        else
+        {
+            timetable.setStatus(false);
+            courseTimeTableRepository.save(timetable);
+        }
+    }
+
 
 
 }
