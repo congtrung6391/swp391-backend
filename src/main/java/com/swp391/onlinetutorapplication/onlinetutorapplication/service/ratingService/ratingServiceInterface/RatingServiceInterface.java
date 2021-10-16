@@ -6,4 +6,8 @@ import java.util.List;
 
 public interface RatingServiceInterface {
     List<Rate> getAllRating(Long tutorId);
+
+    List<Rate> getTutorRatingBySubject(Long tutorId, Long subjectId);
+
+    void deleteRating(String accessToken,Long tutorId, Long ratingId);
 }

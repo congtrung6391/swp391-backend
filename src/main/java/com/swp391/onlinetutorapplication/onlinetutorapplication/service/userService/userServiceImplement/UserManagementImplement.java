@@ -1,12 +1,9 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceImplement;
 
-import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Course;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.ERole;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.UpdateProfileRequest;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.CourseInformationResponse;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.TutorListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserInformationResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserProfileResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.role.RoleRepository;
@@ -168,6 +165,37 @@ public class UserManagementImplement implements UserManagementInterface{
         }
         System.out.println(tutorList);
         return tutorList;
+    }
+
+    //admin search user - by Nam
+    @Override
+    public Object adminSearchUser(String id ,String name) {
+
+        if(name == null || name.isEmpty()){
+            return userRepository.findById(Long.parseLong(id)).
+                    orElseThrow(() -> {
+                        throw new NoSuchElementException("Can't find users that match the search value");
+                    });
+        }else if(id != null && !name.isEmpty() && name != null){
+            return userRepository.findDistinctByIdAndStatusIsTrueAndEmailContainingOrFullNameContainingOrUsernameContaining(Long.parseLong(id), name, name, name)
+                    .orElseThrow(() -> {
+                        throw new NoSuchElementException("Can't find users that match the search value");
+                    });
+        }
+        return userRepository.findAllByStatusIsTrueAndEmailContainingOrStatusIsTrueAndFullNameContainingOrStatusIsTrueAndUsernameContaining(name, name, name)
+                .orElseThrow(()->{
+                    throw new NoSuchElementException("Can't find users that match the search value");
+                });
+    }
+
+    //public search tutor - by Nam
+    @Override
+    public Object publicSearchUser(String name) {
+        Role role = roleRepository.findByUserRole(ERole.TUTOR).get();
+        return userRepository.findAllByStatusIsTrueAndRolesAndEmailContainsOrRolesAndFullNameContaining(role,name,role,name).
+                orElseThrow(()->{
+                    throw new NoSuchElementException("Can't find users that match the search value");
+                });
     }
 }
 

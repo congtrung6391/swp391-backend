@@ -42,9 +42,15 @@ public class AdminCourseController {
     @GetMapping("")
     @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN') or hasAuthority('TUTOR')")
     public ResponseEntity<?> getAllCourseForAdmin(@RequestHeader(name = "Authorization") String accessToken,
-                                                  @RequestParam(name = "page", required = false) int page,
-                                                  @RequestParam(name = "limit", required = false) int limit) {
+                                                  @RequestParam(name = "page", required = false) Integer page,
+                                                  @RequestParam(name = "limit", required = false) Integer limit) {
         try {
+            if(page == null){
+                page = 1;
+            }
+            if(limit == null){
+                limit = 20;
+            }
             return ResponseEntity.ok().body(new CourseListResponse(
                     courseService.getAllCourseInformationForAdmin(accessToken),
                     page,limit
@@ -148,9 +154,15 @@ public class AdminCourseController {
     @PreAuthorize("hasAuthority('TUTOR') or hasAuthority('STUDENT') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
     public ResponseEntity<?> getAllMaterial(@PathVariable(name = "courseId") Long courseId,
                                             @RequestHeader(name = "Authorization") String accessToken,
-                                            @RequestParam(name = "page", required = false) int page,
-                                            @RequestParam(name = "limit", required = false) int limit) {
+                                            @RequestParam(name = "page", required = false) Integer page,
+                                            @RequestParam(name = "limit", required = false) Integer limit) {
         try {
+            if(page == null){
+                page = 1;
+            }
+            if(limit == null){
+                limit = 20;
+            }
             List<MaterialCreationResponse> materials = courseService.getCourseMaterial(courseId, accessToken);
             return ResponseEntity.ok().body(new MaterialListResponse(materials,page,limit));
         } catch (Exception e) {
