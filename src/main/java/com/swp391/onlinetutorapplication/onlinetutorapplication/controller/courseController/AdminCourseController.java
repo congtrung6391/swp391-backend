@@ -240,5 +240,16 @@ public class AdminCourseController {
         }
     }
 
+    @GetMapping("/{courseId}/timetable")
+    @PreAuthorize("hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
+    public ResponseEntity<?> getListTimetable(@RequestHeader(name = "Authorization") String accessToken, @PathVariable(name = "courseId") Long courseId) {
+        try {
+            List<TimeTableInformation> listTimeTable = courseService.getTimeTableList(courseId, accessToken);
+            return ResponseEntity.ok().body(new TimeTableListResponse(listTimeTable));
+        } catch (NoSuchElementException ex){
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
+        }
+    }
+
 }
 
