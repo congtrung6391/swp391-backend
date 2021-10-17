@@ -1,6 +1,7 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Course;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.CourseTimetable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,11 +19,13 @@ public class TimeTableInformation {
     private int day;
     private LocalTime startTime;
     private LocalTime endTime;
+    private Course course;
 
     public TimeTableInformation(CourseTimetable timetable) {
         this.id = timetable.getId();
         this.day= timetable.getDay();
         this.startTime = timetable.getStartTime();
         this.endTime = timetable.getEndTime();
+        this.course = timetable.getCourse();
     }
 }

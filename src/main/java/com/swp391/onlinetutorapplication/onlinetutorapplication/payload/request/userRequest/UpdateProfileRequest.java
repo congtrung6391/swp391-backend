@@ -13,11 +13,7 @@ import java.util.Set;
 @Setter
 public class UpdateProfileRequest {
 
-
     private String fullName;
-
-
-    private String email;
 
     @Size(max = 15)
     private String phone;
@@ -27,6 +23,7 @@ public class UpdateProfileRequest {
     private String address;
 
     private String facebookUrl;
+
     private String affiliate;
 
     private Double gpa;
