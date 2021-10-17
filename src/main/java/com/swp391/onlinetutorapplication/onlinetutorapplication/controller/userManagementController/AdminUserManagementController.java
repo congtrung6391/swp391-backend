@@ -37,7 +37,8 @@ public class AdminUserManagementController {
     // localhost:8080/api/admin/user/{username}
     @PutMapping("/user/{username}/change-role")
     @PreAuthorize("hasAuthority('SUPER_ADMIN')")
-    public ResponseEntity<?> changeRoleUser(@PathVariable String username, @RequestBody ChangeRoleUserRequest role) {
+    public ResponseEntity<?> changeRoleUser(@PathVariable String username,
+                                            @RequestBody ChangeRoleUserRequest role) {
         boolean result = userService.changeRole(username, role.getRole());
         if (result) {
             return ResponseEntity.ok(new SuccessfulMessageResponse("Update Successful"));
@@ -122,8 +123,8 @@ public class AdminUserManagementController {
 
     @DeleteMapping("/tutor/{tutorId}/rating/{ratingId}")
     @PreAuthorize("hasAuthority('SUPER_ADMIN') or hasAuthority('STUDENT')")
-    public ResponseEntity<?> deleteRating(@RequestHeader(name = "Authorization")String accessToken ,
-                                        @PathVariable(name = "tutorId") Long tutorId,
+    public ResponseEntity<?> deleteRating(@RequestHeader(name = "Authorization")String accessToken,
+                                          @PathVariable(name = "tutorId") Long tutorId,
                                           @PathVariable(name = "ratingId") Long ratingId){
         try{
             ratingService.deleteRating(accessToken,tutorId,ratingId);

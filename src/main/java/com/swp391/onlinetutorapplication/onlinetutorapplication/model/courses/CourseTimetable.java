@@ -20,9 +20,9 @@ public class CourseTimetable {
     private Long id;
     private int day;
     @JsonFormat(pattern = "HH:mm:ss")
-    private LocalTime startTime;
-    @JsonFormat(pattern = "HH:mm:ss")
     private LocalTime endTime;
+    @JsonFormat(pattern = "HH:mm:ss")
+    private LocalTime startTime;
     private Boolean status = true;
     @ManyToOne
     @JoinColumn(name = "course_id")

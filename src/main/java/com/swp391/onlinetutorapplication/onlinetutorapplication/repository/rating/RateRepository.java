@@ -15,6 +15,7 @@ public interface RateRepository extends JpaRepository<Rate, Long> {
 
     List<Rate> findAllByStatusIsTrueAndTutorAndSubject(User tutor, Subject subject);
 
-
+    Optional<Rate> findByIdAndTutorAndStatusIsTrue(Long id, User tutor);
+    Optional<Rate> findByIdAndTutorAndStudentAndStatusIsTrue(Long id, User tutor, User student);
     Optional<Rate> findByIdAndStatusIsTrue(Long id);
 }
