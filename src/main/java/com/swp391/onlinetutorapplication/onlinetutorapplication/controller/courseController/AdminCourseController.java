@@ -1,16 +1,10 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.controller.courseController;
 
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Course;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.ActionApproveOrRejectRequest;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.CourseMaterial;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.CourseCreationRequest;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.CourseUpdateRequest;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.MaterialCreationRequest;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.CourseTimetable;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.*;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.authResponse.MessageResponse;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.CourseListResponse;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.CourseResponse;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.MaterialCreationResponse;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.MaterialListResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.*;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.ErrorMessageResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.SuccessfulMessageResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.courseService.courseServiceInterface.CourseServiceInterface;
@@ -20,12 +14,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.annotation.MultipartConfig;
 import javax.validation.Valid;
-import java.awt.print.Pageable;
-import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -217,6 +207,22 @@ public class AdminCourseController {
         catch (NoSuchElementException ex){
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }catch (Exception ex){
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
+        }
+    }
+
+    @PutMapping("/{courseId}/timetable/{timetableId}")
+    @PreAuthorize("hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
+    public ResponseEntity<?> updateTimeTable(@PathVariable(name = "courseId") Long courseId,
+                                            @PathVariable(name = "timetableId") Long timetableId ,
+                                             @RequestBody TimeTableRequest request) {
+        try {
+            CourseTimetable timetable = courseService.updateCourseTimeTable(timetableId, courseId, request);
+            return ResponseEntity.ok().body(new TimeTableResponse(timetable));
+        } catch (NoSuchElementException ex){
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
+
+        } catch (Exception ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }
     }
