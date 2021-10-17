@@ -18,21 +18,18 @@ public class Rate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Integer value;
-
+    private Double value;
     private String description;
     private LocalDateTime time;
 
-
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private Boolean status=true;
+    private Boolean status = true;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @ManyToOne
     @JoinColumn(name = "tutor_id")
     private User tutor;
 
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @ManyToOne
     @JoinColumn(name = "student_id")
     private User student;
@@ -43,9 +40,10 @@ public class Rate {
     private Subject subject;
 
 
-    public Rate(Integer value, String description, LocalDateTime time) {
+    public Rate(Double value, String description, LocalDateTime time, Subject subject) {
         this.value = value;
         this.description = description;
         this.time = time;
+        this.subject = subject;
     }
 }

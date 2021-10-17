@@ -2,11 +2,9 @@ package com.swp391.onlinetutorapplication.onlinetutorapplication.service.courseS
 
 import com.dropbox.core.DbxException;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Course;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.CourseTimetable;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Subject;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.ActionApproveOrRejectRequest;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.CourseCreationRequest;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.CourseUpdateRequest;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.MaterialCreationRequest;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.*;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.CourseInformationResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.MaterialCreationResponse;
 
@@ -38,4 +36,7 @@ public interface CourseServiceInterface {
     void deleteMaterial(Long materialId, Long courseId, String accessToken ) throws Exception;
     void handleCourseRegisterRequest(String accessToken, Long id, ActionApproveOrRejectRequest actionApproveOrRejectRequest);
     CourseInformationResponse getOneCourseApiPublic(Long courseId);
+    void deleteTimeTable(Long timetableId, Long  courseId, String accessToken) throws  Exception;
+    CourseTimetable updateCourseTimeTable(Long timeTableId, Long courseId, TimeTableRequest timeTableRequest) throws Exception;
+    CourseTimetable createTimetable(TimeTableCreationRequest request, Long courseId, String accessToken) throws Exception;
 }

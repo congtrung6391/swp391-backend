@@ -77,12 +77,6 @@ public class UserManagementImplement implements UserManagementInterface{
         if(user.getId() != id){
             throw new IllegalStateException("You are not allowed to change other people's accounts");
         }
-        if(!updateProfileRequest.getEmail().equals(user.getEmail())){
-            if(updateProfileRequest.getEmail().isEmpty()){
-                throw new IllegalStateException("Email not null");
-            }
-           user.setEmail(updateProfileRequest.getEmail());
-        }
         if(!updateProfileRequest.getPhone().equals(user.getPhone())){
             if(updateProfileRequest.getPhone().isEmpty()){
                 user.setPhone(null);
@@ -177,10 +171,11 @@ public class UserManagementImplement implements UserManagementInterface{
                         throw new NoSuchElementException("Can't find users that match the search value");
                     });
         }else if(id != null && !name.isEmpty() && name != null){
-            return userRepository.findDistinctByIdAndStatusIsTrueAndEmailContainingOrFullNameContainingOrUsernameContaining(Long.parseLong(id), name, name, name)
-                    .orElseThrow(() -> {
-                        throw new NoSuchElementException("Can't find users that match the search value");
-                    });
+            User user = userRepository.findByIdAndName(Long.parseLong(id), "%"+name+"%", "%"+name+"%", "%"+name+"%");
+            if(user == null){
+                throw new NoSuchElementException("Can't find users that match the search value");
+            }
+            return user;
         }
         return userRepository.findAllByStatusIsTrueAndEmailContainingOrStatusIsTrueAndFullNameContainingOrStatusIsTrueAndUsernameContaining(name, name, name)
                 .orElseThrow(()->{
