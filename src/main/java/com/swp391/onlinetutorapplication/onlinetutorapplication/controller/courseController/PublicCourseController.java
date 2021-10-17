@@ -26,7 +26,8 @@ public class PublicCourseController {
     // POST   localhost:8080/api/public/course/:id/register
     @PostMapping("/{id}/register")
     @PreAuthorize("hasAuthority('STUDENT')")
-    public ResponseEntity<?> registerCourse(@RequestHeader(name = "Authorization") String accessToken, @PathVariable(name = "id") Long id) {
+    public ResponseEntity<?> registerCourse(@RequestHeader(name = "Authorization") String accessToken,
+                                            @PathVariable(name = "id") Long id) {
         try {
             courseService.handleCourseRegister(accessToken, id);
             return ResponseEntity.ok().body(new SuccessfulMessageResponse("Register course successful"));

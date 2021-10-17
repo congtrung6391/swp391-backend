@@ -12,14 +12,13 @@ import lombok.Setter;
 @AllArgsConstructor
 public class CourseResponse {
     private CourseInformationResponse course;
-    private String status;
+    private boolean status = true;
 
-    public CourseResponse(Course course, String status){
+    public CourseResponse(Course course){
         this.course = new CourseInformationResponse(course);
         this.course.setTutor(course.getTutor());
         if(course.getStudent() != null){
             this.course.setStudent(course.getStudent());
         }
-        this.status = status;
     }
 }

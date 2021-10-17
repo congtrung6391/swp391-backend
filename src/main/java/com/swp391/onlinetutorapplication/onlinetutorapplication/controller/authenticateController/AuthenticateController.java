@@ -48,7 +48,8 @@ public class AuthenticateController {
 
 
     @PostMapping("/signup")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody RegistrationRequest registrationRequest) throws MessagingException {
+    public ResponseEntity<?> registerUser(@Valid @RequestBody RegistrationRequest registrationRequest)
+            throws MessagingException {
         MessageResponse messageResponse = userService.handleUserRegistration(registrationRequest);
         if (messageResponse.getMessage().contains("Error")) {
             return ResponseEntity.badRequest().body(messageResponse);
@@ -98,7 +99,8 @@ public class AuthenticateController {
 
     //Sau khi nhập xong email bấm enter thì chuyển tới trang nhập code thì
     @PostMapping("/send-forgot-password")
-    public ResponseEntity<?> sendForgetPassword(@RequestParam(name = "email") String email) throws MessagingException {
+    public ResponseEntity<?> sendForgetPassword(@RequestParam(name = "email") String email)
+            throws MessagingException {
         try {
             userService.sendTokenForgetPassword(email);
             return ResponseEntity.ok().body(new SuccessfulMessageResponse("Reset code sent to your email"));
