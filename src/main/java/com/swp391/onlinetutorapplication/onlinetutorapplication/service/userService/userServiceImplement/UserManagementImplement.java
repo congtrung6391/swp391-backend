@@ -77,12 +77,6 @@ public class UserManagementImplement implements UserManagementInterface{
         if(user.getId() != id){
             throw new IllegalStateException("You are not allowed to change other people's accounts");
         }
-        if(!updateProfileRequest.getEmail().equals(user.getEmail())){
-            if(updateProfileRequest.getEmail().isEmpty()){
-                throw new IllegalStateException("Email not null");
-            }
-           user.setEmail(updateProfileRequest.getEmail());
-        }
         if(!updateProfileRequest.getPhone().equals(user.getPhone())){
             if(updateProfileRequest.getPhone().isEmpty()){
                 user.setPhone(null);

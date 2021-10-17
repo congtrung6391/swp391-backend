@@ -485,5 +485,31 @@ public class CourseServiceImplement implements CourseServiceInterface {
         return timetable;
     }
 
+    @Override
+    public CourseTimetable createTimetable(TimeTableCreationRequest request, Long courseId, String accessToken) throws Exception {
+        accessToken = accessToken.replaceAll("Bearer ", "");
+        User tutor = userRepository.findByAuthorizationToken(accessToken)
+                .orElseThrow(() -> {
+                    throw new NoSuchElementException("User cannot be found");
+                });
+        if (tutor.getExpireAuthorization().isBefore(Instant.now())) {
+            userService.handleUserLogout(accessToken);
+        }
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> {
+                    throw new NoSuchElementException("Course cannot be found");
+                });
+        CourseTimetable timetable = new CourseTimetable();
+        timetable.setDay(request.getDay());
+        if(request.getStartTime().isAfter(request.getEndTime())){
+            throw new Exception("Please set StartTime before EndTime");
+        }
+        timetable.setStartTime(request.getStartTime());
+        timetable.setEndTime(request.getEndTime());
+        timetable.setCourse(course);
+
+        courseTimeTableRepository.save(timetable);
+        return timetable;
+    }
 
 }
