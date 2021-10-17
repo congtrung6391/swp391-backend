@@ -13,12 +13,9 @@ import java.time.LocalTime;
 @AllArgsConstructor
 public class TimeTableCreationRequest {
 
-    @NotBlank
     private Integer day;
 
-    @NotBlank
     private LocalTime startTime;
 
-    @NotBlank
     private LocalTime endTime;
 }
