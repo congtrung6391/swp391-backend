@@ -40,5 +40,5 @@ public interface CourseServiceInterface {
     void deleteTimeTable(Long timetableId, Long  courseId, String accessToken) throws  Exception;
     CourseTimetable updateCourseTimeTable(Long timeTableId, Long courseId, TimeTableRequest timeTableRequest) throws Exception;
     CourseTimetable createTimetable(TimeTableCreationRequest request, Long courseId, String accessToken) throws Exception;
-    List<TimeTableInformation> getTimeTableList(Long courseId, String accessToken);
+    List<TimeTableInformation> getTimeTableList(Long courseId) throws Exception;
 }

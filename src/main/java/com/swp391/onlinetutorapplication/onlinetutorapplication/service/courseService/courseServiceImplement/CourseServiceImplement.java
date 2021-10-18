@@ -515,16 +515,14 @@ public class CourseServiceImplement implements CourseServiceInterface {
     }
 
     @Override
-    public List<TimeTableInformation> getTimeTableList(Long courseId, String accessToken) {
-        accessToken = accessToken.replaceAll("Bearer ", "");
-        User currentUser = userRepository.findByAuthorizationToken(accessToken).
-                orElseThrow(() -> {
-                    throw new NoSuchElementException("User cannot be found");
-                });
+    public List<TimeTableInformation> getTimeTableList(Long courseId) throws Exception{
         Course course = courseRepository.findById(courseId).
                 orElseThrow(() -> {
                     throw new NoSuchElementException("Course cannot be found");
                 });
+        if(course.getStudent() != null){
+            throw new Exception("Course cannot be found");
+        }
         List<CourseTimetable> timetableList = courseTimeTableRepository.findAllByCourseAndStatusIsTrue(course);
         List<TimeTableInformation> timeTableInformations = new ArrayList<>();
         for (CourseTimetable courseTimetable : timetableList) {
