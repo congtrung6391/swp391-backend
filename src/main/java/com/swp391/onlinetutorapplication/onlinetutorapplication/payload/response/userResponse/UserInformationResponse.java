@@ -21,6 +21,7 @@ public class UserInformationResponse {
     private String username;
     private String email;
     private String fullName;
+    private String avatar;
     private Set<Role> role;
 
     public UserInformationResponse(User user){
@@ -28,6 +29,7 @@ public class UserInformationResponse {
         this.username = user.getUsername();
         this.email = user.getEmail();
         this.fullName = user.getFullName();
+        this.avatar = user.getAvatar();
         this.role = user.getRoles();
     }
 }

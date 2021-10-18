@@ -37,6 +37,7 @@ public class User {
     private String phone;
     private Integer grade;
     private String address;
+    private String avatar;
     private String facebookUrl;
     private String affiliate;
     private Double gpa;
