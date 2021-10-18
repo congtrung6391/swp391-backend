@@ -119,7 +119,7 @@ public class PublicUserManagementController {
             System.out.println(rateList);
             return ResponseEntity.ok().body(new RatingListResponse(rateList, page, limit));
         } catch (Exception e) {
-            return null;
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
         }
     }
 
