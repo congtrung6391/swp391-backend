@@ -8,6 +8,7 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.ratingResponse.RatingListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.ratingResponse.RatingResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.ErrorMessageResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.SuccessfulMessageResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.TutorListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserInformationResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.ratingService.ratingServiceInterface.RatingServiceInterface;
@@ -99,7 +100,7 @@ public class PublicUserManagementController {
 //        }
 //    }
 
-    @GetMapping("/tutor/{tutorId}/rating")
+    @GetMapping("/user/{tutorId}/rating")
     public ResponseEntity<?> getTutorRatingBySubject(@PathVariable(name = "tutorId") Long tutorId,
                                                      @RequestParam(required = false) Long subjectId,
                                                      @RequestParam(name = "page", required = false) Integer page,
@@ -152,6 +153,19 @@ public class PublicUserManagementController {
         try {
             return ResponseEntity.ok().body(new RatingResponse(ratingService.updateRating(accessToken, tutorId, ratingId, request)));
         } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/user/{tutorId}/rating/{ratingId}")
+    @PreAuthorize("hasAuthority('SUPER_ADMIN') or hasAuthority('STUDENT') or hasAuthority('ADMIN')")
+    public ResponseEntity<?> deleteRating(@RequestHeader(name = "Authorization")String accessToken,
+                                          @PathVariable(name = "tutorId") Long tutorId,
+                                          @PathVariable(name = "ratingId") Long ratingId){
+        try{
+            ratingService.deleteRating(accessToken,tutorId,ratingId);
+            return ResponseEntity.ok().body(new SuccessfulMessageResponse("Delete rating successful"));
+        }catch (Exception e){
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
         }
     }
