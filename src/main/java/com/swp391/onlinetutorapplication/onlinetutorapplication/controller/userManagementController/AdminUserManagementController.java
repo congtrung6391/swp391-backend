@@ -126,16 +126,5 @@ public class AdminUserManagementController {
 //        }
 //    }
 
-    @DeleteMapping("/tutor/{tutorId}/rating/{ratingId}")
-    @PreAuthorize("hasAuthority('SUPER_ADMIN') or hasAuthority('STUDENT')")
-    public ResponseEntity<?> deleteRating(@RequestHeader(name = "Authorization")String accessToken,
-                                          @PathVariable(name = "tutorId") Long tutorId,
-                                          @PathVariable(name = "ratingId") Long ratingId){
-        try{
-            ratingService.deleteRating(accessToken,tutorId,ratingId);
-            return ResponseEntity.ok().body(new SuccessfulMessageResponse("Delete rating successful"));
-        }catch (Exception e){
-            return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
-        }
-    }
+
 }
