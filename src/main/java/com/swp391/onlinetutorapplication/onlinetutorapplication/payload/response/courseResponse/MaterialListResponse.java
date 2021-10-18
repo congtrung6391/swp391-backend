@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -18,5 +19,17 @@ public class MaterialListResponse {
     public MaterialListResponse(List<MaterialCreationResponse> materialList) {
         this.totalMaterial = materialList.size();
         this.materialList = materialList;
+    }
+
+    public MaterialListResponse(List<MaterialCreationResponse> materials, Integer page, Integer limit) {
+        page = page-1;
+        this.totalMaterial = materials.size();
+        List<MaterialCreationResponse> responses = new ArrayList<>();
+        int index = page*limit;
+        int des = materials.size()<(index+limit) ? materials.size() : index+limit;
+        for(int i = index; i< des ; i++){
+            responses.add(materials.get(i));
+        }
+        this.materialList = responses;
     }
 }

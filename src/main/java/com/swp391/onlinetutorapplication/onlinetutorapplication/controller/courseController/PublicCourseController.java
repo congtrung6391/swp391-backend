@@ -26,7 +26,8 @@ public class PublicCourseController {
     // POST   localhost:8080/api/public/course/:id/register
     @PostMapping("/{id}/register")
     @PreAuthorize("hasAuthority('STUDENT')")
-    public ResponseEntity<?> registerCourse(@RequestHeader(name = "Authorization") String accessToken, @PathVariable(name = "id") Long id) {
+    public ResponseEntity<?> registerCourse(@RequestHeader(name = "Authorization") String accessToken,
+                                            @PathVariable(name = "id") Long id) {
         try {
             courseService.handleCourseRegister(accessToken, id);
             return ResponseEntity.ok().body(new SuccessfulMessageResponse("Register course successful"));
@@ -40,10 +41,19 @@ public class PublicCourseController {
     //Get course public - by Nam
     // Get localhost:8080/api/public/course
     @GetMapping("")
-    public ResponseEntity<?> getAllCourseForPublic() {
+    public ResponseEntity<?> getAllCourseForPublic(@RequestParam(name = "page", required = false) Integer page,
+                                                   @RequestParam(name = "limit", required = false) Integer limit) {
         try {
-            return ResponseEntity.ok().body(new CourseListResponse(true
-                    , courseService.getAllCourseInformationForStudent()));
+            if(page == null){
+                page = 1;
+            }
+            if(limit == null){
+                limit = 20;
+            }
+            return ResponseEntity.ok().body(new CourseListResponse(
+                    courseService.getAllCourseInformationForStudent(),
+                    page,limit
+            ));
         } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }

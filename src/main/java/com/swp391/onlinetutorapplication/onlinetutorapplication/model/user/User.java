@@ -1,6 +1,7 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.model.user;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.rating.Rate;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -36,6 +37,7 @@ public class User {
     private String phone;
     private Integer grade;
     private String address;
+    private String avatar;
     private String facebookUrl;
     private String affiliate;
     private Double gpa;
@@ -57,6 +59,13 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     Set<Role> roles = new HashSet<>();
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @OneToMany(mappedBy = "tutor")
+    private List<Rate> rated;
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @OneToMany(mappedBy = "student")
+    private List<Rate> rate;
 
     public User(String username, String email, String phone, String fullName, String password, String activateToken) {
         this.username = username;

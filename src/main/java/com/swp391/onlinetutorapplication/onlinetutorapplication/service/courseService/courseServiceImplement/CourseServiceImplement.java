@@ -1,21 +1,18 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.service.courseService.courseServiceImplement;
 
-import com.dropbox.core.BadRequestException;
 import com.dropbox.core.DbxException;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Course;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.CourseMaterial;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.CourseTimetable;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Subject;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.ERole;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.ActionApproveOrRejectRequest;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.CourseCreationRequest;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.CourseUpdateRequest;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.MaterialCreationRequest;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.*;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.CourseInformationResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.MaterialCreationResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.CourseMaterialRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.CourseRepository;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.CourseTimeTableRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.SubjectRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.user.UserRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.courseService.courseServiceInterface.CourseServiceInterface;
@@ -24,14 +21,11 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userServ
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.naming.ServiceUnavailableException;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -55,6 +49,9 @@ public class CourseServiceImplement implements CourseServiceInterface {
 
     @Autowired
     private CourseMaterialRepository courseMaterialRepository;
+
+    @Autowired
+    private CourseTimeTableRepository courseTimeTableRepository;
 
 
     @Override
@@ -171,6 +168,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
         courseInformationResponse.setTutor(course.getTutor());
         return courseInformationResponse;
     }
+
 
     @Override
     public List<CourseInformationResponse> getAllCourseInformationForStudent() {
@@ -326,7 +324,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
     @Override
     public Object updateMaterial(Long courseId, Long materialId, MaterialCreationRequest request) throws IOException, DbxException {
         if (request.getTitle().isEmpty()) {
-            throw new IllegalArgumentException("Title not null");
+             throw new IllegalArgumentException("Title not null");
         }
         CourseMaterial courseMaterial = courseMaterialRepository.findById(materialId)
                 .orElseThrow(() -> {
@@ -438,6 +436,80 @@ public class CourseServiceImplement implements CourseServiceInterface {
 
 
     }
+    //Delete TimeTable
+    @Override
+    public void deleteTimeTable(Long timetableId, Long courseId, String accessToken) throws Exception {
+        accessToken = accessToken.replaceAll("Bearer ", "");
+        User tutor = userRepository.findByAuthorizationToken(accessToken).orElseThrow(() ->{
+            throw new NoSuchElementException("User not found");
+        });
+        Course course = courseRepository.findByIdAndCourseStatusIsTrue(courseId).orElseThrow(()->{
+            throw new NoSuchElementException("Course not found");
+        });
+        CourseTimetable timetable = courseTimeTableRepository.findById(timetableId).orElseThrow(()->{
+            throw new NoSuchElementException("TimeTable not found");
+        });
+        if(tutor != course.getTutor()){
+            throw new Exception("You are not allowed to delete ");
+        }
+        else
+        {
+            timetable.setStatus(false);
+            courseTimeTableRepository.save(timetable);
+        }
+    }
 
+    @Override
+    public CourseTimetable updateCourseTimeTable(Long timeTableId, Long courseId, TimeTableRequest timeTableRequest) throws Exception {
+        Course course = courseRepository.findByIdAndCourseStatusIsTrue(courseId).orElseThrow(()->{
+           throw new NoSuchElementException("Course not found");
+        });
+        CourseTimetable timetable = courseTimeTableRepository.findById(timeTableId).orElseThrow(()->{
+            throw new NoSuchElementException("Timetable not found");
+                });
+        if (timeTableRequest.getDay() != null) {
+            timetable.setDay(timeTableRequest.getDay());
+        }
+        if(timeTableRequest.getStartTime() != null){
+            timetable.setStartTime(timeTableRequest.getStartTime());
+        }
+        if(timeTableRequest.getEndTime() != null){
+            timetable.setEndTime(timeTableRequest.getEndTime());
+        }
+
+        // check if starttime after endtime
+        if(timeTableRequest.getStartTime().isAfter(timeTableRequest.getEndTime())){
+          throw new Exception("Please set Startime before EndTime");
+        }
+        courseTimeTableRepository.save(timetable);
+        return timetable;
+    }
+
+    @Override
+    public CourseTimetable createTimetable(TimeTableCreationRequest request, Long courseId, String accessToken) throws Exception {
+        accessToken = accessToken.replaceAll("Bearer ", "");
+        User tutor = userRepository.findByAuthorizationToken(accessToken)
+                .orElseThrow(() -> {
+                    throw new NoSuchElementException("User cannot be found");
+                });
+        if (tutor.getExpireAuthorization().isBefore(Instant.now())) {
+            userService.handleUserLogout(accessToken);
+        }
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> {
+                    throw new NoSuchElementException("Course cannot be found");
+                });
+        CourseTimetable timetable = new CourseTimetable();
+        timetable.setDay(request.getDay());
+        if(request.getStartTime().isAfter(request.getEndTime())){
+            throw new Exception("Please set StartTime before EndTime");
+        }
+        timetable.setStartTime(request.getStartTime());
+        timetable.setEndTime(request.getEndTime());
+        timetable.setCourse(course);
+
+        courseTimeTableRepository.save(timetable);
+        return timetable;
+    }
 
 }
