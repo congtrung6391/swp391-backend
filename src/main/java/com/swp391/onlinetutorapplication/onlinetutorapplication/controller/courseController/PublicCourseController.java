@@ -17,7 +17,7 @@ import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api/public/course")
-@CrossOrigin(origins = "https://swp391-onlinetutor.herokuapp.com/")
+@CrossOrigin(origins = "http://localhost:3000/")
 public class PublicCourseController {
     @Autowired
     private CourseServiceInterface courseService;
