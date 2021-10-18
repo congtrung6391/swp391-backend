@@ -116,6 +116,7 @@ public class PublicUserManagementController {
                 return ResponseEntity.ok().body(new RatingListResponse(rateList, page, limit));
             }
             List<Rate> rateList = ratingService.getTutorRatingBySubject(tutorId, subjectId);
+            System.out.println(rateList);
             return ResponseEntity.ok().body(new RatingListResponse(rateList, page, limit));
         } catch (Exception e) {
             return null;
