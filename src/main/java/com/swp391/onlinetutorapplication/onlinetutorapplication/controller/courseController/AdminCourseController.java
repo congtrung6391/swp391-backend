@@ -221,7 +221,6 @@ public class AdminCourseController {
             return ResponseEntity.ok().body(new TimeTableResponse(timetable));
         } catch (NoSuchElementException ex){
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
-
         } catch (Exception ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }
@@ -239,6 +238,8 @@ public class AdminCourseController {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }
     }
+
+
 
 }
 

@@ -20,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -41,7 +42,7 @@ public class PublicUserManagementController {
     @PreAuthorize("hasAuthority('SUPER_ADMIN') or hasAuthority('ADMIN') or hasAuthority('TUTOR') or hasAuthority('STUDENT')")
     public ResponseEntity<?> updateUser(@RequestHeader(name = "Authorization") String accessToken,
                                         @PathVariable("id") Long id,
-                                        @RequestBody UpdateProfileRequest updateProfileRequest) {
+                                        @Valid @RequestBody UpdateProfileRequest updateProfileRequest) {
         try {
             userManagement.updateUser(accessToken, id, updateProfileRequest);
             return ResponseEntity.ok().body(new MessageResponse("User id: " + id + " has been updated."));
