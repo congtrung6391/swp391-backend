@@ -79,32 +79,55 @@ public class UserManagementImplement implements UserManagementInterface{
         }
         if(!updateProfileRequest.getPhone().equals(user.getPhone())){
             if(updateProfileRequest.getPhone().isEmpty()){
-                user.setPhone(null);
+                user.setPhone(user.getPhone());
             }
             user.setPhone(updateProfileRequest.getPhone());
         }
         if(!updateProfileRequest.getFullName().equals(user.getFullName())){
+            if(updateProfileRequest.getFullName().isEmpty()){
+                user.setFullName(user.getFullName());
+            }
             user.setFullName(updateProfileRequest.getFullName());
         }
         if(!updateProfileRequest.getGrade().equals(user.getGrade())){
+            String grade = Integer.toString(updateProfileRequest.getGrade());
+            if(grade.isEmpty()){
+                user.setGrade(user.getGrade());
+            }
             user.setGrade(updateProfileRequest.getGrade());
         }
         if(!updateProfileRequest.getAddress().equals(user.getAddress())){
+            if(updateProfileRequest.getAddress().isEmpty()){
+                user.setAddress(user.getAddress());
+            }
             user.setAddress(updateProfileRequest.getAddress());
         }
 
         if(!updateProfileRequest.getAffiliate().equals(user.getAffiliate())){
+            if(updateProfileRequest.getAddress().isEmpty()){
+                user.setAffiliate(user.getAffiliate());
+            }
             user.setAffiliate(updateProfileRequest.getAffiliate());
         }
 
         if(!updateProfileRequest.getFacebookUrl().equals(user.getFacebookUrl())){
+            if(updateProfileRequest.getFacebookUrl().isEmpty()){
+                user.setFacebookUrl(user.getFacebookUrl());
+            }
             user.setFacebookUrl(updateProfileRequest.getFacebookUrl());
         }
 
         if(!updateProfileRequest.getGender().equals(user.getGender())){
+            if(updateProfileRequest.getGender().isEmpty()){
+                user.setGender(user.getGender());
+            }
             user.setGender(updateProfileRequest.getGender());
         }
         if(!updateProfileRequest.getGpa().equals(user.getGpa())){
+            String gpa = Double.toString(updateProfileRequest.getGpa());
+            if(gpa.isEmpty()){
+                user.setGpa(user.getGpa());
+            }
             user.setGpa(updateProfileRequest.getGpa());
         }
         userRepository.save(user);
