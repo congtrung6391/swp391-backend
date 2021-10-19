@@ -97,6 +97,9 @@ public class CourseServiceImplement implements CourseServiceInterface {
                 case TUTOR:
                     listAllCourse = courseRepository.findAllByTutorAndStatusIsTrue(user);
                     break;
+                case STUDENT:
+                    listAllCourse = courseRepository.findAllByStudentAndStatusisTrue(user);
+                    break;
                 default:
                     return null;
             }
