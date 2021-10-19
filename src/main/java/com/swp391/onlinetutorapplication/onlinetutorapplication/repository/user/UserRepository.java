@@ -24,15 +24,14 @@ public interface UserRepository extends JpaRepository<User,Long> {
     List<User> findAllByStatusIsTrue();
     List<User> findAllByRolesAndStatusIsTrue(Role role);
     Optional<User> findByIdAndStatusIsTrue(Long id);
-
     @Override
     List<User> findAll();
+    Optional<List<User>> findAllByIdAndStatusIsTrue(Long id);
+    @Query("SELECT distinct u from User u where u.id= ?1 and (u.email like ?2 or u.fullName like ?3 or u.username like ?4)")
+    Optional<List<User>> findByIdAndName(Long id, String email, String fullName, String userName);
 
-    Optional<User> findDistinctByIdAndStatusIsTrueAndEmailContainingOrFullNameContainingOrUsernameContaining
-            (Long id, String email, String fullName, String userName);
-
-    Optional<List<User>> findAllByStatusIsTrueAndEmailContainingOrStatusIsTrueAndFullNameContainingOrStatusIsTrueAndUsernameContaining
-            (String email, String fullName, String userName);
+    @Query("SELECT distinct u from User u where u.email like ?1 or u.fullName like ?2 or u.username like ?3")
+    Optional<List<User>> findAllByName(String email, String fullName, String userName);
 
     Optional<List<User>> findAllByStatusIsTrueAndRolesAndEmailContainsOrRolesAndFullNameContaining
             (Role role, String email, Role role2, String fullName);
