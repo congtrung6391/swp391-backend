@@ -42,6 +42,7 @@ public class User {
     private String affiliate;
     private Double gpa;
     private String gender;
+    private String birthday;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String authorizationToken;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)

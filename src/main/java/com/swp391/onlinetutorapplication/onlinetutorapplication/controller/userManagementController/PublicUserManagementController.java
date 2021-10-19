@@ -37,7 +37,7 @@ public class PublicUserManagementController {
     @Autowired
     private RatingServiceInterface ratingService;
 
-    @PostMapping("/user/{id}")
+    @PutMapping("/user/{id}")
     @PreAuthorize("hasAuthority('SUPER_ADMIN') or hasAuthority('ADMIN') or hasAuthority('TUTOR') or hasAuthority('STUDENT')")
     public ResponseEntity<?> updateUser(@RequestHeader(name = "Authorization") String accessToken,
                                         @PathVariable("id") Long id,

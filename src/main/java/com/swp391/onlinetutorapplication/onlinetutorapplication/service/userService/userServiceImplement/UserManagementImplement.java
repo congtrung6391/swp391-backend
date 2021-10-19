@@ -11,6 +11,7 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.user.
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceInterface.UserManagementInterface;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
@@ -26,6 +27,9 @@ public class UserManagementImplement implements UserManagementInterface{
 
     @Autowired
     private RoleRepository roleRepository;
+
+    @Autowired
+    private PasswordEncoder encoder;
 
     @Override
     public User getUser(String username) {
@@ -68,7 +72,7 @@ public class UserManagementImplement implements UserManagementInterface{
     public void saveUser(User user) { userRepository.save(user);}
 
     @Override
-    public void updateUser(String accessToken, Long id, UpdateProfileRequest updateProfileRequest) {
+    public void updateUser(String accessToken, Long id, UpdateProfileRequest updateProfileRequest) throws Exception {
         accessToken = accessToken.replaceAll("Bearer ","");
         User user = userRepository.findByAuthorizationToken(accessToken)
                 .orElseThrow(()-> {
@@ -77,6 +81,7 @@ public class UserManagementImplement implements UserManagementInterface{
         if(user.getId() != id){
             throw new IllegalStateException("You are not allowed to change other people's accounts");
         }
+
         if(!updateProfileRequest.getPhone().equals(user.getPhone())){
             if(updateProfileRequest.getPhone().isEmpty()){
                 user.setPhone(user.getPhone());
@@ -110,6 +115,13 @@ public class UserManagementImplement implements UserManagementInterface{
             user.setAffiliate(updateProfileRequest.getAffiliate());
         }
 
+        if(!updateProfileRequest.getAvatar().equals(user.getAvatar())){
+            if(updateProfileRequest.getAvatar().isEmpty()){
+                user.setAvatar(user.getAvatar());
+            }
+            user.setAvatar(updateProfileRequest.getAffiliate());
+        }
+
         if(!updateProfileRequest.getFacebookUrl().equals(user.getFacebookUrl())){
             if(updateProfileRequest.getFacebookUrl().isEmpty()){
                 user.setFacebookUrl(user.getFacebookUrl());
@@ -130,6 +142,26 @@ public class UserManagementImplement implements UserManagementInterface{
             }
             user.setGpa(updateProfileRequest.getGpa());
         }
+
+        if(!updateProfileRequest.getBirthday().equals(user.getBirthday())){
+            if(updateProfileRequest.getBirthday().isEmpty()){
+                user.setBirthday(user.getBirthday());
+            }
+            user.setBirthday(updateProfileRequest.getBirthday());
+        }
+
+        if(!updateProfileRequest.getNewPassword().equals(user.getPassword())){
+            if(updateProfileRequest.getNewPassword().isEmpty()){
+                user.setPassword(user.getPassword());
+            }
+            updateProfileRequest.setPassword(encoder.encode(updateProfileRequest.getPassword()));
+            updateProfileRequest.setNewPassword(encoder.encode(updateProfileRequest.getNewPassword()));
+            if(!updateProfileRequest.getPassword().equals(user.getPassword())){
+                throw new Exception("The old password is not correct");
+            }
+            user.setPassword(updateProfileRequest.getNewPassword());
+        }
+
         userRepository.save(user);
 
     }
