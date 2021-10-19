@@ -63,7 +63,9 @@ public class AdminUserManagementController {
 
     @GetMapping("/get-user-list")
     @PreAuthorize("hasAuthority('SUPER_ADMIN')")
-    public ResponseEntity<?> getAllUser(@RequestParam(name = "page", required = false) Integer page,
+    public ResponseEntity<?> getAllUser(@RequestParam(required = false) String id,
+                                        @RequestParam(required = false) String name,
+                                        @RequestParam(name = "page", required = false) Integer page,
                                         @RequestParam(name = "limit", required = false) Integer limit) {
         try {
             if(page == null){
@@ -71,6 +73,9 @@ public class AdminUserManagementController {
             }
             if(limit == null){
                 limit = 20;
+            }
+            if(id != null || name != null){
+                return ResponseEntity.ok().body(userManagement.adminSearchUser(id,name));
             }
             List<UserInformationResponse> listUsers = userManagement.getAllUser();
             return ResponseEntity.ok().body(new UserListResponse(listUsers,page,limit));
@@ -108,29 +113,18 @@ public class AdminUserManagementController {
      */
 
     //admin search user - by Nam
-    @GetMapping("/search")
-    @PreAuthorize("hasAuthority('SUPER_ADMIN') or hasAuthority('ADMIN')")
-    public ResponseEntity<?> adminSearchUser(
-            @RequestParam(required = false) String id,
-            @RequestParam(required = false) String name
-    ){
-        try{
-            return ResponseEntity.ok().body(userManagement.adminSearchUser(id,name));
-        }catch (Exception e){
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
+//    @GetMapping("/search")
+//    @PreAuthorize("hasAuthority('SUPER_ADMIN') or hasAuthority('ADMIN')")
+//    public ResponseEntity<?> adminSearchUser(
+//            @RequestParam(required = false) String id,
+//            @RequestParam(required = false) String name
+//    ){
+//        try{
+//            return ResponseEntity.ok().body(userManagement.adminSearchUser(id,name));
+//        }catch (Exception e){
+//            return ResponseEntity.badRequest().body(e.getMessage());
+//        }
+//    }
 
-    @DeleteMapping("/tutor/{tutorId}/rating/{ratingId}")
-    @PreAuthorize("hasAuthority('SUPER_ADMIN') or hasAuthority('STUDENT')")
-    public ResponseEntity<?> deleteRating(@RequestHeader(name = "Authorization")String accessToken,
-                                          @PathVariable(name = "tutorId") Long tutorId,
-                                          @PathVariable(name = "ratingId") Long ratingId){
-        try{
-            ratingService.deleteRating(accessToken,tutorId,ratingId);
-            return ResponseEntity.ok().body(new SuccessfulMessageResponse("Delete rating successful"));
-        }catch (Exception e){
-            return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
-        }
-    }
+
 }
