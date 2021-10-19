@@ -11,6 +11,7 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.SuccessfulMessageResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.TutorListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserInformationResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.ratingService.ratingServiceInterface.RatingServiceInterface;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceInterface.UserManagementInterface;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceInterface.UserServiceInterface;
@@ -19,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -40,7 +42,7 @@ public class PublicUserManagementController {
     @PreAuthorize("hasAuthority('SUPER_ADMIN') or hasAuthority('ADMIN') or hasAuthority('TUTOR') or hasAuthority('STUDENT')")
     public ResponseEntity<?> updateUser(@RequestHeader(name = "Authorization") String accessToken,
                                         @PathVariable("id") Long id,
-                                        @RequestBody UpdateProfileRequest updateProfileRequest) {
+                                        @Valid @RequestBody UpdateProfileRequest updateProfileRequest) {
         try {
             userManagement.updateUser(accessToken, id, updateProfileRequest);
             return ResponseEntity.ok().body(new MessageResponse("User id: " + id + " has been updated."));
@@ -72,7 +74,8 @@ public class PublicUserManagementController {
                 limit = 20;
             }
             if(name != null){
-                return ResponseEntity.ok().body(userManagement.publicSearchUser(name));
+                List<UserInformationResponse> list = (List<UserInformationResponse>) userManagement.publicSearchUser(name);
+                return ResponseEntity.ok().body(new UserListResponse(list,page,limit));
             }
             List<UserInformationResponse> list = userManagement.getListTutor();
             TutorListResponse listResponse = new TutorListResponse(list, page, limit);

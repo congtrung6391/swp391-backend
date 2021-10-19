@@ -34,4 +34,16 @@ public class TutorListResponse {
         }
         this.tutorList = responses;
     }
+
+//    public TutorListResponse(List<User> users,Integer page, Integer limit){
+//        page = page-1;
+//        this.totalUser = users.size();
+//        List<UserInformationResponse> responses = new ArrayList<>();
+//        int index = page*limit;
+//        int des = users.size()<(index+limit) ? users.size() : index+limit;
+//        for(int i = index; i< des ; i++){
+//            responses.add(new UserInformationResponse(users.get(i)));
+//        }
+//        this.tutorList = responses;
+//    }
 }
