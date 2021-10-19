@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
-import javax.validation.constraints.Null;
 import java.util.*;
 
 
@@ -164,33 +163,56 @@ public class UserManagementImplement implements UserManagementInterface{
     //admin search user - by Nam
     @Override
     public Object adminSearchUser(String id ,String name) {
-
         if(name == null || name.isEmpty()){
-            return userRepository.findById(Long.parseLong(id)).
+            List<User> users =  userRepository.findAllByIdAndStatusIsTrue(Long.parseLong(id)).
                     orElseThrow(() -> {
                         throw new NoSuchElementException("Can't find users that match the search value");
                     });
-        }else if(id != null && !name.isEmpty() && name != null){
-            User user = userRepository.findByIdAndName(Long.parseLong(id), "%"+name+"%", "%"+name+"%", "%"+name+"%");
-            if(user == null){
-                throw new NoSuchElementException("Can't find users that match the search value");
+            List<UserInformationResponse> responseList = new ArrayList<>();
+            for(User user : users){
+                UserInformationResponse response = new UserInformationResponse(user);
+                responseList.add(response);
             }
-            return user;
+            return responseList;
+        }else if(id != null && !name.isEmpty() && name != null){
+            List<User> users = userRepository.findByIdAndName(Long.parseLong(id), "%"+name+"%", "%"+name+"%", "%"+name+"%")
+                    .orElseThrow(() ->{
+                        throw new NoSuchElementException("Can't find users that match the search value");
+                    });
+            List<UserInformationResponse> responseList = new ArrayList<>();
+            for(User user : users){
+                UserInformationResponse response = new UserInformationResponse(user);
+                responseList.add(response);
+            }
+            return responseList;
+        }else {
+            List<User> users =  userRepository.findAllByName("%" + name + "%", "%" + name + "%", "%" + name + "%")
+                    .orElseThrow(() -> {
+                        throw new NoSuchElementException("Can't find users that match the search value");
+                    });
+            List<UserInformationResponse> responseList = new ArrayList<>();
+            for(User user : users){
+                UserInformationResponse response = new UserInformationResponse(user);
+                responseList.add(response);
+            }
+            return responseList;
         }
-        return userRepository.findAllByStatusIsTrueAndEmailContainingOrStatusIsTrueAndFullNameContainingOrStatusIsTrueAndUsernameContaining(name, name, name)
-                .orElseThrow(()->{
-                    throw new NoSuchElementException("Can't find users that match the search value");
-                });
     }
 
     //public search tutor - by Nam
     @Override
     public Object publicSearchUser(String name) {
         Role role = roleRepository.findByUserRole(ERole.TUTOR).get();
-        return userRepository.findAllByStatusIsTrueAndRolesAndEmailContainsOrRolesAndFullNameContaining(role,name,role,name).
+        List<User> users = userRepository.findAllByStatusIsTrueAndRolesAndEmailContainsOrRolesAndFullNameContaining(role,name,role,name).
                 orElseThrow(()->{
                     throw new NoSuchElementException("Can't find users that match the search value");
                 });
+        List<UserInformationResponse> responseList = new ArrayList<>();
+        for(User user : users){
+            UserInformationResponse response = new UserInformationResponse(user);
+            responseList.add(response);
+        }
+        return responseList;
     }
 }
 

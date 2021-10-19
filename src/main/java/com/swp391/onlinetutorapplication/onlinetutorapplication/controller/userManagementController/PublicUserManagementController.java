@@ -11,6 +11,7 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.SuccessfulMessageResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.TutorListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserInformationResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.ratingService.ratingServiceInterface.RatingServiceInterface;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceInterface.UserManagementInterface;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceInterface.UserServiceInterface;
@@ -72,7 +73,8 @@ public class PublicUserManagementController {
                 limit = 20;
             }
             if(name != null){
-                return ResponseEntity.ok().body(userManagement.publicSearchUser(name));
+                List<UserInformationResponse> list = (List<UserInformationResponse>) userManagement.publicSearchUser(name);
+                return ResponseEntity.ok().body(new UserListResponse(list,page,limit));
             }
             List<UserInformationResponse> list = userManagement.getListTutor();
             TutorListResponse listResponse = new TutorListResponse(list, page, limit);
