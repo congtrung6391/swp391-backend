@@ -11,10 +11,10 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.user.
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceInterface.UserManagementInterface;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
-import javax.validation.constraints.Null;
 import java.util.*;
 
 
@@ -26,6 +26,9 @@ public class UserManagementImplement implements UserManagementInterface{
 
     @Autowired
     private RoleRepository roleRepository;
+
+    @Autowired
+    private PasswordEncoder encoder;
 
     @Override
     public User getUser(String username) {
@@ -68,7 +71,7 @@ public class UserManagementImplement implements UserManagementInterface{
     public void saveUser(User user) { userRepository.save(user);}
 
     @Override
-    public void updateUser(String accessToken, Long id, UpdateProfileRequest updateProfileRequest) {
+    public void updateUser(String accessToken, Long id, UpdateProfileRequest updateProfileRequest) throws Exception {
         accessToken = accessToken.replaceAll("Bearer ","");
         User user = userRepository.findByAuthorizationToken(accessToken)
                 .orElseThrow(()-> {
@@ -77,36 +80,87 @@ public class UserManagementImplement implements UserManagementInterface{
         if(user.getId() != id){
             throw new IllegalStateException("You are not allowed to change other people's accounts");
         }
+
         if(!updateProfileRequest.getPhone().equals(user.getPhone())){
             if(updateProfileRequest.getPhone().isEmpty()){
-                user.setPhone(null);
+                user.setPhone(user.getPhone());
             }
             user.setPhone(updateProfileRequest.getPhone());
         }
         if(!updateProfileRequest.getFullName().equals(user.getFullName())){
+            if(updateProfileRequest.getFullName().isEmpty()){
+                user.setFullName(user.getFullName());
+            }
             user.setFullName(updateProfileRequest.getFullName());
         }
         if(!updateProfileRequest.getGrade().equals(user.getGrade())){
+            String grade = Integer.toString(updateProfileRequest.getGrade());
+            if(grade.isEmpty()){
+                user.setGrade(user.getGrade());
+            }
             user.setGrade(updateProfileRequest.getGrade());
         }
         if(!updateProfileRequest.getAddress().equals(user.getAddress())){
+            if(updateProfileRequest.getAddress().isEmpty()){
+                user.setAddress(user.getAddress());
+            }
             user.setAddress(updateProfileRequest.getAddress());
         }
 
         if(!updateProfileRequest.getAffiliate().equals(user.getAffiliate())){
+            if(updateProfileRequest.getAddress().isEmpty()){
+                user.setAffiliate(user.getAffiliate());
+            }
             user.setAffiliate(updateProfileRequest.getAffiliate());
         }
 
+        if(!updateProfileRequest.getAvatar().equals(user.getAvatar())){
+            if(updateProfileRequest.getAvatar().isEmpty()){
+                user.setAvatar(user.getAvatar());
+            }
+            user.setAvatar(updateProfileRequest.getAffiliate());
+        }
+
         if(!updateProfileRequest.getFacebookUrl().equals(user.getFacebookUrl())){
+            if(updateProfileRequest.getFacebookUrl().isEmpty()){
+                user.setFacebookUrl(user.getFacebookUrl());
+            }
             user.setFacebookUrl(updateProfileRequest.getFacebookUrl());
         }
 
         if(!updateProfileRequest.getGender().equals(user.getGender())){
+            if(updateProfileRequest.getGender().isEmpty()){
+                user.setGender(user.getGender());
+            }
             user.setGender(updateProfileRequest.getGender());
         }
         if(!updateProfileRequest.getGpa().equals(user.getGpa())){
+            String gpa = Double.toString(updateProfileRequest.getGpa());
+            if(gpa.isEmpty()){
+                user.setGpa(user.getGpa());
+            }
             user.setGpa(updateProfileRequest.getGpa());
         }
+
+        if(!updateProfileRequest.getBirthday().equals(user.getBirthday())){
+            if(updateProfileRequest.getBirthday().isEmpty()){
+                user.setBirthday(user.getBirthday());
+            }
+            user.setBirthday(updateProfileRequest.getBirthday());
+        }
+
+        if(!updateProfileRequest.getNewPassword().equals(user.getPassword())){
+            if(updateProfileRequest.getNewPassword().isEmpty()){
+                user.setPassword(user.getPassword());
+            }
+            updateProfileRequest.setPassword(encoder.encode(updateProfileRequest.getPassword()));
+            updateProfileRequest.setNewPassword(encoder.encode(updateProfileRequest.getNewPassword()));
+            if(!updateProfileRequest.getPassword().equals(user.getPassword())){
+                throw new Exception("The old password is not correct");
+            }
+            user.setPassword(updateProfileRequest.getNewPassword());
+        }
+
         userRepository.save(user);
 
     }
@@ -164,33 +218,56 @@ public class UserManagementImplement implements UserManagementInterface{
     //admin search user - by Nam
     @Override
     public Object adminSearchUser(String id ,String name) {
-
         if(name == null || name.isEmpty()){
-            return userRepository.findById(Long.parseLong(id)).
+            List<User> users =  userRepository.findAllByIdAndStatusIsTrue(Long.parseLong(id)).
                     orElseThrow(() -> {
                         throw new NoSuchElementException("Can't find users that match the search value");
                     });
-        }else if(id != null && !name.isEmpty() && name != null){
-            User user = userRepository.findByIdAndName(Long.parseLong(id), "%"+name+"%", "%"+name+"%", "%"+name+"%");
-            if(user == null){
-                throw new NoSuchElementException("Can't find users that match the search value");
+            List<UserInformationResponse> responseList = new ArrayList<>();
+            for(User user : users){
+                UserInformationResponse response = new UserInformationResponse(user);
+                responseList.add(response);
             }
-            return user;
+            return responseList;
+        }else if(id != null && !name.isEmpty() && name != null){
+            List<User> users = userRepository.findByIdAndName(Long.parseLong(id), "%"+name+"%", "%"+name+"%", "%"+name+"%")
+                    .orElseThrow(() ->{
+                        throw new NoSuchElementException("Can't find users that match the search value");
+                    });
+            List<UserInformationResponse> responseList = new ArrayList<>();
+            for(User user : users){
+                UserInformationResponse response = new UserInformationResponse(user);
+                responseList.add(response);
+            }
+            return responseList;
+        }else {
+            List<User> users =  userRepository.findAllByName("%" + name + "%", "%" + name + "%", "%" + name + "%")
+                    .orElseThrow(() -> {
+                        throw new NoSuchElementException("Can't find users that match the search value");
+                    });
+            List<UserInformationResponse> responseList = new ArrayList<>();
+            for(User user : users){
+                UserInformationResponse response = new UserInformationResponse(user);
+                responseList.add(response);
+            }
+            return responseList;
         }
-        return userRepository.findAllByStatusIsTrueAndEmailContainingOrStatusIsTrueAndFullNameContainingOrStatusIsTrueAndUsernameContaining(name, name, name)
-                .orElseThrow(()->{
-                    throw new NoSuchElementException("Can't find users that match the search value");
-                });
     }
 
     //public search tutor - by Nam
     @Override
     public Object publicSearchUser(String name) {
         Role role = roleRepository.findByUserRole(ERole.TUTOR).get();
-        return userRepository.findAllByStatusIsTrueAndRolesAndEmailContainsOrRolesAndFullNameContaining(role,name,role,name).
+        List<User> users = userRepository.findAllByStatusIsTrueAndRolesAndEmailContainsOrRolesAndFullNameContaining(role,name,role,name).
                 orElseThrow(()->{
                     throw new NoSuchElementException("Can't find users that match the search value");
                 });
+        List<UserInformationResponse> responseList = new ArrayList<>();
+        for(User user : users){
+            UserInformationResponse response = new UserInformationResponse(user);
+            responseList.add(response);
+        }
+        return responseList;
     }
 }
 
