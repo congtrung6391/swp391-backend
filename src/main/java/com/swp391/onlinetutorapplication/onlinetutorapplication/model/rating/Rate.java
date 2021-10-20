@@ -34,7 +34,6 @@ public class Rate {
     @JoinColumn(name = "student_id")
     private User student;
 
-    // @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @ManyToOne
     @JoinColumn(name = "subject_id")
     private Subject subject;

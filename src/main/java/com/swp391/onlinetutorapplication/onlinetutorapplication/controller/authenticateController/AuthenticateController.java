@@ -24,7 +24,7 @@ import javax.validation.Valid;
 import java.util.NoSuchElementException;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000/")
+@CrossOrigin(origins = "https://swp391-onlinetutor.herokuapp.com/")
 @RequestMapping("/api/auth")
 
 public class AuthenticateController {
@@ -57,7 +57,6 @@ public class AuthenticateController {
             return ResponseEntity.ok(messageResponse);
         }
     }
-
 //    @PostMapping("/refresh-token")
 //    public ResponseEntity<?> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
 //        String requestRefreshToken = request.getRefreshToken();

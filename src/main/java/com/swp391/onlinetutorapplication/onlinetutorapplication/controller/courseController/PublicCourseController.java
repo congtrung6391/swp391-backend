@@ -3,6 +3,8 @@ package com.swp391.onlinetutorapplication.onlinetutorapplication.controller.cour
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.authResponse.MessageResponse;
 
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.CourseListResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.TimeTableInformation;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.TimeTableListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.ErrorMessageResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.SuccessfulMessageResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.courseService.courseServiceInterface.CourseServiceInterface;
@@ -13,11 +15,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api/public/course")
-@CrossOrigin(origins = "http://localhost:3000/")
+@CrossOrigin(origins = "https://swp391-onlinetutor.herokuapp.com/")
 public class PublicCourseController {
     @Autowired
     private CourseServiceInterface courseService;
@@ -74,6 +77,18 @@ public class PublicCourseController {
             return ResponseEntity.ok().body(courseService.getOneCourseApiPublic(id));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
+        }
+    }
+
+    @GetMapping("/{courseId}/timetable")
+    public ResponseEntity<?> getListTimetable(@PathVariable(name = "courseId") Long courseId) {
+        try {
+            List<TimeTableInformation> listTimeTable = courseService.getTimeTableList(courseId);
+            return ResponseEntity.ok().body(new TimeTableListResponse(listTimeTable));
+        } catch (NoSuchElementException ex){
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
+        }catch (Exception ex) {
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }
     }
 }

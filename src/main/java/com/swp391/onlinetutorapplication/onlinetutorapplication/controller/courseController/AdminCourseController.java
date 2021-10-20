@@ -21,16 +21,16 @@ import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api/admin/course")
-@CrossOrigin(origins = "http://localhost:3000/")
+@CrossOrigin(origins = "https://swp391-onlinetutor.herokuapp.com/")
 public class AdminCourseController {
 
     @Autowired
     private CourseServiceInterface courseService;
 
-    //Get all course for admin - by Nam
+    //Get all course for admin -    by Nam
     // localhost:8080/api/admin/course/
     @GetMapping("")
-    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN') or hasAuthority('TUTOR')")
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN') or hasAuthority('TUTOR') or hasAuthority('STUDENT')")
     public ResponseEntity<?> getAllCourseForAdmin(@RequestHeader(name = "Authorization") String accessToken,
                                                   @RequestParam(name = "page", required = false) Integer page,
                                                   @RequestParam(name = "limit", required = false) Integer limit) {
@@ -221,7 +221,6 @@ public class AdminCourseController {
             return ResponseEntity.ok().body(new TimeTableResponse(timetable));
         } catch (NoSuchElementException ex){
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
-
         } catch (Exception ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }
@@ -239,6 +238,8 @@ public class AdminCourseController {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }
     }
+
+
 
 }
 
