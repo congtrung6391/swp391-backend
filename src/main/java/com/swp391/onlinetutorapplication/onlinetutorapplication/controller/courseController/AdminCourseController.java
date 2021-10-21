@@ -35,16 +35,14 @@ public class AdminCourseController {
                                                   @RequestParam(name = "page", required = false) Integer page,
                                                   @RequestParam(name = "limit", required = false) Integer limit) {
         try {
-            if(page == null){
+            if(page == null || page<1){
                 page = 1;
             }
             if(limit == null){
                 limit = 20;
             }
             return ResponseEntity.ok().body(new CourseListResponse(
-                    courseService.getAllCourseInformationForAdmin(accessToken),
-                    page,limit
-            ));
+                    courseService.getAllCourseInformationForAdmin(accessToken,page,limit)));
         } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }
@@ -154,7 +152,7 @@ public class AdminCourseController {
                                             @RequestParam(name = "page", required = false) Integer page,
                                             @RequestParam(name = "limit", required = false) Integer limit) {
         try {
-            if(page == null){
+            if(page == null || page<1){
                 page = 1;
             }
             if(limit == null){
