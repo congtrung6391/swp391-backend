@@ -12,6 +12,8 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.user.
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.ratingService.ratingServiceInterface.RatingServiceInterface;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceInterface.UserServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -52,20 +54,22 @@ public class RatingServiceImplement implements RatingServiceInterface {
     }
 
     @Override
-    public List<Rate> getAllRating(Long tutorId) {
+    public List<Rate> getAllRating(Long tutorId, Integer page, Integer limit) {
+        Pageable pageable = PageRequest.of(page-1,limit);
         User tutor = checkTutorIsTrue(tutorId);
-        List<Rate> getListRate = rateRepository.findAllByStatusIsTrueAndTutor(tutor);
+        List<Rate> getListRate = rateRepository.findAllByStatusIsTrueAndTutorOrderByIdDesc(tutor,pageable);
         return getListRate;
     }
 
     @Override
-    public List<Rate> getTutorRatingBySubject(Long tutorId, Long subjectId) {
+    public List<Rate> getTutorRatingBySubject(Long tutorId, Long subjectId,Integer page, Integer limit) {
+        Pageable pageable = PageRequest.of(page-1, limit);
         User tutor = checkTutorIsTrue(tutorId);
         Subject subject = subjectRepository.findById(subjectId)
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Subject not found");
                 });
-        List<Rate> rateList = rateRepository.findAllByStatusIsTrueAndTutorAndSubject(tutor, subject);
+        List<Rate> rateList = rateRepository.findAllByStatusIsTrueAndTutorAndSubjectOrderByIdDesc(tutor, subject,pageable);
         return rateList;
     }
 

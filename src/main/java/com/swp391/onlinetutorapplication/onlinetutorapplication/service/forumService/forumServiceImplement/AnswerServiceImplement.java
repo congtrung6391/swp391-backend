@@ -1,0 +1,6 @@
+package com.swp391.onlinetutorapplication.onlinetutorapplication.service.forumService.forumServiceImplement;
+
+import com.swp391.onlinetutorapplication.onlinetutorapplication.service.forumService.forumServiceInterface.AnswerServiceInterface;
+
+public class AnswerServiceImplement implements AnswerServiceInterface {
+}
