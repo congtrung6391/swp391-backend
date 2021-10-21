@@ -49,5 +49,5 @@ jobs:
         with:
           app-name: 'swptutor'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_0CA4D74A876148C29DA7529A798A00F5 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_DC366E21D3BC4624B2AB7838363A0A26 }}
           package: '*.jar'
