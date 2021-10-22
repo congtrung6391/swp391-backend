@@ -1,6 +1,61 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.service.forumService.forumServiceImplement;
 
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Subject;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.forum.Question;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.SubjectRepository;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.forum.QuestionRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.forumService.forumServiceInterface.QuestionServiceInterface;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
+
+@Service
+@Slf4j
 public class QuestionServiceImplement implements QuestionServiceInterface {
+    @Autowired
+    private QuestionRepository questionRepository;
+    @Autowired
+    private SubjectRepository subjectRepository;
+
+    @Override
+    public List<Question> getListQuestion(Integer page, Integer limit) {
+        Pageable pageable = PageRequest.of(page - 1, limit);
+        List<Question> list = questionRepository.findAllByStatusIsTrueOrderByIdDesc(pageable);
+        return list;
+    }
+
+    @Override
+    public List<Question> getListQuestionByNameOrSubject(String name, Long subjectId, Integer page, Integer limit) {
+        Pageable pageable = PageRequest.of(page - 1, limit);
+        List<Question> questionList = new ArrayList<>();
+        if (name != null && subjectId == null) {
+            questionList = questionRepository.findAllByStatusIsTrueAndTitleContainingOrderByIdDesc(name, pageable);
+        } else if (name == null && subjectId != null) {
+            Subject subject = subjectRepository.findById(subjectId).orElseThrow(() -> {
+                        throw new NoSuchElementException("Subject not found");
+                    });
+            questionList = questionRepository.findAllByStatusIsTrueAndSubjectOrderByIdDesc(subject,pageable);
+        } else if (name != null && subjectId != null) {
+            Subject subject = subjectRepository.findById(subjectId).orElseThrow(() -> {
+                throw new NoSuchElementException("Subject not found");
+            });
+            questionList = questionRepository.findAllByStatusIsTrueAndTitleContainingAndSubjectOrderByIdDesc(name,subject,pageable);
+        }
+        return questionList;
+    }
+
+    @Override
+    public Question getDetailsQuestion(Long questionId) {
+        Question question = questionRepository.findByIdAndStatusIsTrue(questionId)
+                .orElseThrow(()->{
+                   throw new NoSuchElementException("Question not found");
+                });
+        return question;
+    }
 }

@@ -159,7 +159,7 @@ public class AdminCourseController {
                 limit = 20;
             }
             List<MaterialCreationResponse> materials = courseService.getCourseMaterial(courseId, accessToken);
-            return ResponseEntity.ok().body(new MaterialListResponse(materials,page,limit));
+            return ResponseEntity.ok().body(new MaterialListResponse(materials));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
         }
