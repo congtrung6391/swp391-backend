@@ -27,7 +27,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
 
     Optional<Course> findByIdAndStatusIsTrue(Long id);
 
-    List<Course> findAllByStudentAndStatusisTrue(User student);
+    List<Course> findAllByStudentAndStatusIsTrue(User student);
 
     @Override
     List<Course> findAll();
