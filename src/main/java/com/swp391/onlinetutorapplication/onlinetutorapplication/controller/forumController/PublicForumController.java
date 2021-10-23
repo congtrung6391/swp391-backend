@@ -4,9 +4,11 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.model.forum.Ques
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.questionResponse.DetailQuestionResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.questionResponse.ListQuestionResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.ErrorMessageResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.SuccessfulMessageResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.forumService.forumServiceInterface.QuestionServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -49,6 +51,18 @@ public class PublicForumController {
         try{
             Question question = questionService.getDetailsQuestion(questionId);
             return ResponseEntity.ok().body(new DetailQuestionResponse(question));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/question/{questionId}")
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN') or hasAuthority('TUTOR') or hasAuthority('STUDENT')")
+    public ResponseEntity<?> deleteQuestion(@RequestHeader(name = "Authorization") String accessToken,
+            @PathVariable(name = "questionId")Long questionId){
+        try{
+            questionService.deleteQuestion(accessToken,questionId);
+            return ResponseEntity.ok().body(new SuccessfulMessageResponse("Delete question successful"));
         }catch (Exception e){
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
         }
