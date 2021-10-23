@@ -16,11 +16,11 @@ import java.util.List;
 public interface CourseServiceInterface {
     Course handleCourseCreate(CourseCreationRequest courseCreationRequest, String accessToken);
 
-    List<CourseInformationResponse> getAllCourseInformationForAdmin(String accessToken);
+    List<CourseInformationResponse> getAllCourseInformationForAdmin(String accessToken,Integer page, Integer limit);
 
     CourseInformationResponse getOneCourseApi(String accessToken, Long courseId);
 
-    List<CourseInformationResponse> getAllCourseInformationForStudent();
+    List<CourseInformationResponse> getAllCourseInformationForStudent(Integer page, Integer limit);
 
     void handleCourseRegister(String accessToken, Long id);
 

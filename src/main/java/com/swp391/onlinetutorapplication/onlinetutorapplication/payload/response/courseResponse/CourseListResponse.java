@@ -15,8 +15,7 @@ public class CourseListResponse {
     private int totalCourse;
     List<CourseInformationResponse> courseList;
 
-    public CourseListResponse(Boolean status, List<CourseInformationResponse> courseList) {
-        this.status = status;
+    public CourseListResponse(List<CourseInformationResponse> courseList) {
         this.totalCourse = courseList.size();
         this.courseList = courseList;
     }

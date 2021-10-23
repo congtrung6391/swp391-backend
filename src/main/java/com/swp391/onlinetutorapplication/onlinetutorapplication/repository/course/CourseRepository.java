@@ -2,11 +2,11 @@ package com.swp391.onlinetutorapplication.onlinetutorapplication.repository.cour
 
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Course;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.awt.print.Pageable;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -21,16 +21,13 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
 
     Optional<Course> findByIdAndStudentIsNotNullAndCourseStatusIsTrue(Long id);
 
-    List<Course> findAllByTutorAndStatusIsTrue(User tutor);
+    List<Course> findAllByTutorAndStatusIsTrueOrderByIdDesc(User tutor, Pageable pageable);
 
-    List<Course> findAllByStatusIsTrue();
+    List<Course> findAllByStatusIsTrueOrderByIdDesc(Pageable pageable);
 
     Optional<Course> findByIdAndStatusIsTrue(Long id);
 
-    List<Course> findAllByStudentAndStatusIsTrue(User student);
+    List<Course> findAllByStudentAndStatusIsTrueOrderByIdDesc(User student, Pageable pageable);
 
-    @Override
-    List<Course> findAll();
-
-    List<Course> findAllByStudentIsNullAndCourseStatusIsTrueAndStatusIsTrue();
+    List<Course> findAllByStudentIsNullAndCourseStatusIsTrueAndStatusIsTrueOrderByIdDesc(Pageable pageable);
 }

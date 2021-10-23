@@ -1,7 +1,6 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.controller.courseController;
 
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.authResponse.MessageResponse;
-
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.CourseListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.TimeTableInformation;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.TimeTableListResponse;
@@ -9,11 +8,9 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.SuccessfulMessageResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.courseService.courseServiceInterface.CourseServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -47,15 +44,14 @@ public class PublicCourseController {
     public ResponseEntity<?> getAllCourseForPublic(@RequestParam(name = "page", required = false) Integer page,
                                                    @RequestParam(name = "limit", required = false) Integer limit) {
         try {
-            if(page == null){
+            if (page == null || page < 1) {
                 page = 1;
             }
-            if(limit == null){
+            if (limit == null) {
                 limit = 20;
             }
             return ResponseEntity.ok().body(new CourseListResponse(
-                    courseService.getAllCourseInformationForStudent(),
-                    page,limit
+                    courseService.getAllCourseInformationForStudent(page, limit)
             ));
         } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
@@ -85,9 +81,9 @@ public class PublicCourseController {
         try {
             List<TimeTableInformation> listTimeTable = courseService.getTimeTableList(courseId);
             return ResponseEntity.ok().body(new TimeTableListResponse(listTimeTable));
-        } catch (NoSuchElementException ex){
+        } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
-        }catch (Exception ex) {
+        } catch (Exception ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }
     }

@@ -8,9 +8,9 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response
 import java.util.List;
 
 public interface RatingServiceInterface {
-    List<Rate> getAllRating(Long tutorId);
+    List<Rate> getAllRating(Long tutorId,Integer page, Integer limit);
 
-    List<Rate> getTutorRatingBySubject(Long tutorId, Long subjectId);
+    List<Rate> getTutorRatingBySubject(Long tutorId, Long subjectId,Integer page, Integer limit);
 
     void deleteRating(String accessToken,Long tutorId, Long ratingId);
 

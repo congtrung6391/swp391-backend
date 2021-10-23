@@ -1,6 +1,7 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.controller.userManagementController;
 
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.rating.Rate;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.ratingRequest.AddRatingRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.ratingRequest.UpdateRatingRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.UpdateProfileRequest;
@@ -66,41 +67,25 @@ public class PublicUserManagementController {
             @RequestParam(name = "limit", required = false) Integer limit
     ) {
         try {
-            if (page == null) {
+            if (page == null || page<1) {
                 page = 1;
             }
             if (limit == null) {
                 limit = 20;
             }
             if(name != null){
-                List<UserInformationResponse> list = (List<UserInformationResponse>) userManagement.publicSearchUser(name);
-                return ResponseEntity.ok().body(new UserListResponse(list,page,limit));
+                List<UserInformationResponse> list = userManagement.publicSearchUser(name,page,limit);
+                return ResponseEntity.ok().body(new UserListResponse(list));
             }
-            List<UserInformationResponse> list = userManagement.getListTutor();
-            TutorListResponse listResponse = new TutorListResponse(list, page, limit);
+            List<UserInformationResponse> list = userManagement.getListTutor(page,limit);
+            TutorListResponse listResponse = new TutorListResponse(list);
             return ResponseEntity.ok().body(listResponse);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-//    @GetMapping("/tutor/{tutorId}/rating")
-//    public ResponseEntity<?> getTutorRating(@PathVariable(name = "tutorId") Long tutorId,
-//                                            @RequestParam(name = "page", required = false) Integer page,
-//                                            @RequestParam(name = "limit", required = false) Integer limit) {
-//        try {
-//            if (page == null) {
-//                page = 1;
-//            }
-//            if (limit == null) {
-//                limit = 20;
-//            }
-//            List<Rate> rateList = ratingService.getAllRating(tutorId);
-//            return ResponseEntity.ok().body(new RatingListResponse(rateList, page, limit));
-//        } catch (Exception e) {
-//            return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
-//        }
-//    }
+
 
     @GetMapping("/user/{tutorId}/rating")
     public ResponseEntity<?> getTutorRatingBySubject(@PathVariable(name = "tutorId") Long tutorId,
@@ -108,31 +93,22 @@ public class PublicUserManagementController {
                                                      @RequestParam(name = "page", required = false) Integer page,
                                                      @RequestParam(name = "limit", required = false) Integer limit) {
         try {
-            if (page == null) {
+            if (page == null || page<1) {
                 page = 1;
             }
             if (limit == null) {
                 limit = 20;
             }
             if(subjectId == null){
-                List<Rate> rateList = ratingService.getAllRating(tutorId);
-                return ResponseEntity.ok().body(new RatingListResponse(rateList, page, limit));
+                List<Rate> rateList = ratingService.getAllRating(tutorId,page,limit);
+                return ResponseEntity.ok().body(new RatingListResponse(rateList));
             }
-            List<Rate> rateList = ratingService.getTutorRatingBySubject(tutorId, subjectId);
-            return ResponseEntity.ok().body(new RatingListResponse(rateList, page, limit));
+            List<Rate> rateList = ratingService.getTutorRatingBySubject(tutorId, subjectId,page,limit);
+            return ResponseEntity.ok().body(new RatingListResponse(rateList));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
         }
     }
-
-//    @GetMapping("/tutor/search")
-//    public ResponseEntity<?> publicSearchTutor(@RequestParam(required = false) String name) {
-//        try {
-//            return ResponseEntity.ok().body(userManagement.publicSearchUser(name));
-//        } catch (Exception e) {
-//            return ResponseEntity.badRequest().body(e.getMessage());
-//        }
-//    }
 
     @PostMapping("/user/{userId}/rating")
     @PreAuthorize("hasAuthority('SUPER_ADMIN') or hasAuthority('STUDENT') or hasAuthority('ADMIN')")
