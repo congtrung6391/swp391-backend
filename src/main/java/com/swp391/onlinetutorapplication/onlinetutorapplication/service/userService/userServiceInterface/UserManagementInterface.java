@@ -2,9 +2,7 @@ package com.swp391.onlinetutorapplication.onlinetutorapplication.service.userSer
 
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.searchParam.AdminSearchRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.UpdateProfileRequest;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.TutorListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserInformationResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserProfileResponse;
 
@@ -17,7 +15,7 @@ public interface UserManagementInterface {
 
     UserProfileResponse getUserProfile(Long id);
 
-    List<UserInformationResponse> getAllUser();
+    List<UserInformationResponse> getAllUser(Integer page, Integer limit);
 
     void saveUser(User user);
 
@@ -27,12 +25,13 @@ public interface UserManagementInterface {
 
     void saveRole(Role role);
 
-    void deleteUser(Long id)throws Exception;
+    void deleteUser(Long id) throws Exception;
 
-    List<UserInformationResponse> getListTutor();
+    List<UserInformationResponse> getListTutor(Integer page, Integer limit);
 
     //admin search user - by Nam
-    Object adminSearchUser(String id, String name);
+    List<UserInformationResponse> adminSearchUser(String id, String name, Integer page, Integer limit);
 
-    Object publicSearchUser(String name);
+    //    Object publicSearchUser(String name);
+    List<UserInformationResponse> publicSearchUser(String name, Integer page, Integer limit);
 }

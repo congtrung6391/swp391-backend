@@ -64,18 +64,18 @@ public class AdminUserManagementController {
                                         @RequestParam(name = "page", required = false) Integer page,
                                         @RequestParam(name = "limit", required = false) Integer limit) {
         try {
-            if(page == null){
+            if(page == null || page<1){
                 page = 1;
             }
             if(limit == null){
                 limit = 20;
             }
             if(userId != null || name !=null){
-                List<UserInformationResponse> list = (List<UserInformationResponse>) userManagement.adminSearchUser(userId,name);
-                return ResponseEntity.ok().body(new UserListResponse(list,page,limit));
+                List<UserInformationResponse> list = userManagement.adminSearchUser(userId,name,page,limit);
+                return ResponseEntity.ok().body(new UserListResponse(list));
             }
-            List<UserInformationResponse> listUsers = userManagement.getAllUser();
-            return ResponseEntity.ok().body(new UserListResponse(listUsers,page,limit));
+            List<UserInformationResponse> listUsers = userManagement.getAllUser(page, limit);
+            return ResponseEntity.ok().body(new UserListResponse(listUsers));
         } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }
@@ -108,20 +108,6 @@ public class AdminUserManagementController {
     }
 
      */
-
-    //admin search user - by Nam
-//    @GetMapping("/search")
-//    @PreAuthorize("hasAuthority('SUPER_ADMIN') or hasAuthority('ADMIN')")
-//    public ResponseEntity<?> adminSearchUser(
-//            @RequestParam(required = false) String id,
-//            @RequestParam(required = false) String name
-//    ){
-//        try{
-//            return ResponseEntity.ok().body(userManagement.adminSearchUser(id,name));
-//        }catch (Exception e){
-//            return ResponseEntity.badRequest().body(e.getMessage());
-//        }
-//    }
 
 
 }
