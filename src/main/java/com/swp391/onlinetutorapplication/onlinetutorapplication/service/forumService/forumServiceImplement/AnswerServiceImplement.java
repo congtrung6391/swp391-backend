@@ -36,7 +36,7 @@ public class AnswerServiceImplement implements AnswerServiceInterface {
         User user = userRepository.findByAuthorizationToken(accessToken).orElseThrow(() -> {
             throw new NoSuchElementException("User cannot be found.");
         });
-        Question question = questionRepository.findById(answerId)
+        Question question = questionRepository.findById(questionId)
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Question cannot be found.");
                 });
