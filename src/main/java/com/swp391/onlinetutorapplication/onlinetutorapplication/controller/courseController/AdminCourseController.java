@@ -107,12 +107,12 @@ public class AdminCourseController {
     // localhost:8080/api/admin/course/id
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN') or hasAuthority('TUTOR')")
-    public ResponseEntity<?> deleteCourse(@PathVariable("id") Long id) {
+    public ResponseEntity<?> deleteCourse(@PathVariable("id") String id) {
         try {
-            courseService.deleteCourse(id);
+            courseService.deleteCourse(Long.parseLong(id));
             return ResponseEntity.ok().body(new MessageResponse("Course has been successfully deleted."));
         } catch (NoSuchElementException ex) {
-            return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
+            return ResponseEntity.badRequest().body(new MessageResponse("Course not found"));
         }
     }
 

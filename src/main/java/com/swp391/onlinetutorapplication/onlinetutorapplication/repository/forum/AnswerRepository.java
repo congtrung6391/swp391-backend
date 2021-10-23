@@ -2,6 +2,11 @@ package com.swp391.onlinetutorapplication.onlinetutorapplication.repository.foru
 
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.forum.Answer;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
+@Repository
 public interface AnswerRepository extends JpaRepository<Answer,Long> {
+    Optional<Answer> findByIdAndStatusIsTrueAndUserIsNotNull(Long id);
 }
