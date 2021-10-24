@@ -83,4 +83,22 @@ public class PublicForumController {
         }
     }
 
+
+    @PutMapping("/question/{questionId}")
+    @PreAuthorize("hasAuthority('STUDENT') or hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
+    public ResponseEntity<?> updateQuestion(@RequestHeader(name = "Authorization") String accessToken,
+                                            @RequestBody QuestionRequest questionRequest,
+                                            @PathVariable("questionId") Long questionId ){
+        try{
+            Question question = questionService.updateQuestion(questionRequest,accessToken,questionId);
+            return ResponseEntity.ok().body(new QuestionResponse(question));
+
+        }catch (NoSuchElementException ex){
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
+        }catch (Exception ex){
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
+        }
+
+    }
+
 }

@@ -109,4 +109,34 @@ public class QuestionServiceImplement implements QuestionServiceInterface {
         return question;
     }
 
+    @Override
+    public Question updateQuestion(QuestionRequest questionRequest, String accessToken, Long questionId) throws  Exception {
+        accessToken = accessToken.replaceAll("Bearer ", "");
+        User user = userRepository.findByAuthorizationToken(accessToken).orElseThrow(() -> {
+            throw new NoSuchElementException("User not found");
+        });
+        Question question = questionRepository.findByIdAndStatusIsTrue(questionId).orElseThrow(() -> {
+            throw new NoSuchElementException("Question not found");
+        });
+
+        if (user != question.getUser()) {
+            throw new Exception("You are not allow to update");
+        } else {
+            if (questionRequest.getTitle() != null ) {
+                question.setTitle(questionRequest.getTitle());
+            }
+            if (questionRequest.getDescription() != null ) {
+                question.setDescription(questionRequest.getDescription());
+            }
+            if (questionRequest.getSubjectId() != null ) {
+                Subject subject = subjectRepository.findById(questionRequest.getSubjectId()).orElseThrow(() -> {
+                    throw new NoSuchElementException("Subject not found");
+                });
+                question.setSubject(subject);
+            }
+        }
+        questionRepository.save(question);
+        return question;
+
+    }
 }

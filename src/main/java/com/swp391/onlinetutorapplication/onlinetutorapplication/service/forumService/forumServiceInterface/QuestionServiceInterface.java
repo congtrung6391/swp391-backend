@@ -15,4 +15,7 @@ public interface QuestionServiceInterface {
 
     void deleteQuestion(String accessToken, Long questionId);
     Question createQuestion(QuestionRequest questionRequest, String accesstoken);
+
+    Question updateQuestion(QuestionRequest questionRequest,String accessToken, Long questionId) throws Exception;
+
 }
