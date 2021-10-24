@@ -5,5 +5,5 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.
 
 public interface AnswerServiceInterface {
     void deleteAnswer(Long questionId, Long answerId, String accessToken) throws Exception;
-    Answer updateAnswer(AnswerUpdateRequest request, Long questionId, Long answerId, String accessToken);
+    Answer updateAnswer(AnswerUpdateRequest request, Long questionId, Long answerId, String accessToken) throws Exception;
 }

@@ -1,7 +1,9 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.controller.forumController;
 
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.forum.Answer;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.forum.Question;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.forumRequest.AnswerUpdateRequest;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.answerResponse.AnswerResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.questionResponse.DetailQuestionResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.questionResponse.ListQuestionResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.ErrorMessageResponse;
@@ -79,12 +81,14 @@ public class PublicForumController {
 
     @PutMapping ("/question/{questionId}/answer/{answerId}")
     @PreAuthorize("hasAuthority('STUDENT') or hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
-    public ResponseEntity<?> updateAnswer(AnswerUpdateRequest request,
+    public ResponseEntity<?> updateAnswer(
+                                          @RequestHeader(name = "Authorization") String accessToken,
                                           @PathVariable(name = "questionId")Long questionId,
                                           @PathVariable(name = "answerId")Long answerId,
-                                          @RequestHeader(name = "Authorization") String accessToken){
+                                          @RequestBody AnswerUpdateRequest request){
         try{
-
+            Answer answer = answerService.updateAnswer(request, questionId, answerId, accessToken);
+            return ResponseEntity.ok().body(new AnswerResponse(answer));
         } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         } catch (Exception ex) {
