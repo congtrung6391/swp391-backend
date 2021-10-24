@@ -5,6 +5,7 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.model.forum.Ques
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.ERole;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.forumRequest.QuestionRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.SubjectRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.forum.QuestionRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.user.UserRepository;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -88,5 +90,21 @@ public class QuestionServiceImplement implements QuestionServiceInterface {
         }
         question.setStatus(false);
         questionRepository.save(question);
+    }
+
+    public Question createQuestion(QuestionRequest questionRequest,String accessToken) {
+        accessToken = accessToken.replaceAll("Bearer ","");
+        User user = userRepository.findByAuthorizationToken(accessToken).orElseThrow(()->{
+            throw new NoSuchElementException("User not found");
+        });
+        Subject subject = subjectRepository.findById(questionRequest.getSubjectId()).orElseThrow(()->{
+            throw new NoSuchElementException("subject not found");
+        });
+        Question question = new Question();
+        question.setTitle(questionRequest.getTitle());
+        question.setDescription(questionRequest.getDescription());
+        question.setSubject(subject);
+        question.setUser(user);
+        return question;
     }
 }
