@@ -7,6 +7,7 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.model.forum.Ques
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.ERole;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.forumRequest.AnswerUpdateRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.forum.AnswerRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.forum.QuestionRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.role.RoleRepository;
@@ -54,5 +55,10 @@ public class AnswerServiceImplement implements AnswerServiceInterface {
         } else {
             throw new Exception("You are not allowed to delete this answer.");
         }
+    }
+
+    @Override
+    public Answer updateAnswer(AnswerUpdateRequest request, Long questionId, Long answerId, String accessToken) {
+
     }
 }
