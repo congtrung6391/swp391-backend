@@ -194,7 +194,7 @@ public class AdminCourseController {
     }
 
     @DeleteMapping("{courseId}/timetable/{timetableId}")
-    @PreAuthorize("hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
+    @PreAuthorize("hasAuthority('TUTOR') or  hasAuthority('SUPER_ADMIN')")
     public ResponseEntity<?> deleteTimeTable(@PathVariable(name = "courseId") Long courseId,
                                              @PathVariable(name = "timetableId") Long timetableId,
                                              @RequestHeader(name = "Authorization")String accessToken){
