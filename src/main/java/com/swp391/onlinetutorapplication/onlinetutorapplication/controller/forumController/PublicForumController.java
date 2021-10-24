@@ -61,6 +61,18 @@ public class PublicForumController {
         }
     }
 
+    @DeleteMapping("/question/{questionId}")
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN') or hasAuthority('TUTOR') or hasAuthority('STUDENT')")
+    public ResponseEntity<?> deleteQuestion(@RequestHeader(name = "Authorization") String accessToken,
+            @PathVariable(name = "questionId")Long questionId){
+        try{
+            questionService.deleteQuestion(accessToken,questionId);
+            return ResponseEntity.ok().body(new SuccessfulMessageResponse("Delete question successful"));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
+        }
+    }
+
     @DeleteMapping ("/question/{questionId}/answer/{answerId}")
     @PreAuthorize("hasAuthority('STUDENT') or hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
     public ResponseEntity<?> deleteAnswer(@PathVariable(name = "questionId")Long questionId,
