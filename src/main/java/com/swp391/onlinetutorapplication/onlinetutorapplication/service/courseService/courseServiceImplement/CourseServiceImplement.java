@@ -47,8 +47,9 @@ public class CourseServiceImplement implements CourseServiceInterface {
 
     @Autowired
     private DropboxService dropboxService;
+
     @Autowired
-    SubjectRepository subjectRepository;
+    private SubjectRepository subjectRepository;
 
     @Autowired
     private CourseMaterialRepository courseMaterialRepository;
@@ -85,7 +86,13 @@ public class CourseServiceImplement implements CourseServiceInterface {
     }
 
     @Override
-    public List<CourseInformationResponse> getAllCourseInformationForAdmin(String accessToken, Integer page, Integer limit) {
+    public List<CourseInformationResponse> getAllCourseInformationForAdmin(String accessToken,
+                                                                           Integer page,
+                                                                           Integer limit,
+                                                                           Long id,
+                                                                           String courseName,
+                                                                           Long subjectId,
+                                                                           String fullName) {
         Pageable pageable = PageRequest.of(page - 1, limit);
         List<Course> listAllCourse = null;
         accessToken = accessToken.replaceAll("Bearer ", "");
@@ -95,6 +102,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
             switch (role.getUserRole()) {
                 case SUPER_ADMIN:
                 case ADMIN:
+//                    listAllCourse = courseRepository.findAllByStatusIsTrueOrderByIdDesc(id, courseName, subjectId, fullName, pageable);
                     listAllCourse = courseRepository.findAllByStatusIsTrueOrderByIdDesc(pageable);
                     break;
                 case TUTOR:
