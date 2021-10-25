@@ -1,8 +1,10 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.controller.forumController;
 
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.forum.Question;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.forumRequest.QuestionRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.questionResponse.DetailQuestionResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.questionResponse.ListQuestionResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.questionResponse.QuestionResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.ErrorMessageResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.SuccessfulMessageResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.forumService.forumServiceInterface.AnswerServiceInterface;
@@ -87,4 +89,17 @@ public class PublicForumController {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }
     }
+
+    @PostMapping("/question")
+    @PreAuthorize("hasAuthority('STUDENT') or hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
+    public ResponseEntity<?> createQuestion(@RequestBody QuestionRequest questionRequest, @RequestHeader(name = "Authorization") String accessToken){
+        try
+        {
+            Question question = questionService.createQuestion(questionRequest,accessToken);
+            return ResponseEntity.ok().body(new QuestionResponse(question));
+        }catch (NoSuchElementException ex){
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
+        }
+    }
+
 }
