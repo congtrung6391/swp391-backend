@@ -22,6 +22,7 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.service.courseSe
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.dropboxService.DropboxService;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceInterface.UserServiceInterface;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.jni.Local;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +30,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -489,16 +492,17 @@ public class CourseServiceImplement implements CourseServiceInterface {
         if (timeTableRequest.getDay() != null) {
             timetable.setDay(timeTableRequest.getDay());
         }
-        if (timeTableRequest.getStartTime() != null) {
-            timetable.setStartTime(timeTableRequest.getStartTime());
+        if(timeTableRequest.getStartTime() != null){
+            timetable.setStartTime(LocalTime.parse(timeTableRequest.getStartTime(), DateTimeFormatter.ofPattern("HH:mm:ss")));
+
         }
-        if (timeTableRequest.getEndTime() != null) {
-            timetable.setEndTime(timeTableRequest.getEndTime());
+        if(timeTableRequest.getEndTime() != null){
+            timetable.setEndTime(LocalTime.parse(timeTableRequest.getEndTime(), DateTimeFormatter.ofPattern("HH:mm:ss")));
         }
 
         // check if starttime after endtime
-        if (timeTableRequest.getStartTime().isAfter(timeTableRequest.getEndTime())) {
-            throw new Exception("Please set Startime before EndTime");
+        if(timetable.getStartTime().isAfter(timetable.getEndTime())){
+          throw new Exception("Please set Startime before EndTime");
         }
         courseTimeTableRepository.save(timetable);
         return timetable;
