@@ -30,21 +30,19 @@ public class AdminCourseController {
     //Get all course for admin - by Nam
     // localhost:8080/api/admin/course/
     @GetMapping("")
-    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN') or hasAuthority('TUTOR')")
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN') or hasAuthority('TUTOR') or hasAuthority('STUDENT')")
     public ResponseEntity<?> getAllCourseForAdmin(@RequestHeader(name = "Authorization") String accessToken,
                                                   @RequestParam(name = "page", required = false) Integer page,
                                                   @RequestParam(name = "limit", required = false) Integer limit) {
         try {
-            if(page == null){
+            if(page == null || page<1){
                 page = 1;
             }
             if(limit == null){
                 limit = 20;
             }
             return ResponseEntity.ok().body(new CourseListResponse(
-                    courseService.getAllCourseInformationForAdmin(accessToken),
-                    page,limit
-            ));
+                    courseService.getAllCourseInformationForAdmin(accessToken,page,limit)));
         } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }
@@ -53,12 +51,14 @@ public class AdminCourseController {
     // localhost:8080/api/admin/course/:id
     @PutMapping("/{courseId}")
     @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN') or hasAuthority('TUTOR')")
-    public ResponseEntity<?> updateCourse(@RequestBody CourseUpdateRequest request, @RequestHeader(name = "Authorization") String accessToken, @PathVariable(name = "courseId") String id) {
+    public ResponseEntity<?> updateCourse(@RequestBody CourseUpdateRequest request,
+                                          @RequestHeader(name = "Authorization") String accessToken,
+                                          @PathVariable(name = "courseId") String id) {
         Course course = courseService.updateCourse(request, Long.parseLong(id), accessToken);
         if (course == null) {
             return ResponseEntity.badRequest().body(new SuccessfulMessageResponse("Update Failed"));
         } else {
-            return ResponseEntity.ok().body(new CourseResponse(course, "true"));
+            return ResponseEntity.ok().body(new CourseResponse(course));
         }
     }
 
@@ -66,7 +66,8 @@ public class AdminCourseController {
     //Get one course api - byNam
     // localhost:8080/api/admin/course/:id/info
     @GetMapping("/{courseId}/info")
-    public ResponseEntity<?> getOneCourseApi(@RequestHeader(name = "Authorization", required = false) String accessToken, @PathVariable(name = "courseId") Long id) {
+    public ResponseEntity<?> getOneCourseApi(@RequestHeader(name = "Authorization", required = false) String accessToken,
+                                             @PathVariable(name = "courseId") Long id) {
         try {
             return ResponseEntity.ok().body(courseService.getOneCourseApi(accessToken, id));
         } catch (Exception e) {
@@ -76,10 +77,11 @@ public class AdminCourseController {
 
     @PostMapping("")
     @PreAuthorize("hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
-    public ResponseEntity<?> createCourse(@RequestHeader(name = "Authorization") String accessToken, @Valid @RequestBody CourseCreationRequest courseCreationRequest) {
+    public ResponseEntity<?> createCourse(@RequestHeader(name = "Authorization") String accessToken,
+                                          @Valid @RequestBody CourseCreationRequest courseCreationRequest) {
         try {
             Course course = courseService.handleCourseCreate(courseCreationRequest, accessToken);
-            return ResponseEntity.ok().body(new CourseResponse(course, "true"));
+            return ResponseEntity.ok().body(new CourseResponse(course));
         } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse("Create failed"));
         }
@@ -89,7 +91,9 @@ public class AdminCourseController {
     // localhost:8080/api/public/course/:id/register
     @PutMapping("/{id}/register")
     @PreAuthorize("hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
-    public ResponseEntity<?> handleCourseRegisterRequest(@RequestHeader(name = "Authorization") String accessToken, @PathVariable(name = "id") String id, @RequestBody ActionApproveOrRejectRequest request) {
+    public ResponseEntity<?> handleCourseRegisterRequest(@RequestHeader(name = "Authorization") String accessToken,
+                                                         @PathVariable(name = "id") String id,
+                                                         @RequestBody ActionApproveOrRejectRequest request) {
         try {
             courseService.handleCourseRegisterRequest(accessToken, Long.parseLong(id), request);
             return ResponseEntity.ok().body(new SuccessfulMessageResponse("Course has been processed."));
@@ -103,12 +107,12 @@ public class AdminCourseController {
     // localhost:8080/api/admin/course/id
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN') or hasAuthority('TUTOR')")
-    public ResponseEntity<?> deleteCourse(@PathVariable("id") Long id) {
+    public ResponseEntity<?> deleteCourse(@PathVariable("id") String id) {
         try {
-            courseService.deleteCourse(id);
+            courseService.deleteCourse(Long.parseLong(id));
             return ResponseEntity.ok().body(new MessageResponse("Course has been successfully deleted."));
         } catch (NoSuchElementException ex) {
-            return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
+            return ResponseEntity.badRequest().body(new MessageResponse("Course not found"));
         }
     }
 
@@ -131,7 +135,8 @@ public class AdminCourseController {
     @PutMapping(value = "/{courseId}/material/{materialId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @PreAuthorize("hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
     public ResponseEntity<?> updateMaterial(@PathVariable(name = "courseId") Long courseId,
-                                            @PathVariable(name = "materialId") Long materialId, MaterialCreationRequest request) {
+                                            @PathVariable(name = "materialId") Long materialId,
+                                            MaterialCreationRequest request) {
         try {
             return ResponseEntity.ok().body(courseService.updateMaterial(courseId, materialId, request));
         } catch (Exception e) {
@@ -147,14 +152,14 @@ public class AdminCourseController {
                                             @RequestParam(name = "page", required = false) Integer page,
                                             @RequestParam(name = "limit", required = false) Integer limit) {
         try {
-            if(page == null){
+            if(page == null || page<1){
                 page = 1;
             }
             if(limit == null){
                 limit = 20;
             }
             List<MaterialCreationResponse> materials = courseService.getCourseMaterial(courseId, accessToken);
-            return ResponseEntity.ok().body(new MaterialListResponse(materials,page,limit));
+            return ResponseEntity.ok().body(new MaterialListResponse(materials));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
         }
@@ -162,7 +167,9 @@ public class AdminCourseController {
 
     //Phần này làm demo thôi, ai có task này thì modify lại - Name
     @GetMapping("/{courseId}/material/{materialId}/get-link")
-    public ResponseEntity<?> getSharableLink(@PathVariable(name = "courseId") Long courseId, @PathVariable(name = "materialId") String materialId, @RequestParam(name = "fileName") String fileName) {
+    public ResponseEntity<?> getSharableLink(@PathVariable(name = "courseId") Long courseId,
+                                             @PathVariable(name = "materialId") String materialId,
+                                             @RequestParam(name = "fileName") String fileName) {
         try {
             return ResponseEntity.ok().body(courseService.getShareableLink(courseId, materialId, fileName));
         } catch (Exception e) {
@@ -172,7 +179,9 @@ public class AdminCourseController {
 
     @DeleteMapping("{courseId}/material/{materialId}")
     @PreAuthorize("hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
-    public ResponseEntity<?> deleteMaterial(@PathVariable(name = "courseId") Long courseId, @PathVariable(name = "materialId") Long materialId, @RequestHeader(name = "Authorization") String accessToken) {
+    public ResponseEntity<?> deleteMaterial(@PathVariable(name = "courseId") Long courseId,
+                                            @PathVariable(name = "materialId") Long materialId,
+                                            @RequestHeader(name = "Authorization") String accessToken) {
         try {
             courseService.deleteMaterial(materialId, courseId, accessToken);
             return ResponseEntity.ok().body(new SuccessfulMessageResponse("Delete Sucess"));
@@ -185,8 +194,10 @@ public class AdminCourseController {
     }
 
     @DeleteMapping("{courseId}/timetable/{timetableId}")
-    @PreAuthorize("hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
-    public ResponseEntity<?> deleteTimeTable(@PathVariable(name = "courseId") Long courseId, @PathVariable(name = "timetableId") Long timetableId, @RequestHeader(name = "Authorization")String accessToken){
+    @PreAuthorize("hasAuthority('TUTOR') or  hasAuthority('SUPER_ADMIN')")
+    public ResponseEntity<?> deleteTimeTable(@PathVariable(name = "courseId") Long courseId,
+                                             @PathVariable(name = "timetableId") Long timetableId,
+                                             @RequestHeader(name = "Authorization")String accessToken){
         try{
             courseService.deleteTimeTable(timetableId, courseId, accessToken);
             return ResponseEntity.ok().body(new SuccessfulMessageResponse("Delete Success"));
@@ -208,10 +219,25 @@ public class AdminCourseController {
             return ResponseEntity.ok().body(new TimeTableResponse(timetable));
         } catch (NoSuchElementException ex){
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
-
         } catch (Exception ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }
     }
+
+    @PostMapping("/{courseId}/timetable")
+    @PreAuthorize("hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
+    public ResponseEntity<?> createTimetable(@RequestHeader(name = "Authorization") String accessToken, @PathVariable(name = "courseId") Long courseId,@Valid @RequestBody TimeTableCreationRequest request) {
+        try {
+            CourseTimetable timetable = courseService.createTimetable(request, courseId, accessToken);
+            return ResponseEntity.ok().body(new TimeTableResponse(timetable));
+        } catch (NoSuchElementException ex){
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
+        }catch (Exception ex) {
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
+        }
+    }
+
+
+
 }
 

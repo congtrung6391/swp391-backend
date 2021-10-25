@@ -97,8 +97,6 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
 
         userRepository.save(user);
 
-        System.out.println(user.getAuthorizationToken());
-
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList());
