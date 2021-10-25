@@ -1,7 +1,5 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.service.forumService.forumServiceImplement;
 
-import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Course;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.CourseMaterial;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.forum.Answer;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.forum.Question;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.ERole;
@@ -12,10 +10,14 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.forum
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.role.RoleRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.user.UserRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.forumService.forumServiceInterface.AnswerServiceInterface;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
 
+@Service
+@Slf4j
 public class AnswerServiceImplement implements AnswerServiceInterface {
 
     @Autowired
