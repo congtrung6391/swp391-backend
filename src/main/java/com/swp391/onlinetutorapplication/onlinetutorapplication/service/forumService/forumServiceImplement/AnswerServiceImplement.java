@@ -13,9 +13,11 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.role.
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.user.UserRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.forumService.forumServiceInterface.AnswerServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
 
+@Service
 public class AnswerServiceImplement implements AnswerServiceInterface {
 
     @Autowired
