@@ -1,5 +1,6 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.questionResponse;
 
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Subject;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.forum.Answer;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.forum.Question;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserInformationResponse;
@@ -20,6 +21,7 @@ public class DetailQuestionResponse {
     private String description;
     private LocalDate createdDate;
     private List<Answer> answer;
+    private Subject subject;
     private UserInformationResponse userInformationResponse;
 
     public DetailQuestionResponse(Question question){
@@ -28,6 +30,7 @@ public class DetailQuestionResponse {
         this.description = question.getDescription();
         this.answer = question.getAnswer();
         this.createdDate = question.getCreatedDate();
+        this.subject= question.getSubject();
         this.userInformationResponse = new UserInformationResponse(question.getUser());
     }
 }
