@@ -5,6 +5,7 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Co
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.CourseMaterial;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.CourseTimetable;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Subject;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.ERole;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.*;
@@ -15,11 +16,13 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.cours
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.CourseRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.CourseTimeTableRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.SubjectRepository;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.role.RoleRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.user.UserRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.courseService.courseServiceInterface.CourseServiceInterface;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.dropboxService.DropboxService;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceInterface.UserServiceInterface;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.jni.Local;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +30,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -56,6 +61,9 @@ public class CourseServiceImplement implements CourseServiceInterface {
 
     @Autowired
     private CourseTimeTableRepository courseTimeTableRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
 
 
     @Override
@@ -463,12 +471,19 @@ public class CourseServiceImplement implements CourseServiceInterface {
         CourseTimetable timetable = courseTimeTableRepository.findById(timetableId).orElseThrow(() -> {
             throw new NoSuchElementException("TimeTable not found");
         });
-        if (tutor != course.getTutor()) {
-            throw new Exception("You are not allowed to delete ");
-        } else {
+        Role SuperAmin = roleRepository.findByUserRole(ERole.SUPER_ADMIN).get();
+
+        if (tutor.getRoles().contains(SuperAmin)) {
             timetable.setStatus(false);
             courseTimeTableRepository.save(timetable);
         }
+        else if(tutor != course.getTutor() ) {
+            throw new Exception("You are not allowed to delete ");
+        }else {
+            timetable.setStatus(false);
+            courseTimeTableRepository.save(timetable);
+        }
+
     }
 
     @Override
@@ -482,16 +497,17 @@ public class CourseServiceImplement implements CourseServiceInterface {
         if (timeTableRequest.getDay() != null) {
             timetable.setDay(timeTableRequest.getDay());
         }
-        if (timeTableRequest.getStartTime() != null) {
-            timetable.setStartTime(timeTableRequest.getStartTime());
+        if(timeTableRequest.getStartTime() != null){
+            timetable.setStartTime(LocalTime.parse(timeTableRequest.getStartTime(), DateTimeFormatter.ofPattern("HH:mm:ss")));
+
         }
-        if (timeTableRequest.getEndTime() != null) {
-            timetable.setEndTime(timeTableRequest.getEndTime());
+        if(timeTableRequest.getEndTime() != null){
+            timetable.setEndTime(LocalTime.parse(timeTableRequest.getEndTime(), DateTimeFormatter.ofPattern("HH:mm:ss")));
         }
 
         // check if starttime after endtime
-        if (timeTableRequest.getStartTime().isAfter(timeTableRequest.getEndTime())) {
-            throw new Exception("Please set Startime before EndTime");
+        if(timetable.getStartTime().isAfter(timetable.getEndTime())){
+          throw new Exception("Please set Startime before EndTime");
         }
         courseTimeTableRepository.save(timetable);
         return timetable;

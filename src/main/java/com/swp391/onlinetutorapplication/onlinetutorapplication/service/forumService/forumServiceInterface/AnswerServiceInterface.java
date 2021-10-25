@@ -6,5 +6,8 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response
 
 public interface AnswerServiceInterface {
     AnswerInformationResponse createAnswer(String accessToken, AnswerCreateRequest request, Long questionId);
+
     AnswerListResponse getAnswerList(Long id, Integer page, Integer limit);
+
+    void deleteAnswer(Long questionId, Long answerId, String accessToken) throws Exception;
 }
