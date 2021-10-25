@@ -11,4 +11,6 @@ public interface QuestionServiceInterface {
     List<Question> getListQuestionByNameOrSubject(String name, Long subjectId, Integer page, Integer limit);
 
     Question getDetailsQuestion(Long questionId);
+
+    void deleteQuestion(String accessToken, Long questionId);
 }

@@ -5,6 +5,7 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Co
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.CourseMaterial;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.CourseTimetable;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Subject;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.ERole;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.*;
@@ -15,6 +16,7 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.cours
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.CourseRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.CourseTimeTableRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.SubjectRepository;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.role.RoleRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.user.UserRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.courseService.courseServiceInterface.CourseServiceInterface;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.dropboxService.DropboxService;
@@ -55,6 +57,9 @@ public class CourseServiceImplement implements CourseServiceInterface {
 
     @Autowired
     private CourseTimeTableRepository courseTimeTableRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
 
 
     @Override
@@ -454,12 +459,19 @@ public class CourseServiceImplement implements CourseServiceInterface {
         CourseTimetable timetable = courseTimeTableRepository.findById(timetableId).orElseThrow(() -> {
             throw new NoSuchElementException("TimeTable not found");
         });
-        if (tutor != course.getTutor()) {
-            throw new Exception("You are not allowed to delete ");
-        } else {
+        Role SuperAmin = roleRepository.findByUserRole(ERole.SUPER_ADMIN).get();
+
+        if (tutor.getRoles().contains(SuperAmin)) {
             timetable.setStatus(false);
             courseTimeTableRepository.save(timetable);
         }
+        else if(tutor != course.getTutor() ) {
+            throw new Exception("You are not allowed to delete ");
+        }else {
+            timetable.setStatus(false);
+            courseTimeTableRepository.save(timetable);
+        }
+
     }
 
     @Override
