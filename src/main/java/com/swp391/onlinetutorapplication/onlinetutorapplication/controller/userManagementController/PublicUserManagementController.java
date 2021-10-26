@@ -75,11 +75,10 @@ public class PublicUserManagementController {
                 limit = 20;
             }
             if(name != null){
-                List<UserInformationResponse> list = userManagement.publicSearchUser(name,page,limit);
-                return ResponseEntity.ok().body(new UserListResponse(list));
+                TutorListResponse list = userManagement.publicSearchTutor(name,page,limit);
+                return ResponseEntity.ok().body(list);
             }
-            List<UserInformationResponse> list = userManagement.getListTutor(page,limit);
-            TutorListResponse listResponse = new TutorListResponse(list);
+            TutorListResponse listResponse = userManagement.getListTutor(page,limit);
             return ResponseEntity.ok().body(listResponse);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -101,11 +100,11 @@ public class PublicUserManagementController {
                 limit = 20;
             }
             if(subjectId == null){
-                List<Rate> rateList = ratingService.getAllRating(tutorId,page,limit);
-                return ResponseEntity.ok().body(new RatingListResponse(rateList));
+                RatingListResponse rateList = ratingService.getAllRating(tutorId,page,limit);
+                return ResponseEntity.ok().body(rateList);
             }
-            List<Rate> rateList = ratingService.getTutorRatingBySubject(tutorId, subjectId,page,limit);
-            return ResponseEntity.ok().body(new RatingListResponse(rateList));
+            RatingListResponse rateList = ratingService.getTutorRatingBySubject(tutorId, subjectId,page,limit);
+            return ResponseEntity.ok().body(rateList);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
         }

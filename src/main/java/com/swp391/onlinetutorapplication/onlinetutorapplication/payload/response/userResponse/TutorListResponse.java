@@ -15,35 +15,12 @@ import java.util.List;
 @AllArgsConstructor
 public class TutorListResponse {
     private Boolean status = true;
-    private int totalUser;
+    private Long totalUser;
     List<UserInformationResponse> tutorList;
 
     public TutorListResponse(List<UserInformationResponse> tutorList) {
-        this.totalUser = tutorList.size();
         this.tutorList = tutorList;
     }
 
-    public TutorListResponse(List<UserInformationResponse> tutorList, Integer page, Integer limit) {
-        page = page-1;
-        this.totalUser = tutorList.size();
-        List<UserInformationResponse> responses = new ArrayList<>();
-        int index = page*limit;
-        int des = tutorList.size()<(index+limit) ? tutorList.size() : index+limit;
-        for(int i = index; i< des ; i++){
-            responses.add(tutorList.get(i));
-        }
-        this.tutorList = responses;
-    }
 
-//    public TutorListResponse(List<User> users,Integer page, Integer limit){
-//        page = page-1;
-//        this.totalUser = users.size();
-//        List<UserInformationResponse> responses = new ArrayList<>();
-//        int index = page*limit;
-//        int des = users.size()<(index+limit) ? users.size() : index+limit;
-//        for(int i = index; i< des ; i++){
-//            responses.add(new UserInformationResponse(users.get(i)));
-//        }
-//        this.tutorList = responses;
-//    }
 }

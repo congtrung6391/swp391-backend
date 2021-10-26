@@ -1,14 +1,15 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.forumRequest;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
-@NoArgsConstructor
+@Getter
+@Setter
 @AllArgsConstructor
-public class QuestionRequest {
-    private String title;
-    private String description;
-    private Long subjectId;
+@NoArgsConstructor
+public class AnswerCreateRequest {
+    private Long replyId;
+    private String content;
 }

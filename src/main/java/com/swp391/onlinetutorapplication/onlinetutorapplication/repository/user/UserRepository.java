@@ -30,22 +30,22 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByAuthorizationToken(String accessToken);
 
-    List<User> findAllByStatusIsTrueOrderByIdDesc(Pageable pageable);
+    Page<User> findAllByStatusIsTrueOrderByIdDesc(Pageable pageable);
 
-    List<User> findAllByRolesAndStatusIsTrueOrderByIdDesc(Role role, Pageable pageable);
+    Page<User> findAllByRolesAndStatusIsTrueOrderByIdDesc(Role role, Pageable pageable);
 
     Optional<User> findByIdAndStatusIsTrue(Long id);
 
     @Override
     List<User> findAll();
 
-    Optional<List<User>> findAllByIdAndStatusIsTrue(Long id, Pageable pageable);
+    Optional<Page<User>> findAllByIdAndStatusIsTrue(Long id, Pageable pageable);
 
     @Query("SELECT distinct u from User u where u.id= ?1 and (u.email like ?2 or u.fullName like ?3 or u.username like ?4) and u.status=true  order by u.id desc ")
-    Optional<List<User>> findByIdAndName(Long id, String email, String fullName, String userName, Pageable pageable);
+    Optional<Page<User>> findByIdAndName(Long id, String email, String fullName, String userName, Pageable pageable);
 
     @Query("SELECT distinct u from User u where (u.email like ?1 or u.fullName like ?2 or u.username like ?3) and u.status=true order by u.id desc ")
-    Optional<List<User>> findAllByName(String email, String fullName, String userName, Pageable pageable);
+    Optional<Page<User>> findAllByName(String email, String fullName, String userName, Pageable pageable);
 
     @Override
     Page<User> findAll(Pageable pageable);

@@ -33,16 +33,26 @@ public class AdminCourseController {
     @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN') or hasAuthority('TUTOR') or hasAuthority('STUDENT')")
     public ResponseEntity<?> getAllCourseForAdmin(@RequestHeader(name = "Authorization") String accessToken,
                                                   @RequestParam(name = "page", required = false) Integer page,
-                                                  @RequestParam(name = "limit", required = false) Integer limit) {
+                                                  @RequestParam(name = "limit", required = false) Integer limit,
+                                                  @RequestParam(name = "id", required = false) Long courseId,
+                                                  @RequestParam(name = "courseName", required = false) String courseName,
+                                                  @RequestParam(name = "subjectId", required = false) Long subjectId,
+                                                  @RequestParam(name = "fullName", required = false) String fullName) {
         try {
-            if(page == null || page<1){
+            if (page == null || page < 1) {
                 page = 1;
             }
-            if(limit == null){
+            if (limit == null) {
                 limit = 20;
             }
-            return ResponseEntity.ok().body(new CourseListResponse(
-                    courseService.getAllCourseInformationForAdmin(accessToken,page,limit)));
+            if(courseName == null){
+                courseName = "";
+            }
+            if(fullName == null){
+                fullName = "";
+            }
+            return ResponseEntity.ok().body(
+                    courseService.getAllCourseInformationForAdmin(accessToken, page, limit, courseId, courseName, subjectId, fullName));
         } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }
@@ -107,12 +117,12 @@ public class AdminCourseController {
     // localhost:8080/api/admin/course/id
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN') or hasAuthority('TUTOR')")
-    public ResponseEntity<?> deleteCourse(@PathVariable("id") Long id) {
+    public ResponseEntity<?> deleteCourse(@PathVariable("id") String id) {
         try {
-            courseService.deleteCourse(id);
+            courseService.deleteCourse(Long.parseLong(id));
             return ResponseEntity.ok().body(new MessageResponse("Course has been successfully deleted."));
         } catch (NoSuchElementException ex) {
-            return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
+            return ResponseEntity.badRequest().body(new MessageResponse("Course not found"));
         }
     }
 
@@ -152,14 +162,14 @@ public class AdminCourseController {
                                             @RequestParam(name = "page", required = false) Integer page,
                                             @RequestParam(name = "limit", required = false) Integer limit) {
         try {
-            if(page == null || page<1){
+            if (page == null || page < 1) {
                 page = 1;
             }
-            if(limit == null){
+            if (limit == null) {
                 limit = 20;
             }
-            List<MaterialCreationResponse> materials = courseService.getCourseMaterial(courseId, accessToken);
-            return ResponseEntity.ok().body(new MaterialListResponse(materials));
+            MaterialListResponse materials = courseService.getCourseMaterial(courseId, accessToken,page,limit);
+            return ResponseEntity.ok().body(materials);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
         }
@@ -194,17 +204,16 @@ public class AdminCourseController {
     }
 
     @DeleteMapping("{courseId}/timetable/{timetableId}")
-    @PreAuthorize("hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
+    @PreAuthorize("hasAuthority('TUTOR') or  hasAuthority('SUPER_ADMIN')")
     public ResponseEntity<?> deleteTimeTable(@PathVariable(name = "courseId") Long courseId,
                                              @PathVariable(name = "timetableId") Long timetableId,
-                                             @RequestHeader(name = "Authorization")String accessToken){
-        try{
+                                             @RequestHeader(name = "Authorization") String accessToken) {
+        try {
             courseService.deleteTimeTable(timetableId, courseId, accessToken);
             return ResponseEntity.ok().body(new SuccessfulMessageResponse("Delete Success"));
-        }
-        catch (NoSuchElementException ex){
+        } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
-        }catch (Exception ex){
+        } catch (Exception ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }
     }
@@ -212,12 +221,12 @@ public class AdminCourseController {
     @PutMapping("/{courseId}/timetable/{timetableId}")
     @PreAuthorize("hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
     public ResponseEntity<?> updateTimeTable(@PathVariable(name = "courseId") Long courseId,
-                                            @PathVariable(name = "timetableId") Long timetableId ,
+                                             @PathVariable(name = "timetableId") Long timetableId,
                                              @RequestBody TimeTableRequest request) {
         try {
             CourseTimetable timetable = courseService.updateCourseTimeTable(timetableId, courseId, request);
             return ResponseEntity.ok().body(new TimeTableResponse(timetable));
-        } catch (NoSuchElementException ex){
+        } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         } catch (Exception ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
@@ -226,17 +235,16 @@ public class AdminCourseController {
 
     @PostMapping("/{courseId}/timetable")
     @PreAuthorize("hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
-    public ResponseEntity<?> createTimetable(@RequestHeader(name = "Authorization") String accessToken, @PathVariable(name = "courseId") Long courseId,@Valid @RequestBody TimeTableCreationRequest request) {
+    public ResponseEntity<?> createTimetable(@RequestHeader(name = "Authorization") String accessToken, @PathVariable(name = "courseId") Long courseId, @Valid @RequestBody TimeTableCreationRequest request) {
         try {
             CourseTimetable timetable = courseService.createTimetable(request, courseId, accessToken);
             return ResponseEntity.ok().body(new TimeTableResponse(timetable));
-        } catch (NoSuchElementException ex){
+        } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
-        }catch (Exception ex) {
+        } catch (Exception ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }
     }
-
 
 
 }

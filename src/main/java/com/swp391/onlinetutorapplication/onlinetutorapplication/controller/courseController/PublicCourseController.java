@@ -50,9 +50,9 @@ public class PublicCourseController {
             if (limit == null) {
                 limit = 20;
             }
-            return ResponseEntity.ok().body(new CourseListResponse(
+            return ResponseEntity.ok().body(
                     courseService.getAllCourseInformationForStudent(page, limit)
-            ));
+            );
         } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }

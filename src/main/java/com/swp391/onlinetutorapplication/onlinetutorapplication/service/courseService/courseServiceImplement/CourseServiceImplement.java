@@ -5,28 +5,32 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Co
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.CourseMaterial;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.CourseTimetable;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Subject;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.ERole;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.*;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.CourseInformationResponse;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.MaterialCreationResponse;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.TimeTableInformation;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.*;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.CourseMaterialRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.CourseRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.CourseTimeTableRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.SubjectRepository;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.role.RoleRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.user.UserRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.courseService.courseServiceInterface.CourseServiceInterface;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.dropboxService.DropboxService;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceInterface.UserServiceInterface;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.jni.Local;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -47,14 +51,18 @@ public class CourseServiceImplement implements CourseServiceInterface {
 
     @Autowired
     private DropboxService dropboxService;
+
     @Autowired
-    SubjectRepository subjectRepository;
+    private SubjectRepository subjectRepository;
 
     @Autowired
     private CourseMaterialRepository courseMaterialRepository;
 
     @Autowired
     private CourseTimeTableRepository courseTimeTableRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
 
 
     @Override
@@ -85,9 +93,15 @@ public class CourseServiceImplement implements CourseServiceInterface {
     }
 
     @Override
-    public List<CourseInformationResponse> getAllCourseInformationForAdmin(String accessToken, Integer page, Integer limit) {
+    public CourseListResponse getAllCourseInformationForAdmin(String accessToken,
+                                                                           Integer page,
+                                                                           Integer limit,
+                                                                           Long id,
+                                                                           String courseName,
+                                                                           Long subjectId,
+                                                                           String fullName) {
         Pageable pageable = PageRequest.of(page - 1, limit);
-        List<Course> listAllCourse = null;
+        Page<Course> listAllCourse = null;
         accessToken = accessToken.replaceAll("Bearer ", "");
         User user = userRepository.findByAuthorizationToken(accessToken).get();
         Set<Role> roles = user.getRoles();
@@ -95,6 +109,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
             switch (role.getUserRole()) {
                 case SUPER_ADMIN:
                 case ADMIN:
+//                    listAllCourse = courseRepository.findAllByStatusIsTrueOrderByIdDesc(id, courseName, subjectId, fullName, pageable);
                     listAllCourse = courseRepository.findAllByStatusIsTrueOrderByIdDesc(pageable);
                     break;
                 case TUTOR:
@@ -119,7 +134,9 @@ public class CourseServiceImplement implements CourseServiceInterface {
                 allCourseApi.add(response);
             }
         }
-        return allCourseApi;
+        CourseListResponse response = new CourseListResponse(allCourseApi);
+        response.setTotalCourse(listAllCourse.getTotalElements());
+        return response;
     }
 
     @Override
@@ -178,9 +195,9 @@ public class CourseServiceImplement implements CourseServiceInterface {
 
 
     @Override
-    public List<CourseInformationResponse> getAllCourseInformationForStudent(Integer page, Integer limit) {
+    public CourseListResponse getAllCourseInformationForStudent(Integer page, Integer limit) {
         Pageable pageable = PageRequest.of(page - 1, limit);
-        List<Course> listAllCourse = courseRepository.findAllByStudentIsNullAndCourseStatusIsTrueAndStatusIsTrueOrderByIdDesc(pageable);
+        Page<Course> listAllCourse = courseRepository.findAllByStudentIsNullAndCourseStatusIsTrueAndStatusIsTrueOrderByIdDesc(pageable);
 
         List<CourseInformationResponse> allCourseApi = new ArrayList<>();
         if (!listAllCourse.isEmpty()) {
@@ -190,7 +207,9 @@ public class CourseServiceImplement implements CourseServiceInterface {
                 allCourseApi.add(response);
             }
         }
-        return allCourseApi;
+        CourseListResponse response = new CourseListResponse(allCourseApi);
+        response.setTotalCourse(listAllCourse.getTotalElements());
+        return response;
     }
 
     @Override //by Nam
@@ -365,7 +384,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
 
     //Ai có task get material thì sửa lại api response của list materials - nam
     @Override
-    public List<MaterialCreationResponse> getCourseMaterial(Long courseId, String accessToken) throws IOException, DbxException {
+    public MaterialListResponse getCourseMaterial(Long courseId, String accessToken,Integer page, Integer limit) throws IOException, DbxException {
         accessToken = accessToken.replaceAll("Bearer ", "");
         User currentUser = userRepository.findByAuthorizationToken(accessToken).
                 orElseThrow(() -> {
@@ -401,13 +420,16 @@ public class CourseServiceImplement implements CourseServiceInterface {
                     throw new NoSuchElementException("Material not found");
             }
         }
-        List<CourseMaterial> materialList = courseMaterialRepository.findAllByCourseAndStatusIsTrue(course);
-        List<MaterialCreationResponse> materialCreationResponses = new ArrayList<>();
-        for (CourseMaterial courseMaterial : materialList) {
+        Pageable pageable = PageRequest.of(page-1,limit);
+        Page<CourseMaterial> materialListPage = courseMaterialRepository.findAllByCourseAndStatusIsTrueOrderByIdDesc(course,pageable);
+        List<MaterialCreationResponse> materialList = new ArrayList<>();
+        for (CourseMaterial courseMaterial : materialListPage.getContent()) {
             MaterialCreationResponse response = new MaterialCreationResponse(courseMaterial);
-            materialCreationResponses.add(response);
+            materialList.add(response);
         }
-        return materialCreationResponses;
+        MaterialListResponse response = new MaterialListResponse(materialList);
+        response.setTotalMaterial(materialListPage.getTotalElements());
+        return response;
     }
 
     //Link share đã lưu vào database, nên không cần dùng hàm này cũng được, sài getLinkShare là lấy đc link rồi - nam
@@ -455,12 +477,19 @@ public class CourseServiceImplement implements CourseServiceInterface {
         CourseTimetable timetable = courseTimeTableRepository.findById(timetableId).orElseThrow(() -> {
             throw new NoSuchElementException("TimeTable not found");
         });
-        if (tutor != course.getTutor()) {
-            throw new Exception("You are not allowed to delete ");
-        } else {
+        Role SuperAmin = roleRepository.findByUserRole(ERole.SUPER_ADMIN).get();
+
+        if (tutor.getRoles().contains(SuperAmin)) {
             timetable.setStatus(false);
             courseTimeTableRepository.save(timetable);
         }
+        else if(tutor != course.getTutor() ) {
+            throw new Exception("You are not allowed to delete ");
+        }else {
+            timetable.setStatus(false);
+            courseTimeTableRepository.save(timetable);
+        }
+
     }
 
     @Override
@@ -474,16 +503,17 @@ public class CourseServiceImplement implements CourseServiceInterface {
         if (timeTableRequest.getDay() != null) {
             timetable.setDay(timeTableRequest.getDay());
         }
-        if (timeTableRequest.getStartTime() != null) {
-            timetable.setStartTime(timeTableRequest.getStartTime());
+        if(timeTableRequest.getStartTime() != null){
+            timetable.setStartTime(LocalTime.parse(timeTableRequest.getStartTime(), DateTimeFormatter.ofPattern("HH:mm:ss")));
+
         }
-        if (timeTableRequest.getEndTime() != null) {
-            timetable.setEndTime(timeTableRequest.getEndTime());
+        if(timeTableRequest.getEndTime() != null){
+            timetable.setEndTime(LocalTime.parse(timeTableRequest.getEndTime(), DateTimeFormatter.ofPattern("HH:mm:ss")));
         }
 
         // check if starttime after endtime
-        if (timeTableRequest.getStartTime().isAfter(timeTableRequest.getEndTime())) {
-            throw new Exception("Please set Startime before EndTime");
+        if(timetable.getStartTime().isAfter(timetable.getEndTime())){
+          throw new Exception("Please set Startime before EndTime");
         }
         courseTimeTableRepository.save(timetable);
         return timetable;
