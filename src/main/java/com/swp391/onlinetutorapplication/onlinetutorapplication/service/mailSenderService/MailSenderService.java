@@ -16,7 +16,7 @@ public class MailSenderService {
                 "\t<h2>Email confirmation account</h2>\n" +
                 "\t<p>Dear " + username + " ,</p>\n" +
                 "\t<p>This is email for confirm your registration account. Please click the link below to confirm your registration.</p><br>\n" +
-                "\t<a href=\"http://localhost:8080/api/auth/activate?token=" + token + "\"><button>CLICK HERE</button></a>\n" +
+                "\t<a href=\"https://swptutor.azurewebsites.net/api/auth/activate?token=" + token + "\"><button>CLICK HERE</button></a>\n" +
                 "\t<br>\n" +
                 "\t<p>Thanks for using our product. Have a nice day!</p>\n" +
                 "</body>\n" +
@@ -29,7 +29,7 @@ public class MailSenderService {
                 "\t<h2>Email Reset Password</h2>\n" +
                 "\t<p>Dear " + username + " ,</p>\n" +
                 "\t<p>This is email for confirm your registration account. Please use code below to reset your password.</p><br>\n" +
-                "\t<a href=\"http://localhost:8080/api/auth/reset-password/" + resetCode + "\"><button>CLICK HERE</button></a>\n" +
+                "\t<a href=\"https://swptutor.azurewebsites.net/api/auth/reset-password/" + resetCode + "\"><button>CLICK HERE</button></a>\n" +
                 "\t<br>\n" +
                 "\t<p>Thanks for using our product. Have a nice day!</p>\n" +
                 "</body>\n" +
