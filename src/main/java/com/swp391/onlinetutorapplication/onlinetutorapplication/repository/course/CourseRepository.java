@@ -4,6 +4,7 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Co
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 
@@ -23,8 +24,15 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
 
     List<Course> findAllByTutorAndStatusIsTrueOrderByIdDesc(User tutor, Pageable pageable);
 
-    List<Course> findAllByStatusIsTrueOrderByIdDesc(Pageable pageable);
+//    @Query("SELECT c FROM Course c WHERE " +
+//            "(c.id = ?1 " +
+//            "OR c.courseName LIKE %?2% " +
+//            "OR c.subject.id = ?3 " +
+//            "OR c.tutor.fullName LIKE %?4%) " +
+//            "AND c.status = true ORDER BY c.id DESC")
+//    List<Course> findAllByStatusIsTrueOrderByIdDesc(Long id, String courseName, Long subjectId, String fullName, Pageable pageable);
 
+    List<Course> findAllByStatusIsTrueOrderByIdDesc(Pageable pageable);
     Optional<Course> findByIdAndStatusIsTrue(Long id);
 
     List<Course> findAllByStudentAndStatusIsTrueOrderByIdDesc(User student, Pageable pageable);
