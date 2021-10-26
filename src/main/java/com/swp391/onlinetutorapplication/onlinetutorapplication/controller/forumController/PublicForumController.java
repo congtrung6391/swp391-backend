@@ -151,7 +151,6 @@ public class PublicForumController {
         }
     }
 
-
     @PutMapping ("/question/{questionId}/updateanswer/{answerId}")
     @PreAuthorize("hasAuthority('STUDENT') or hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
     public ResponseEntity<?> updateAnswer(
