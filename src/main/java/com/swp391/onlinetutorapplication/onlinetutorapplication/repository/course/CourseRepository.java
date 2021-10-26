@@ -33,6 +33,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
 //    List<Course> findAllByStatusIsTrueOrderByIdDesc(Long id, String courseName, Long subjectId, String fullName, Pageable pageable);
 
     List<Course> findAllByStatusIsTrueOrderByIdDesc(Pageable pageable);
+
     Optional<Course> findByIdAndStatusIsTrue(Long id);
 
     List<Course> findAllByStudentAndStatusIsTrueOrderByIdDesc(User student, Pageable pageable);
