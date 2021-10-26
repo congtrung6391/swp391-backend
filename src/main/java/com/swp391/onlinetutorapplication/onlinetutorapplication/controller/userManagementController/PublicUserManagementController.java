@@ -1,6 +1,7 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.controller.userManagementController;
 
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.rating.Rate;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.ratingRequest.AddRatingRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.ratingRequest.UpdateRatingRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.UpdateProfileRequest;
@@ -11,6 +12,7 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.SuccessfulMessageResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.TutorListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserInformationResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.ratingService.ratingServiceInterface.RatingServiceInterface;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceInterface.UserManagementInterface;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceInterface.UserServiceInterface;
@@ -19,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.NoSuchElementException;
 @CrossOrigin(origins = "https://swp391-onlinetutor.herokuapp.com/")
@@ -35,11 +38,11 @@ public class PublicUserManagementController {
     @Autowired
     private RatingServiceInterface ratingService;
 
-    @PostMapping("/user/{id}")
+    @PutMapping("/user/{id}")
     @PreAuthorize("hasAuthority('SUPER_ADMIN') or hasAuthority('ADMIN') or hasAuthority('TUTOR') or hasAuthority('STUDENT')")
     public ResponseEntity<?> updateUser(@RequestHeader(name = "Authorization") String accessToken,
                                         @PathVariable("id") Long id,
-                                        @RequestBody UpdateProfileRequest updateProfileRequest) {
+                                        @Valid @RequestBody UpdateProfileRequest updateProfileRequest) {
         try {
             userManagement.updateUser(accessToken, id, updateProfileRequest);
             return ResponseEntity.ok().body(new MessageResponse("User id: " + id + " has been updated."));
@@ -64,40 +67,25 @@ public class PublicUserManagementController {
             @RequestParam(name = "limit", required = false) Integer limit
     ) {
         try {
-            if (page == null) {
+            if (page == null || page<1) {
                 page = 1;
             }
             if (limit == null) {
                 limit = 20;
             }
             if(name != null){
-                return ResponseEntity.ok().body(userManagement.publicSearchUser(name));
+                List<UserInformationResponse> list = userManagement.publicSearchUser(name,page,limit);
+                return ResponseEntity.ok().body(new UserListResponse(list));
             }
-            List<UserInformationResponse> list = userManagement.getListTutor();
-            TutorListResponse listResponse = new TutorListResponse(list, page, limit);
+            List<UserInformationResponse> list = userManagement.getListTutor(page,limit);
+            TutorListResponse listResponse = new TutorListResponse(list);
             return ResponseEntity.ok().body(listResponse);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-//    @GetMapping("/tutor/{tutorId}/rating")
-//    public ResponseEntity<?> getTutorRating(@PathVariable(name = "tutorId") Long tutorId,
-//                                            @RequestParam(name = "page", required = false) Integer page,
-//                                            @RequestParam(name = "limit", required = false) Integer limit) {
-//        try {
-//            if (page == null) {
-//                page = 1;
-//            }
-//            if (limit == null) {
-//                limit = 20;
-//            }
-//            List<Rate> rateList = ratingService.getAllRating(tutorId);
-//            return ResponseEntity.ok().body(new RatingListResponse(rateList, page, limit));
-//        } catch (Exception e) {
-//            return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
-//        }
-//    }
+
 
     @GetMapping("/user/{tutorId}/rating")
     public ResponseEntity<?> getTutorRatingBySubject(@PathVariable(name = "tutorId") Long tutorId,
@@ -105,31 +93,22 @@ public class PublicUserManagementController {
                                                      @RequestParam(name = "page", required = false) Integer page,
                                                      @RequestParam(name = "limit", required = false) Integer limit) {
         try {
-            if (page == null) {
+            if (page == null || page<1) {
                 page = 1;
             }
             if (limit == null) {
                 limit = 20;
             }
             if(subjectId == null){
-                List<Rate> rateList = ratingService.getAllRating(tutorId);
-                return ResponseEntity.ok().body(new RatingListResponse(rateList, page, limit));
+                List<Rate> rateList = ratingService.getAllRating(tutorId,page,limit);
+                return ResponseEntity.ok().body(new RatingListResponse(rateList));
             }
-            List<Rate> rateList = ratingService.getTutorRatingBySubject(tutorId, subjectId);
-            return ResponseEntity.ok().body(new RatingListResponse(rateList, page, limit));
+            List<Rate> rateList = ratingService.getTutorRatingBySubject(tutorId, subjectId,page,limit);
+            return ResponseEntity.ok().body(new RatingListResponse(rateList));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
         }
     }
-
-//    @GetMapping("/tutor/search")
-//    public ResponseEntity<?> publicSearchTutor(@RequestParam(required = false) String name) {
-//        try {
-//            return ResponseEntity.ok().body(userManagement.publicSearchUser(name));
-//        } catch (Exception e) {
-//            return ResponseEntity.badRequest().body(e.getMessage());
-//        }
-//    }
 
     @PostMapping("/user/{userId}/rating")
     @PreAuthorize("hasAuthority('SUPER_ADMIN') or hasAuthority('STUDENT') or hasAuthority('ADMIN')")

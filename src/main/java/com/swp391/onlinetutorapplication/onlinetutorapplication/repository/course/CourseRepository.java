@@ -2,28 +2,17 @@ package com.swp391.onlinetutorapplication.onlinetutorapplication.repository.cour
 
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Course;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.awt.print.Pageable;
+
 import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface CourseRepository extends JpaRepository<Course, Long> {
-
-    Optional<Course> findByCourseDescription(String courseDes);
-
-    Optional<Course> findByCourseName(String courseName);
-
-    Optional<Course> findByCourseNameAndCourseDescription(String courseName, String courseDes);
-
-    Optional<Course> findBySubject(String subject);
-
-    Optional<Course> findByCost(double cost);
-
-    Optional<Course> findByCostAndSubject(double cost, String subject);
 
     Optional<Course> findByIdAndCourseStatusIsTrue(Long id);
 
@@ -31,22 +20,22 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
 
     Optional<Course> findById(Long id);
 
-    Optional<Course> findByIdAndCourseStatusIsFalseAndStatusIsTrue(Long id);
-
     Optional<Course> findByIdAndStudentIsNotNullAndCourseStatusIsTrue(Long id);
 
-    List<Course> findAllByTutorAndStatusIsTrue(User tutor);
+    List<Course> findAllByTutorAndStatusIsTrueOrderByIdDesc(User tutor, Pageable pageable);
 
-    List<Course> findAllByStatusIsTrue();
+//    @Query("SELECT c FROM Course c WHERE " +
+//            "(c.id = ?1 " +
+//            "OR c.courseName LIKE %?2% " +
+//            "OR c.subject.id = ?3 " +
+//            "OR c.tutor.fullName LIKE %?4%) " +
+//            "AND c.status = true ORDER BY c.id DESC")
+//    List<Course> findAllByStatusIsTrueOrderByIdDesc(Long id, String courseName, Long subjectId, String fullName, Pageable pageable);
 
+    List<Course> findAllByStatusIsTrueOrderByIdDesc(Pageable pageable);
     Optional<Course> findByIdAndStatusIsTrue(Long id);
 
-    Optional<Course> findByIdAndTutorAndStatusIsTrue(Long id, User tutor);
+    List<Course> findAllByStudentAndStatusIsTrueOrderByIdDesc(User student, Pageable pageable);
 
-    Optional<Course> findByIdAndStudentAndStatusIsTrue(Long id, User student);
-
-    @Override
-    List<Course> findAll();
-
-    List<Course> findAllByStudentIsNullAndCourseStatusIsTrueAndStatusIsTrue();
+    List<Course> findAllByStudentIsNullAndCourseStatusIsTrueAndStatusIsTrueOrderByIdDesc(Pageable pageable);
 }

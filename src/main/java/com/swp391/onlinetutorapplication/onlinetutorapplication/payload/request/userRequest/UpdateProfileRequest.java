@@ -22,6 +22,8 @@ public class UpdateProfileRequest {
 
     private String address;
 
+    private String avatar;
+
     private String facebookUrl;
 
     private String affiliate;
@@ -29,4 +31,10 @@ public class UpdateProfileRequest {
     private Double gpa;
 
     private String gender;
+
+    private String birthday;
+
+    private String password;
+
+    private String newPassword;
 }
