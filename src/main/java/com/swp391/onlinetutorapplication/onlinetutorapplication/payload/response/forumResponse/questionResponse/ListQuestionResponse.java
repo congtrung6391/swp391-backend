@@ -14,11 +14,10 @@ import java.util.List;
 @NoArgsConstructor
 public class ListQuestionResponse {
     private Boolean status = true;
-    private Integer totalQuestion;
+    private Long totalQuestion;
     private List<QuestionSearchResponse> listQuestion;
 
     public ListQuestionResponse(List<Question> listQuestion){
-        this.totalQuestion = listQuestion.size();
         List<QuestionSearchResponse> responseList = new ArrayList<>();
         for(Question question: listQuestion){
             QuestionSearchResponse response = new QuestionSearchResponse(question);

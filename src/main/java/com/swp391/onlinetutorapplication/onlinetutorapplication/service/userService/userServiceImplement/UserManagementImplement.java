@@ -4,7 +4,9 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.ERole
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.UpdateProfileRequest;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.TutorListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserInformationResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserProfileResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.role.RoleRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.user.UserRepository;
@@ -173,15 +175,17 @@ public class UserManagementImplement implements UserManagementInterface {
     }
 
     @Override
-    public List<UserInformationResponse> getAllUser(Integer page, Integer limit) {
+    public UserListResponse getAllUser(Integer page, Integer limit) {
         Pageable pageable = PageRequest.of(page - 1, limit);
-        List<User> users = userRepository.findAllByStatusIsTrueOrderByIdDesc(pageable);
+        Page<User> users = userRepository.findAllByStatusIsTrueOrderByIdDesc(pageable);
         List<UserInformationResponse> userList = new ArrayList<>();
         for (User user : users) {
             UserInformationResponse response = new UserInformationResponse(user);
             userList.add(response);
         }
-        return userList;
+        UserListResponse response = new UserListResponse(userList);
+        response.setTotalUser(users.getTotalElements());
+        return response;
     }
 
     @Override
@@ -207,26 +211,28 @@ public class UserManagementImplement implements UserManagementInterface {
     }
 
     @Override
-    public List<UserInformationResponse> getListTutor(Integer page, Integer limit) {
+    public TutorListResponse getListTutor(Integer page, Integer limit) {
         Pageable pageable = PageRequest.of(page - 1, limit);
         Role role = roleRepository.findByUserRole(ERole.TUTOR)
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Not found role");
                 });
-        List<User> users = userRepository.findAllByRolesAndStatusIsTrueOrderByIdDesc(role, pageable);
+        Page<User> users = userRepository.findAllByRolesAndStatusIsTrueOrderByIdDesc(role, pageable);
         List<UserInformationResponse> tutorList = new ArrayList<>();
         for (User user : users) {
-            UserInformationResponse response = new UserInformationResponse(user);
-            tutorList.add(response);
+            UserInformationResponse responseUser = new UserInformationResponse(user);
+            tutorList.add(responseUser);
         }
-        return tutorList;
+        TutorListResponse response = new TutorListResponse(tutorList);
+        response.setTotalUser(users.getTotalElements());
+        return response;
     }
 
     //admin search user - by Nam
     @Override
-    public List<UserInformationResponse> adminSearchUser(String id, String name, Integer page, Integer limit) {
+    public UserListResponse adminSearchUser(String id, String name, Integer page, Integer limit) {
         Pageable pageable = PageRequest.of((page - 1), limit);
-        List<User> users = new ArrayList<>();
+        Page<User> users = null;
         if (name == null || name.isEmpty()) {
             users = userRepository.findAllByIdAndStatusIsTrue(Long.parseLong(id), pageable).
                     orElseThrow(() -> {
@@ -249,14 +255,15 @@ public class UserManagementImplement implements UserManagementInterface {
             UserInformationResponse response = new UserInformationResponse(user);
             responseList.add(response);
         }
-        return responseList;
+        UserListResponse response = new UserListResponse(responseList);
+        response.setTotalUser(users.getTotalElements());
+        return response;
     }
 
     //public search tutor - by Nam
     @Override
-    public List<UserInformationResponse> publicSearchUser(String name, Integer page, Integer limit) {
+    public TutorListResponse publicSearchTutor(String name, Integer page, Integer limit) {
         Role role = roleRepository.findByUserRole(ERole.TUTOR).get();
-
         page -= 1;
         Pageable pageable = PageRequest.of(page, limit);
 
@@ -270,7 +277,9 @@ public class UserManagementImplement implements UserManagementInterface {
             UserInformationResponse response = new UserInformationResponse(user);
             responseList.add(response);
         }
-        return responseList;
+        TutorListResponse response = new TutorListResponse(responseList);
+        response.setTotalUser(users.getTotalElements());
+        return response;
     }
 }
 

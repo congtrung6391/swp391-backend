@@ -9,9 +9,7 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.ERole
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.*;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.CourseInformationResponse;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.MaterialCreationResponse;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.TimeTableInformation;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.*;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.CourseMaterialRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.CourseRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.CourseTimeTableRepository;
@@ -24,6 +22,7 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userServ
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.jni.Local;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -52,8 +51,9 @@ public class CourseServiceImplement implements CourseServiceInterface {
 
     @Autowired
     private DropboxService dropboxService;
+
     @Autowired
-    SubjectRepository subjectRepository;
+    private SubjectRepository subjectRepository;
 
     @Autowired
     private CourseMaterialRepository courseMaterialRepository;
@@ -93,9 +93,15 @@ public class CourseServiceImplement implements CourseServiceInterface {
     }
 
     @Override
-    public List<CourseInformationResponse> getAllCourseInformationForAdmin(String accessToken, Integer page, Integer limit) {
+    public CourseListResponse getAllCourseInformationForAdmin(String accessToken,
+                                                                           Integer page,
+                                                                           Integer limit,
+                                                                           Long id,
+                                                                           String courseName,
+                                                                           Long subjectId,
+                                                                           String fullName) {
         Pageable pageable = PageRequest.of(page - 1, limit);
-        List<Course> listAllCourse = null;
+        Page<Course> listAllCourse = null;
         accessToken = accessToken.replaceAll("Bearer ", "");
         User user = userRepository.findByAuthorizationToken(accessToken).get();
         Set<Role> roles = user.getRoles();
@@ -103,6 +109,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
             switch (role.getUserRole()) {
                 case SUPER_ADMIN:
                 case ADMIN:
+//                    listAllCourse = courseRepository.findAllByStatusIsTrueOrderByIdDesc(id, courseName, subjectId, fullName, pageable);
                     listAllCourse = courseRepository.findAllByStatusIsTrueOrderByIdDesc(pageable);
                     break;
                 case TUTOR:
@@ -127,7 +134,9 @@ public class CourseServiceImplement implements CourseServiceInterface {
                 allCourseApi.add(response);
             }
         }
-        return allCourseApi;
+        CourseListResponse response = new CourseListResponse(allCourseApi);
+        response.setTotalCourse(listAllCourse.getTotalElements());
+        return response;
     }
 
     @Override
@@ -186,9 +195,9 @@ public class CourseServiceImplement implements CourseServiceInterface {
 
 
     @Override
-    public List<CourseInformationResponse> getAllCourseInformationForStudent(Integer page, Integer limit) {
+    public CourseListResponse getAllCourseInformationForStudent(Integer page, Integer limit) {
         Pageable pageable = PageRequest.of(page - 1, limit);
-        List<Course> listAllCourse = courseRepository.findAllByStudentIsNullAndCourseStatusIsTrueAndStatusIsTrueOrderByIdDesc(pageable);
+        Page<Course> listAllCourse = courseRepository.findAllByStudentIsNullAndCourseStatusIsTrueAndStatusIsTrueOrderByIdDesc(pageable);
 
         List<CourseInformationResponse> allCourseApi = new ArrayList<>();
         if (!listAllCourse.isEmpty()) {
@@ -198,7 +207,9 @@ public class CourseServiceImplement implements CourseServiceInterface {
                 allCourseApi.add(response);
             }
         }
-        return allCourseApi;
+        CourseListResponse response = new CourseListResponse(allCourseApi);
+        response.setTotalCourse(listAllCourse.getTotalElements());
+        return response;
     }
 
     @Override //by Nam
@@ -373,7 +384,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
 
     //Ai có task get material thì sửa lại api response của list materials - nam
     @Override
-    public List<MaterialCreationResponse> getCourseMaterial(Long courseId, String accessToken) throws IOException, DbxException {
+    public MaterialListResponse getCourseMaterial(Long courseId, String accessToken,Integer page, Integer limit) throws IOException, DbxException {
         accessToken = accessToken.replaceAll("Bearer ", "");
         User currentUser = userRepository.findByAuthorizationToken(accessToken).
                 orElseThrow(() -> {
@@ -409,13 +420,16 @@ public class CourseServiceImplement implements CourseServiceInterface {
                     throw new NoSuchElementException("Material not found");
             }
         }
-        List<CourseMaterial> materialList = courseMaterialRepository.findAllByCourseAndStatusIsTrue(course);
-        List<MaterialCreationResponse> materialCreationResponses = new ArrayList<>();
-        for (CourseMaterial courseMaterial : materialList) {
+        Pageable pageable = PageRequest.of(page-1,limit);
+        Page<CourseMaterial> materialListPage = courseMaterialRepository.findAllByCourseAndStatusIsTrueOrderByIdDesc(course,pageable);
+        List<MaterialCreationResponse> materialList = new ArrayList<>();
+        for (CourseMaterial courseMaterial : materialListPage.getContent()) {
             MaterialCreationResponse response = new MaterialCreationResponse(courseMaterial);
-            materialCreationResponses.add(response);
+            materialList.add(response);
         }
-        return materialCreationResponses;
+        MaterialListResponse response = new MaterialListResponse(materialList);
+        response.setTotalMaterial(materialListPage.getTotalElements());
+        return response;
     }
 
     //Link share đã lưu vào database, nên không cần dùng hàm này cũng được, sài getLinkShare là lấy đc link rồi - nam

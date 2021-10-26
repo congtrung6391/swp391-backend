@@ -3,7 +3,9 @@ package com.swp391.onlinetutorapplication.onlinetutorapplication.service.userSer
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.UpdateProfileRequest;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.TutorListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserInformationResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserProfileResponse;
 
 import java.util.List;
@@ -15,7 +17,7 @@ public interface UserManagementInterface {
 
     UserProfileResponse getUserProfile(Long id);
 
-    List<UserInformationResponse> getAllUser(Integer page, Integer limit);
+    UserListResponse getAllUser(Integer page, Integer limit);
 
     void saveUser(User user);
 
@@ -27,11 +29,11 @@ public interface UserManagementInterface {
 
     void deleteUser(Long id) throws Exception;
 
-    List<UserInformationResponse> getListTutor(Integer page, Integer limit);
+    TutorListResponse getListTutor(Integer page, Integer limit);
 
     //admin search user - by Nam
-    List<UserInformationResponse> adminSearchUser(String id, String name, Integer page, Integer limit);
+    UserListResponse adminSearchUser(String id, String name, Integer page, Integer limit);
 
     //    Object publicSearchUser(String name);
-    List<UserInformationResponse> publicSearchUser(String name, Integer page, Integer limit);
+    TutorListResponse publicSearchTutor(String name, Integer page, Integer limit);
 }

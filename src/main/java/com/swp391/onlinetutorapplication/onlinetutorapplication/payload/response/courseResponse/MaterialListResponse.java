@@ -13,24 +13,11 @@ import java.util.List;
 @AllArgsConstructor
 public class MaterialListResponse {
     private Boolean status = true;
-    private int totalMaterial;
+    private Long totalMaterial;
     List<MaterialCreationResponse> materialList;
 
     public MaterialListResponse(List<MaterialCreationResponse> materialList) {
-        this.totalMaterial = materialList.size();
         this.materialList = materialList;
     }
 
-    public MaterialListResponse(List<MaterialCreationResponse> materials, Integer page, Integer limit) {
-        page = page-1;
-        this.totalMaterial = materials.size();
-        List<MaterialCreationResponse> responses = new ArrayList<>();
-        int index = page*limit;
-        int des = materialList.size()<(index+limit) ? materialList.size() : index+limit;
-
-        for(int i = index; i< des ; i++){
-            responses.add(materials.get(i));
-        }
-        this.materialList = responses;
-    }
 }
