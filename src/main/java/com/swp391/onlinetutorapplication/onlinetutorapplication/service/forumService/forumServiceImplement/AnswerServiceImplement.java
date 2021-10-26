@@ -105,7 +105,7 @@ public class AnswerServiceImplement implements AnswerServiceInterface {
         Role role = roleRepository.findByUserRole(ERole.SUPER_ADMIN).get();
         Role role2 = roleRepository.findByUserRole(ERole.ADMIN).get();
 
-        if (user == question.getUser() || user.getRoles().contains(role) || user.getRoles().contains(role2)) {
+        if (user == answer.getUser() || user.getRoles().contains(role) || user.getRoles().contains(role2)) {
             answer.setStatus(false);
             answerRepository.save(answer);
         } else {
@@ -130,7 +130,7 @@ public class AnswerServiceImplement implements AnswerServiceInterface {
         Role role = roleRepository.findByUserRole(ERole.SUPER_ADMIN).get();
         Role role2 = roleRepository.findByUserRole(ERole.ADMIN).get();
 
-        if (user == question.getUser() || user.getRoles().contains(role) || user.getRoles().contains(role2)){
+        if (user == answer.getUser() || user.getRoles().contains(role) || user.getRoles().contains(role2)){
             if (request.getContent().isEmpty()){
                 throw new IllegalArgumentException("This field cannot be empty.");
             }else{

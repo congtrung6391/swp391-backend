@@ -89,7 +89,7 @@ public class UserManagementImplement implements UserManagementInterface {
         }
 
         if (!updateProfileRequest.getPhone().equals(user.getPhone())) {
-            if (updateProfileRequest.getPhone().isEmpty()) {
+            if (updateProfileRequest.getPhone() == null) {
                 user.setPhone(user.getPhone());
             }else {
                 user.setPhone(updateProfileRequest.getPhone());
@@ -163,20 +163,21 @@ public class UserManagementImplement implements UserManagementInterface {
             user.setBirthday(updateProfileRequest.getBirthday());}
         }
 
-        updateProfileRequest.setPassword(encoder.encode(updateProfileRequest.getPassword()));
+        /*
+       //   updateProfileRequest.setPassword(encoder.encode(updateProfileRequest.getPassword()));
         updateProfileRequest.setNewPassword(encoder.encode(updateProfileRequest.getNewPassword()));
         if (!updateProfileRequest.getNewPassword().equals(user.getPassword())) {
             if (updateProfileRequest.getNewPassword().isEmpty()) {
                 user.setPassword(user.getPassword());
-            }else {
-/*
-            if (!updateProfileRequest.getPassword().equals(user.getPassword())) {
-                throw new Exception("The old password is not correct");
             }
 
- */
-            user.setPassword(updateProfileRequest.getNewPassword());}
+            if (!encoder.encode(updateProfileRequest.getPassword()).equals(user.getPassword())) {
+                throw new Exception("The old password is not correct");
+            }
+            user.setPassword(updateProfileRequest.getNewPassword());
         }
+
+         */
 
         userRepository.save(user);
         return user;
