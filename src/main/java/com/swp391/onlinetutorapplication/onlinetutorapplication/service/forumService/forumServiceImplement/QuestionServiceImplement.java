@@ -46,14 +46,14 @@ public class QuestionServiceImplement implements QuestionServiceInterface {
             questionList = questionRepository.findAllByStatusIsTrueAndTitleContainingOrderByIdDesc(name, pageable);
         } else if (name == null && subjectId != null) {
             Subject subject = subjectRepository.findById(subjectId).orElseThrow(() -> {
-                        throw new NoSuchElementException("Subject not found");
-                    });
-            questionList = questionRepository.findAllByStatusIsTrueAndSubjectOrderByIdDesc(subject,pageable);
+                throw new NoSuchElementException("Subject not found");
+            });
+            questionList = questionRepository.findAllByStatusIsTrueAndSubjectOrderByIdDesc(subject, pageable);
         } else if (name != null && subjectId != null) {
             Subject subject = subjectRepository.findById(subjectId).orElseThrow(() -> {
                 throw new NoSuchElementException("Subject not found");
             });
-            questionList = questionRepository.findAllByStatusIsTrueAndTitleContainingAndSubjectOrderByIdDesc(name,subject,pageable);
+            questionList = questionRepository.findAllByStatusIsTrueAndTitleContainingAndSubjectOrderByIdDesc(name, subject, pageable);
         }
         return questionList;
     }
@@ -61,28 +61,29 @@ public class QuestionServiceImplement implements QuestionServiceInterface {
     @Override
     public Question getDetailsQuestion(Long questionId) {
         Question question = questionRepository.findByIdAndStatusIsTrue(questionId)
-                .orElseThrow(()->{
-                   throw new NoSuchElementException("Question not found");
+                .orElseThrow(() -> {
+                    throw new NoSuchElementException("Question not found");
                 });
         return question;
     }
 
     @Override
     public void deleteQuestion(String accessToken, Long questionId) {
-        accessToken = accessToken.replaceAll("Bearer ","");
+        accessToken = accessToken.replaceAll("Bearer ", "");
         User user = userRepository.findByAuthorizationToken(accessToken)
-                .orElseThrow(()->{
+                .orElseThrow(() -> {
                     throw new NoSuchElementException("User not found");
                 });
         Question question = questionRepository.findByIdAndStatusIsTrue(questionId)
-                .orElseThrow(()->{
+                .orElseThrow(() -> {
                     throw new NoSuchElementException("Question not found");
-                });;
-        if(user.getRoles().iterator().next().getUserRole().name().equals("STUDENT")){
-            if(question.getUser().getId() != user.getId()){
+                });
+        ;
+        if (user.getRoles().iterator().next().getUserRole().name().equals("STUDENT")) {
+            if (question.getUser().getId() != user.getId()) {
                 throw new IllegalArgumentException("You can not delete this question");
             }
-        }else if(user.getRoles().iterator().next().getUserRole().name().equals("TUTOR")) {
+        } else if (user.getRoles().iterator().next().getUserRole().name().equals("TUTOR")) {
             if (question.getUser().getId() != user.getId()) {
                 throw new IllegalArgumentException("You can not delete this question");
             }
@@ -92,12 +93,12 @@ public class QuestionServiceImplement implements QuestionServiceInterface {
     }
 
     @Override
-    public Question createQuestion(QuestionRequest questionRequest,String accessToken) {
-        accessToken = accessToken.replaceAll("Bearer ","");
-        User user = userRepository.findByAuthorizationToken(accessToken).orElseThrow(()->{
+    public Question createQuestion(QuestionRequest questionRequest, String accessToken) {
+        accessToken = accessToken.replaceAll("Bearer ", "");
+        User user = userRepository.findByAuthorizationToken(accessToken).orElseThrow(() -> {
             throw new NoSuchElementException("User not found");
         });
-        Subject subject = subjectRepository.findById(questionRequest.getSubjectId()).orElseThrow(()->{
+        Subject subject = subjectRepository.findById(questionRequest.getSubjectId()).orElseThrow(() -> {
             throw new NoSuchElementException("subject not found");
         });
         Question question = new Question();
@@ -110,7 +111,7 @@ public class QuestionServiceImplement implements QuestionServiceInterface {
     }
 
     @Override
-    public Question updateQuestion(QuestionRequest questionRequest, String accessToken, Long questionId) throws  Exception {
+    public Question updateQuestion(QuestionRequest questionRequest, String accessToken, Long questionId) throws Exception {
         accessToken = accessToken.replaceAll("Bearer ", "");
         User user = userRepository.findByAuthorizationToken(accessToken).orElseThrow(() -> {
             throw new NoSuchElementException("User not found");
@@ -122,13 +123,13 @@ public class QuestionServiceImplement implements QuestionServiceInterface {
         if (user != question.getUser()) {
             throw new Exception("You are not allow to update");
         } else {
-            if (questionRequest.getTitle() != null ) {
+            if (questionRequest.getTitle() != null) {
                 question.setTitle(questionRequest.getTitle());
             }
-            if (questionRequest.getDescription() != null ) {
+            if (questionRequest.getDescription() != null) {
                 question.setDescription(questionRequest.getDescription());
             }
-            if (questionRequest.getSubjectId() != null ) {
+            if (questionRequest.getSubjectId() != null) {
                 Subject subject = subjectRepository.findById(questionRequest.getSubjectId()).orElseThrow(() -> {
                     throw new NoSuchElementException("Subject not found");
                 });
