@@ -5,8 +5,8 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.model.forum.Ques
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.forumRequest.AnswerUpdateRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.answerResponse.AnswerResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.forumRequest.AnswerCreateRequest;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.answerResponse.AnswerResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.forumRequest.QuestionRequest;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.answerResponse.AnswerUpdateResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.questionResponse.DetailQuestionResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.questionResponse.ListQuestionResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.questionResponse.QuestionResponse;
@@ -160,7 +160,7 @@ public class PublicForumController {
                                           @RequestBody AnswerUpdateRequest request){
         try{
             Answer answer = answerService.updateAnswer(request, questionId, answerId, accessToken);
-            return ResponseEntity.ok().body(new AnswerResponse(answer));
+            return ResponseEntity.ok().body(new AnswerUpdateResponse(answer));
         } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }catch (IllegalArgumentException ex) {
