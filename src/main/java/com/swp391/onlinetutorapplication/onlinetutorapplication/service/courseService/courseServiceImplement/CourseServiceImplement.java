@@ -261,7 +261,6 @@ public class CourseServiceImplement implements CourseServiceInterface {
         if (request.isAction() == true) {
             course.setCourseStatus(false);
             courseRepository.save(course);
-
         } else {
             course.setStudent(null);
             courseRepository.save(course);
