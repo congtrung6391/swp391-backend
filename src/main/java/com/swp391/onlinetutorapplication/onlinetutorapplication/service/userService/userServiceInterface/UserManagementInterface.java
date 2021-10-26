@@ -19,7 +19,7 @@ public interface UserManagementInterface {
 
     void saveUser(User user);
 
-    void updateUser(String accessToken, Long id, UpdateProfileRequest updateProfileRequest) throws Exception;
+    User updateUser(String accessToken, Long id, UpdateProfileRequest updateProfileRequest) throws Exception;
 
     void createAccount(User user);
 

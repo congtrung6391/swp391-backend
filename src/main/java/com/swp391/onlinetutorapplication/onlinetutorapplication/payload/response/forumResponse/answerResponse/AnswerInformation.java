@@ -17,14 +17,15 @@ public class AnswerInformation {
     private Long id;
     private String content;
     private LocalDate createdDate;
-    private Question question;
-    private UserInformationResponse userInformationResponse;
 
     public AnswerInformation(Answer answer) {
         this.id = answer.getId();
         this.content = answer.getContent();
         this.createdDate = answer.getCreatedDate();
+
+        /*
         this.question = answer.getQuestion();
         this.userInformationResponse = new UserInformationResponse(answer.getUser());
+         */
     }
 }

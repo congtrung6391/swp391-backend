@@ -45,7 +45,7 @@ public class AnswerServiceImplement implements AnswerServiceInterface {
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Question cannot be found.");
                 });
-        Answer answer = answerRepository.findById(answerId)
+        Answer answer = answerRepository.findByIdAndStatusIsTrueAndUserIsNotNull(answerId)
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Answer cannot be found.");
                 });
@@ -70,7 +70,7 @@ public class AnswerServiceImplement implements AnswerServiceInterface {
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Question cannot be found.");
                 });
-        Answer answer = answerRepository.findById(answerId)
+        Answer answer = answerRepository.findByIdAndStatusIsTrueAndUserIsNotNull(answerId)
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Answer cannot be found.");
                 });
@@ -78,7 +78,7 @@ public class AnswerServiceImplement implements AnswerServiceInterface {
         Role role2 = roleRepository.findByUserRole(ERole.ADMIN).get();
 
         if (user == question.getUser() || user.getRoles().contains(role) || user.getRoles().contains(role2)){
-            if (request.getContent() == null){
+            if (request.getContent().isEmpty()){
                 throw new IllegalArgumentException("This field cannot be empty.");
             }else{
                 answer.setContent(request.getContent());

@@ -66,11 +66,11 @@ public class PublicForumController {
 
     @DeleteMapping ("/question/{questionId}/answer/{answerId}")
     @PreAuthorize("hasAuthority('STUDENT') or hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
-    public ResponseEntity<?> deleteAnswer(@PathVariable(name = "questionId")Long questionId,
-                                          @PathVariable(name = "answerId")Long answerId,
+    public ResponseEntity<?> deleteAnswer(@PathVariable(name = "questionId")String questionId,
+                                          @PathVariable(name = "answerId")String answerId,
                                           @RequestHeader(name = "Authorization") String accessToken){
         try{
-            answerService.deleteAnswer(questionId, answerId, accessToken);
+            answerService.deleteAnswer(Long.parseLong(questionId), Long.parseLong(answerId), accessToken);
             return ResponseEntity.ok().body(new SuccessfulMessageResponse("Delete Sucess"));
         } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
@@ -79,7 +79,7 @@ public class PublicForumController {
         }
     }
 
-    @PutMapping ("/question/{questionId}/answer/{answerId}")
+    @PutMapping ("/question/{questionId}/updateanswer/{answerId}")
     @PreAuthorize("hasAuthority('STUDENT') or hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
     public ResponseEntity<?> updateAnswer(
                                           @RequestHeader(name = "Authorization") String accessToken,
@@ -90,6 +90,8 @@ public class PublicForumController {
             Answer answer = answerService.updateAnswer(request, questionId, answerId, accessToken);
             return ResponseEntity.ok().body(new AnswerResponse(answer));
         } catch (NoSuchElementException ex) {
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
+        }catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         } catch (Exception ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
