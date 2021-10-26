@@ -1,5 +1,7 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.service.forumService.forumServiceImplement;
 
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Course;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.CourseMaterial;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.forum.Answer;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.forum.Question;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.ERole;
