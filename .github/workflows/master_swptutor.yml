@@ -22,7 +22,7 @@ jobs:
           java-version: '11'
       
       - name: Test Environment variable
-        run: setx CUSTOMCONNSTR_JDBC_URL "jdbc:sqlserver://austin-db.database.windows.net:1433;database=swpdb"
+        run: setx CUSTOMCONNSTR_JDBC_URL "jdbc:sqlserver://austin-db.database.windows.net:1433;database=swpdb" /M
         
       - name: Test Environment variable
         run: echo %CUSTOMCONNSTR_JDBC_URL%
