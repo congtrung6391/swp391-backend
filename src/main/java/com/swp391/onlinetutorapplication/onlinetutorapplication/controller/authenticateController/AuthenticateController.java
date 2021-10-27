@@ -26,7 +26,7 @@ import javax.validation.Valid;
 import java.util.NoSuchElementException;
 
 @RestController
-@CrossOrigin(origins = "https://swp391-onlinetutor.herokuapp.com/")
+@CrossOrigin(origins = "localhost:3000/")
 @RequestMapping("/api/auth")
 
 public class AuthenticateController {

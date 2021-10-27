@@ -16,7 +16,8 @@ import java.util.List;
 public interface CourseServiceInterface {
     Course handleCourseCreate(CourseCreationRequest courseCreationRequest, String accessToken);
 
-    List<CourseInformationResponse> getAllCourseInformationForAdmin(String accessToken, Integer page, Integer limit, Long id, String courseName, Long subjectId, String fullName);
+    //    List<CourseInformationResponse> getAllCourseInformationForAdmin(String accessToken, Integer page, Integer limit, Long id, String courseName, Long subjectId, String fullName);
+    List<CourseInformationResponse> getAllCourseInformationForAdmin(String accessToken, Integer page, Integer limit);
 
     CourseInformationResponse getOneCourseApi(String accessToken, Long courseId);
 

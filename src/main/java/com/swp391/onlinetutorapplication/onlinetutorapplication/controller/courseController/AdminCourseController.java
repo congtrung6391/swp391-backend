@@ -21,7 +21,7 @@ import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api/admin/course")
-@CrossOrigin(origins = "https://swp391-onlinetutor.herokuapp.com/")
+@CrossOrigin(origins = "localhost:3000/")
 public class AdminCourseController {
 
     @Autowired
@@ -33,11 +33,11 @@ public class AdminCourseController {
     @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN') or hasAuthority('TUTOR') or hasAuthority('STUDENT')")
     public ResponseEntity<?> getAllCourseForAdmin(@RequestHeader(name = "Authorization") String accessToken,
                                                   @RequestParam(name = "page", required = false) Integer page,
-                                                  @RequestParam(name = "limit", required = false) Integer limit,
-                                                  @RequestParam(name = "id", required = false) Long courseId,
-                                                  @RequestParam(name = "courseName", required = false) String courseName,
-                                                  @RequestParam(name = "subjectId", required = false) Long subjectId,
-                                                  @RequestParam(name = "fullName", required = false) String fullName) {
+                                                  @RequestParam(name = "limit", required = false) Integer limit){
+//                                                  @RequestParam(name = "id", required = false) Long courseId,
+//                                                  @RequestParam(name = "courseName", required = false) String courseName,
+//                                                  @RequestParam(name = "subjectId", required = false) Long subjectId,
+//                                                  @RequestParam(name = "fullName", required = false) String fullName) {
         try {
             if (page == null || page < 1) {
                 page = 1;
@@ -45,14 +45,16 @@ public class AdminCourseController {
             if (limit == null) {
                 limit = 20;
             }
-            if(courseName == null){
-                courseName = "";
-            }
-            if(fullName == null){
-                fullName = "";
-            }
+//            if(courseName == null){
+//                courseName = "";
+//            }
+//            if(fullName == null){
+//                fullName = "";
+//            }
+//            return ResponseEntity.ok().body(new CourseListResponse(
+//                    courseService.getAllCourseInformationForAdmin(accessToken, page, limit, courseId, courseName, subjectId, fullName)));
             return ResponseEntity.ok().body(new CourseListResponse(
-                    courseService.getAllCourseInformationForAdmin(accessToken, page, limit, courseId, courseName, subjectId, fullName)));
+                    courseService.getAllCourseInformationForAdmin(accessToken, page, limit)));
         } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }

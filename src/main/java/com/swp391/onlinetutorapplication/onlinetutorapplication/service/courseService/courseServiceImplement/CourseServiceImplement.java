@@ -96,21 +96,27 @@ public class CourseServiceImplement implements CourseServiceInterface {
     @Override
     public List<CourseInformationResponse> getAllCourseInformationForAdmin(String accessToken,
                                                                            Integer page,
-                                                                           Integer limit,
-                                                                           Long id,
-                                                                           String courseName,
-                                                                           Long subjectId,
-                                                                           String fullName) {
+                                                                           Integer limit){
+//                                                                           Long id,
+//                                                                           String courseName,
+//                                                                           Long subjectId,
+//                                                                           String fullName) {
         Pageable pageable = PageRequest.of(page - 1, limit);
         List<Course> listAllCourse = null;
         accessToken = accessToken.replaceAll("Bearer ", "");
-        User user = userRepository.findByAuthorizationToken(accessToken).get();
+        User user = userRepository.findByAuthorizationToken(accessToken).orElseThrow(() -> {
+            throw new IllegalArgumentException("User not found");
+        });
+//        Subject subject = subjectRepository.findById(subjectId).orElseThrow(() -> {
+//            throw new IllegalArgumentException("No subject found");
+//        });
+//        String subjectName = subject.getSubjectName();
         Set<Role> roles = user.getRoles();
         for (Role role : roles) {
             switch (role.getUserRole()) {
                 case SUPER_ADMIN:
                 case ADMIN:
-//                    listAllCourse = courseRepository.findAllByStatusIsTrueOrderByIdDesc(id, courseName, subjectId, fullName, pageable);
+//                    listAllCourse = courseRepository.findAllByStatusIsTrueOrderByIdDesc(id, courseName, subjectName, fullName, pageable);
                     listAllCourse = courseRepository.findAllByStatusIsTrueOrderByIdDesc(pageable);
                     break;
                 case TUTOR:
