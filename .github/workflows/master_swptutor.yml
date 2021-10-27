@@ -20,13 +20,10 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: '11'
-      
-      - name: Test env variable
-        env:
-          CUSTOMCONNSTR_JDBC_URL: ${{ secrets.CUSTOMCONNSTR_JDBC_URL }}
-        run: echo %CUSTOMCONNSTR_JDBC_URL%
     
       - name: Build with Maven
+        env:
+          CUSTOMCONNSTR_JDBC_URL: austin
         run: mvn clean install
 
       - name: Upload artifact for deployment job
