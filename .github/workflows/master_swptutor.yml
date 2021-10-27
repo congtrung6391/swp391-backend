@@ -23,7 +23,7 @@ jobs:
     
       - name: Build with Maven
         env:
-          CUSTOMCONNSTR_JDBC_URL: austin
+          CUSTOMCONNSTR_JDBC_URL: ${{ secrets.CUSTOMCONNSTR_JDBC_URL }}
         run: mvn clean install
 
       - name: Upload artifact for deployment job
