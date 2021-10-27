@@ -20,8 +20,19 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: '11'
-
+    
       - name: Build with Maven
+        env:
+          CUSTOMCONNSTR_JDBC_URL: ${{ secrets.CUSTOMCONNSTR_JDBC_URL }}
+          CUSTOMCONNSTR_JDBC_USERNAME: ${{ secrets.CUSTOMCONNSTR_JDBC_USERNAME }}
+          CUSTOMCONNSTR_JDBC_PASSWORD: ${{ secrets.CUSTOMCONNSTR_JDBC_PASSWORD }}
+          CUSTOMCONNSTR_JWT_SECRET: ${{ secrets.CUSTOMCONNSTR_JWT_SECRET }}
+          CUSTOMCONNSTR_JWT_EXPRIRATION: ${{ secrets.CUSTOMCONNSTR_JWT_EXPRIRATION }}
+          CUSTOMCONNSTR_CROS_ORIGIN: ${{ secrets.CUSTOMCONNSTR_CROS_ORIGIN }}
+          CUSTOMCONNSTR_MAIL_HOST: ${{ secrets.CUSTOMCONNSTR_MAIL_HOST }}
+          CUSTOMCONNSTR_MAIL_PORTR: ${{ secrets.CUSTOMCONNSTR_MAIL_PORT }}
+          CUSTOMCONNSTR_MAIL_USERNAME: ${{ secrets.CUSTOMCONNSTR_MAIL_USERNAME }}
+          CUSTOMCONNSTR_MAIL_PASSWORD: ${{ secrets.CUSTOMCONNSTR_MAIL_PASSWORD }}
         run: mvn clean install
 
       - name: Upload artifact for deployment job
