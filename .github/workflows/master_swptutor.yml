@@ -33,10 +33,7 @@ jobs:
           CUSTOMCONNSTR_MAIL_PORTR: ${{ secrets.CUSTOMCONNSTR_MAIL_PORT }}
           CUSTOMCONNSTR_MAIL_USERNAME: ${{ secrets.CUSTOMCONNSTR_MAIL_USERNAME }}
           CUSTOMCONNSTR_MAIL_PASSWORD: ${{ secrets.CUSTOMCONNSTR_MAIL_PASSWORD }}
-        run:
-          echo %CUSTOMCONNSTR_JDBC_URL%
-          echo %CUSTOMCONNSTR_JDBC_USERNAME%
-          mvn clean install
+        run: mvn clean install
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2
