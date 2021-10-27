@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 @RequestMapping("/api/public/forum")
-@CrossOrigin(origins = "https://swp391-onlinetutor.herokuapp.com/")
 @RestController
 public class PublicForumController {
 
