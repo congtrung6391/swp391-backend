@@ -20,6 +20,9 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: '11'
+          
+      - name: Enable Environment variable
+        run: FLOGO_APP_PROPS_ENV=auto
 
       - name: Build with Maven
         run: mvn clean install
