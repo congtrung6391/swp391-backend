@@ -546,9 +546,6 @@ public class CourseServiceImplement implements CourseServiceInterface {
                 orElseThrow(() -> {
                     throw new NoSuchElementException("Course cannot be found");
                 });
-        if (course.getStudent() != null) {
-            throw new Exception("Course cannot be found");
-        }
         List<CourseTimetable> timetableList = courseTimeTableRepository.findAllByCourseAndStatusIsTrue(course);
         List<TimeTableInformation> timeTableInformations = new ArrayList<>();
         for (CourseTimetable courseTimetable : timetableList) {
