@@ -9,9 +9,7 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.ERole
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.*;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.CourseInformationResponse;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.MaterialCreationResponse;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.TimeTableInformation;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.*;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.CourseMaterialRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.CourseRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.CourseTimeTableRepository;
@@ -22,8 +20,8 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.service.courseSe
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.dropboxService.DropboxService;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceInterface.UserServiceInterface;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.jni.Local;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -94,15 +92,15 @@ public class CourseServiceImplement implements CourseServiceInterface {
     }
 
     @Override
-    public List<CourseInformationResponse> getAllCourseInformationForAdmin(String accessToken,
-                                                                           Integer page,
-                                                                           Integer limit,
-                                                                           Long id,
-                                                                           String courseName,
-                                                                           Long subjectId,
-                                                                           String fullName) {
+    public CourseListResponse getAllCourseInformationForAdmin(String accessToken,
+                                                              Integer page,
+                                                              Integer limit,
+                                                              Long id,
+                                                              String courseName,
+                                                              Long subjectId,
+                                                              String fullName) {
         Pageable pageable = PageRequest.of(page - 1, limit);
-        List<Course> listAllCourse = null;
+        Page<Course> listAllCourse = null;
         accessToken = accessToken.replaceAll("Bearer ", "");
         User user = userRepository.findByAuthorizationToken(accessToken).get();
         Set<Role> roles = user.getRoles();
@@ -135,11 +133,13 @@ public class CourseServiceImplement implements CourseServiceInterface {
                 allCourseApi.add(response);
             }
         }
-        return allCourseApi;
+        CourseListResponse response = new CourseListResponse(allCourseApi);
+        response.setTotalCourse(listAllCourse.getTotalElements());
+        return response;
     }
 
     @Override
-    public CourseInformationResponse getOneCourseApi(String accessToken, Long courseId) {
+    public CourseInformationResponse getOneCourseApiAdmin(String accessToken, Long courseId) {
         Course course = courseRepository.findByIdAndStatusIsTrue(courseId)
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Course not found");
@@ -180,7 +180,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
     }
 
     public CourseInformationResponse getOneCourseApiPublic(Long courseId) {
-        Course course = courseRepository.findByIdAndStatusIsTrue(courseId)
+        Course course = courseRepository.findByIdAndPublicCourseIsTrue(courseId)
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Course not found");
                 });
@@ -194,9 +194,9 @@ public class CourseServiceImplement implements CourseServiceInterface {
 
 
     @Override
-    public List<CourseInformationResponse> getAllCourseInformationForStudent(Integer page, Integer limit) {
+    public CourseListResponse getAllCourseInformationForStudent(Integer page, Integer limit) {
         Pageable pageable = PageRequest.of(page - 1, limit);
-        List<Course> listAllCourse = courseRepository.findAllByStudentIsNullAndCourseStatusIsTrueAndStatusIsTrueOrderByIdDesc(pageable);
+        Page<Course> listAllCourse = courseRepository.findAllByStudentIsNullAndPublicCourseIsTrueOrderByIdDesc(pageable);
 
         List<CourseInformationResponse> allCourseApi = new ArrayList<>();
         if (!listAllCourse.isEmpty()) {
@@ -206,11 +206,13 @@ public class CourseServiceImplement implements CourseServiceInterface {
                 allCourseApi.add(response);
             }
         }
-        return allCourseApi;
+        CourseListResponse response = new CourseListResponse(allCourseApi);
+        response.setTotalCourse(listAllCourse.getTotalElements());
+        return response;
     }
 
     @Override //by Nam
-    public void handleCourseRegister(String accessToken, Long id) {
+    public void handleCourseRegisterByStudent(String accessToken, Long id) {
         accessToken = accessToken.replaceAll("Bearer ", "");
         User student = userRepository.findByAuthorizationToken(accessToken)
                 .orElseThrow(() -> {
@@ -219,7 +221,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
         if (student.getExpireAuthorization().isBefore(Instant.now())) {
             userService.handleUserLogout(accessToken);
         }
-        Course course = courseRepository.findByIdAndCourseStatusIsTrue(id)
+        Course course = courseRepository.findByIdAndPublicCourseIsTrue(id)
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Course not found");
                 });
@@ -227,6 +229,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
             throw new NoSuchElementException("Course not available now");
         }
         course.setStudent(student);
+        course.setPublicCourse(false);
         courseRepository.save(course);
     }
 
@@ -242,13 +245,15 @@ public class CourseServiceImplement implements CourseServiceInterface {
 
     @Override
     public void deleteCourse(Long id) {
-        Course course = courseRepository.findById(id).get();
+        Course course = courseRepository.findByIdAndStatusIsTrue(id).get();
         course.setStatus(false);
+        course.setCourseStatus(false);
+        course.setPublicCourse(false);
         courseRepository.save(course);
     }
 
     @Override
-    public void handleCourseRegisterRequest(String accessToken, Long id, ActionApproveOrRejectRequest request) {
+    public void handleCourseRegisterByTutor(String accessToken, Long id, ActionApproveOrRejectRequest request) {
         accessToken = accessToken.replaceAll("Bearer ", "");
         User student = userRepository.findByAuthorizationToken(accessToken)
                 .orElseThrow(() -> {
@@ -259,12 +264,12 @@ public class CourseServiceImplement implements CourseServiceInterface {
                     throw new NoSuchElementException("Course cannot be found.");
                 });
         if (request.isAction() == true) {
-            course.setCourseStatus(false);
-            courseRepository.save(course);
+            course.setPublicCourse(false);
         } else {
+            course.setPublicCourse(true);
             course.setStudent(null);
-            courseRepository.save(course);
         }
+        courseRepository.save(course);
     }
 
     @Override
@@ -278,10 +283,10 @@ public class CourseServiceImplement implements CourseServiceInterface {
                 switch (role.getUserRole()) {
                     case SUPER_ADMIN:
                     case ADMIN:
-                        course = courseRepository.findById(courseID).get();
+                        course = courseRepository.findByIdAndStatusIsTrue(courseID).get();
                         break;
                     case TUTOR:
-                        course = courseRepository.findByIdAndTutor(courseID, user).get();
+                        course = courseRepository.findByIdAndTutorAndCourseStatusIsTrue(courseID, user).get();
                         break;
                     default:
                         return null;
@@ -306,8 +311,8 @@ public class CourseServiceImplement implements CourseServiceInterface {
                 Subject subject = subjectRepository.findById(request.getSubjectId()).get();
                 course.setSubject(subject);
             }
-            if (request.getCourse_status() != null) {//missing courseStatus or not
-                course.setCourseStatus(request.getCourse_status());
+            if (request.getCourseStatus() != null) {//missing courseStatus or not
+                course.setCourseStatus(request.getCourseStatus());
             }
 
             courseRepository.save(course);
@@ -329,7 +334,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
         } else {
             courseMaterial = new CourseMaterial(request.getDescription(), request.getTitle(), request.getFileAttach().getOriginalFilename());
         }
-        Course course = courseRepository.findById(courseId)
+        Course course = courseRepository.findByIdAndStatusIsTrue(courseId)
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Course not found");
                 });
@@ -350,7 +355,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
         if (request.getTitle().isEmpty()) {
             throw new IllegalArgumentException("Title not null");
         }
-        CourseMaterial courseMaterial = courseMaterialRepository.findById(materialId)
+        CourseMaterial courseMaterial = courseMaterialRepository.findByIdAndStatusIsTrue(materialId)
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Course material not found");
                 });
@@ -380,7 +385,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
 
     //Ai có task get material thì sửa lại api response của list materials - nam
     @Override
-    public List<MaterialCreationResponse> getCourseMaterial(Long courseId, String accessToken) throws IOException, DbxException {
+    public MaterialListResponse getCourseMaterial(Long courseId, String accessToken, Integer page, Integer limit) throws IOException, DbxException {
         accessToken = accessToken.replaceAll("Bearer ", "");
         User currentUser = userRepository.findByAuthorizationToken(accessToken).
                 orElseThrow(() -> {
@@ -388,7 +393,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
                 });
         Course course = courseRepository.findByIdAndStatusIsTrue(courseId).
                 orElseThrow(() -> {
-                    throw new NoSuchElementException("Material unauthorizated");
+                    throw new NoSuchElementException("Material not found");
                 });
 
         Set<Role> roles = currentUser.getRoles();
@@ -416,13 +421,16 @@ public class CourseServiceImplement implements CourseServiceInterface {
                     throw new NoSuchElementException("Material not found");
             }
         }
-        List<CourseMaterial> materialList = courseMaterialRepository.findAllByCourseAndStatusIsTrue(course);
-        List<MaterialCreationResponse> materialCreationResponses = new ArrayList<>();
-        for (CourseMaterial courseMaterial : materialList) {
+        Pageable pageable = PageRequest.of(page - 1, limit);
+        Page<CourseMaterial> materialListPage = courseMaterialRepository.findAllByCourseAndStatusIsTrueOrderByIdDesc(course, pageable);
+        List<MaterialCreationResponse> materialList = new ArrayList<>();
+        for (CourseMaterial courseMaterial : materialListPage.getContent()) {
             MaterialCreationResponse response = new MaterialCreationResponse(courseMaterial);
-            materialCreationResponses.add(response);
+            materialList.add(response);
         }
-        return materialCreationResponses;
+        MaterialListResponse response = new MaterialListResponse(materialList);
+        response.setTotalMaterial(materialListPage.getTotalElements());
+        return response;
     }
 
     //Link share đã lưu vào database, nên không cần dùng hàm này cũng được, sài getLinkShare là lấy đc link rồi - nam
@@ -472,7 +480,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
         Course course = courseRepository.findByIdAndStatusIsTrue(courseId).orElseThrow(() -> {
             throw new NoSuchElementException("Course not found");
         });
-        CourseTimetable timetable = courseTimeTableRepository.findById(timetableId).orElseThrow(() -> {
+        CourseTimetable timetable = courseTimeTableRepository.findByIdAndStatusIsTrue(timetableId).orElseThrow(() -> {
             throw new NoSuchElementException("TimeTable not found");
         });
         Role superAdmin = roleRepository.findByUserRole(ERole.SUPER_ADMIN).get();
@@ -480,10 +488,9 @@ public class CourseServiceImplement implements CourseServiceInterface {
         if (tutor.getRoles().contains(superAdmin)) {
             timetable.setStatus(false);
             courseTimeTableRepository.save(timetable);
-        }
-        else if(tutor != course.getTutor() ) {
+        } else if (tutor != course.getTutor()) {
             throw new Exception("You are not allowed to delete ");
-        }else {
+        } else {
             timetable.setStatus(false);
             courseTimeTableRepository.save(timetable);
         }
@@ -495,23 +502,23 @@ public class CourseServiceImplement implements CourseServiceInterface {
         Course course = courseRepository.findByIdAndCourseStatusIsTrue(courseId).orElseThrow(() -> {
             throw new NoSuchElementException("Course not found");
         });
-        CourseTimetable timetable = courseTimeTableRepository.findById(timeTableId).orElseThrow(() -> {
+        CourseTimetable timetable = courseTimeTableRepository.findByIdAndStatusIsTrue(timeTableId).orElseThrow(() -> {
             throw new NoSuchElementException("Timetable not found");
         });
         if (timeTableRequest.getDay() != null) {
             timetable.setDay(timeTableRequest.getDay());
         }
-        if(timeTableRequest.getStartTime() != null){
+        if (timeTableRequest.getStartTime() != null) {
             timetable.setStartTime(LocalTime.parse(timeTableRequest.getStartTime(), DateTimeFormatter.ofPattern("HH:mm:ss")));
 
         }
-        if(timeTableRequest.getEndTime() != null){
+        if (timeTableRequest.getEndTime() != null) {
             timetable.setEndTime(LocalTime.parse(timeTableRequest.getEndTime(), DateTimeFormatter.ofPattern("HH:mm:ss")));
         }
 
         // check if starttime after endtime
-        if(timetable.getStartTime().isAfter(timetable.getEndTime())){
-          throw new Exception("Please set Startime before EndTime");
+        if (timetable.getStartTime().isAfter(timetable.getEndTime())) {
+            throw new Exception("Please set Startime before EndTime");
         }
         courseTimeTableRepository.save(timetable);
         return timetable;
@@ -557,6 +564,18 @@ public class CourseServiceImplement implements CourseServiceInterface {
             timeTableInformations.add(response);
         }
         return timeTableInformations;
+    }
+
+    @Override
+    public void handleToggleCourseByAdmin(Long courseId){
+        Course course = courseRepository.findByIdAndCourseStatusIsFalse(courseId)
+                .orElseThrow(()->{
+                    throw new NoSuchElementException("Course was public or deleted");
+                });
+
+        course.setPublicCourse(true);
+        course.setCourseStatus(true);
+        courseRepository.save(course);
     }
 
 }

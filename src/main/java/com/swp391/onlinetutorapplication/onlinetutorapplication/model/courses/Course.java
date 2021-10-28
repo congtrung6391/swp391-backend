@@ -26,6 +26,7 @@ public class Course {
     private double cost;
     private int length;
     private Boolean courseStatus = false;
+    private Boolean publicCourse = false;
     private Boolean status = true;
     @ManyToOne
     @JoinColumn(name = "subject_id")

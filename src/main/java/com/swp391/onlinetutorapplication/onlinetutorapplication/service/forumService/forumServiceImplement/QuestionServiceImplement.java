@@ -2,16 +2,16 @@ package com.swp391.onlinetutorapplication.onlinetutorapplication.service.forumSe
 
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Subject;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.forum.Question;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.ERole;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.forumRequest.QuestionRequest;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.questionResponse.ListQuestionResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.SubjectRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.forum.QuestionRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.user.UserRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.forumService.forumServiceInterface.QuestionServiceInterface;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Set;
 
 @Service
 @Slf4j
@@ -32,30 +31,36 @@ public class QuestionServiceImplement implements QuestionServiceInterface {
     private UserRepository userRepository;
 
     @Override
-    public List<Question> getListQuestion(Integer page, Integer limit) {
+    public ListQuestionResponse getListQuestion(Integer page, Integer limit) {
         Pageable pageable = PageRequest.of(page - 1, limit);
-        List<Question> list = questionRepository.findAllByStatusIsTrueOrderByIdDesc(pageable);
-        return list;
+        Page<Question> pageQuestion = questionRepository.findAllByStatusIsTrueOrderByIdDesc(pageable);
+        List<Question> list = pageQuestion.getContent();
+        ListQuestionResponse response = new ListQuestionResponse(list);
+        response.setTotalQuestion(pageQuestion.getTotalElements());
+        return response;
     }
 
     @Override
-    public List<Question> getListQuestionByNameOrSubject(String name, Long subjectId, Integer page, Integer limit) {
+    public ListQuestionResponse getListQuestionByNameOrSubject(String name, Long subjectId, Integer page, Integer limit) {
         Pageable pageable = PageRequest.of(page - 1, limit);
-        List<Question> questionList = new ArrayList<>();
+        Page<Question> questionPage = null;
         if (name != null && subjectId == null) {
-            questionList = questionRepository.findAllByStatusIsTrueAndTitleContainingOrderByIdDesc(name, pageable);
+            questionPage = questionRepository.findAllByStatusIsTrueAndTitleContainingOrderByIdDesc(name, pageable);
         } else if (name == null && subjectId != null) {
             Subject subject = subjectRepository.findById(subjectId).orElseThrow(() -> {
                 throw new NoSuchElementException("Subject not found");
             });
-            questionList = questionRepository.findAllByStatusIsTrueAndSubjectOrderByIdDesc(subject, pageable);
+            questionPage = questionRepository.findAllByStatusIsTrueAndSubjectOrderByIdDesc(subject, pageable);
         } else if (name != null && subjectId != null) {
             Subject subject = subjectRepository.findById(subjectId).orElseThrow(() -> {
                 throw new NoSuchElementException("Subject not found");
             });
-            questionList = questionRepository.findAllByStatusIsTrueAndTitleContainingAndSubjectOrderByIdDesc(name, subject, pageable);
+            questionPage = questionRepository.findAllByStatusIsTrueAndTitleContainingAndSubjectOrderByIdDesc(name, subject, pageable);
         }
-        return questionList;
+        List<Question> questionList = questionPage.getContent();
+        ListQuestionResponse response = new ListQuestionResponse(questionList);
+        response.setTotalQuestion(questionPage.getTotalElements());
+        return response;
     }
 
     @Override

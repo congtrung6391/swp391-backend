@@ -12,12 +12,11 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AnswerListResponse {
-    private int size;
+    private Long size;
     private boolean status = true;
     private List<AnswerInformationResponse> list;
 
-    public AnswerListResponse(int size, List<AnswerInformationResponse> list){
-        this.size = size;
+    public AnswerListResponse(List<AnswerInformationResponse> list){
         this.list = list;
     }
 }

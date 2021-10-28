@@ -45,13 +45,12 @@ public class PublicForumController {
             if (limit == null) {
                 limit = 20;
             }
-            List<Question> questionList = new ArrayList<>();
             if (name != null || subjectId != null) {
-                questionList = questionService.getListQuestionByNameOrSubject(name, subjectId, page, limit);
-                return ResponseEntity.ok().body(new ListQuestionResponse(questionList));
+                ListQuestionResponse responseList = questionService.getListQuestionByNameOrSubject(name, subjectId, page, limit);
+                return ResponseEntity.ok().body(responseList);
             }
-            questionList = questionService.getListQuestion(page, limit);
-            return ResponseEntity.ok().body(new ListQuestionResponse(questionList));
+            ListQuestionResponse responseList = questionService.getListQuestion(page, limit);
+            return ResponseEntity.ok().body(responseList);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
         }

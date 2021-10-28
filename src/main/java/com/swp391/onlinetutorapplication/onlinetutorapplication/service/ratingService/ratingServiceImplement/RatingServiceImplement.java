@@ -6,18 +6,22 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.ratingRequest.AddRatingRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.ratingRequest.UpdateRatingRequest;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.ratingResponse.RatingInformationResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.ratingResponse.RatingListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.SubjectRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.rating.RateRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.user.UserRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.ratingService.ratingServiceInterface.RatingServiceInterface;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceInterface.UserServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -53,24 +57,55 @@ public class RatingServiceImplement implements RatingServiceInterface {
         return tutor;
     }
 
+    private Double getAvgRating(User tutor, Subject subject){
+        List<Rate> rateList = new ArrayList<>();
+        if(tutor != null && subject != null){
+            rateList = rateRepository.findAllByStatusIsTrueAndTutorAndSubject(tutor,subject);
+        }else {
+            rateList = rateRepository.findAllByStatusIsTrueAndTutor(tutor);
+        }
+        Double sum = 0.0;
+        for(Rate rate:rateList){
+            sum += rate.getValue();
+        }
+        return sum/rateList.size();
+    }
     @Override
-    public List<Rate> getAllRating(Long tutorId, Integer page, Integer limit) {
-        Pageable pageable = PageRequest.of(page-1,limit);
+    public RatingListResponse getAllRating(Long tutorId, Integer page, Integer limit) {
+        Pageable pageable = PageRequest.of(page - 1, limit);
         User tutor = checkTutorIsTrue(tutorId);
-        List<Rate> getListRate = rateRepository.findAllByStatusIsTrueAndTutorOrderByIdDesc(tutor,pageable);
-        return getListRate;
+        Page<Rate> getListRate = rateRepository.findAllByStatusIsTrueAndTutorOrderByIdDesc(tutor, pageable);
+        List<RatingInformationResponse> rateList = new ArrayList<>();
+        Double avg = getAvgRating(tutor,null);
+        for (Rate rate : getListRate.getContent()) {
+            RatingInformationResponse informationResponse = new RatingInformationResponse(rate);
+            rateList.add(informationResponse);
+        }
+        RatingListResponse response = new RatingListResponse(rateList);
+        response.setAvgRate(avg);
+        response.setTotalRate(getListRate.getTotalElements());
+        return response;
     }
 
     @Override
-    public List<Rate> getTutorRatingBySubject(Long tutorId, Long subjectId,Integer page, Integer limit) {
-        Pageable pageable = PageRequest.of(page-1, limit);
+    public RatingListResponse getTutorRatingBySubject(Long tutorId, Long subjectId, Integer page, Integer limit) {
+        Pageable pageable = PageRequest.of(page - 1, limit);
         User tutor = checkTutorIsTrue(tutorId);
         Subject subject = subjectRepository.findById(subjectId)
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Subject not found");
                 });
-        List<Rate> rateList = rateRepository.findAllByStatusIsTrueAndTutorAndSubjectOrderByIdDesc(tutor, subject,pageable);
-        return rateList;
+        Page<Rate> getListRate = rateRepository.findAllByStatusIsTrueAndTutorAndSubjectOrderByIdDesc(tutor, subject, pageable);
+        List<RatingInformationResponse> rateList = new ArrayList<>();
+        Double avg = getAvgRating(tutor,subject);
+        for (Rate rate : getListRate.getContent()) {
+            RatingInformationResponse informationResponse = new RatingInformationResponse(rate);
+            rateList.add(informationResponse);
+        }
+        RatingListResponse response = new RatingListResponse(rateList);
+        response.setAvgRate(avg);
+        response.setTotalRate(getListRate.getTotalElements());
+        return response;
     }
 
     @Override

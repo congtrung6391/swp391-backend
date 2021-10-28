@@ -18,7 +18,7 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.user.
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.forumService.forumServiceInterface.AnswerServiceInterface;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -77,17 +77,15 @@ public class AnswerServiceImplement implements AnswerServiceInterface {
         Question question = questionRepository.findByIdAndStatusIsTrue(id).orElseThrow(() -> {
             throw new IllegalArgumentException("Question not found");
         });
-        List<Answer> answerList = answerRepository.findAllByQuestionAndStatusIsTrue(question, pageable).orElseThrow(() -> {
-            throw new IllegalArgumentException("Answer list not found");
-        });
-        int size = answerRepository.findAllByQuestionAndStatusIsTrue(question).size();
+        Page<Answer> answerList = answerRepository.findAllByQuestionAndStatusIsTrue(question, pageable);
         List<AnswerInformationResponse> responseList = new ArrayList<>();
-        if (size != 0) {
-            for (Answer answer : answerList) {
-                responseList.add(new AnswerInformationResponse(answer));
-            }
+
+        for (Answer answer : answerList.getContent()) {
+            responseList.add(new AnswerInformationResponse(answer));
         }
-        return new AnswerListResponse(size, responseList);
+        AnswerListResponse response = new AnswerListResponse(responseList);
+        response.setSize(answerList.getTotalElements());
+        return response;
     }
 
     @Override

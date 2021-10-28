@@ -50,8 +50,8 @@ public class AdminCourseController {
             if(fullName == null){
                 fullName = "";
             }
-            return ResponseEntity.ok().body(new CourseListResponse(
-                    courseService.getAllCourseInformationForAdmin(accessToken, page, limit, courseId, courseName, subjectId, fullName)));
+            return ResponseEntity.ok().body(
+                    courseService.getAllCourseInformationForAdmin(accessToken, page, limit, courseId, courseName, subjectId, fullName));
         } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }
@@ -78,7 +78,7 @@ public class AdminCourseController {
     public ResponseEntity<?> getOneCourseApi(@RequestHeader(name = "Authorization", required = false) String accessToken,
                                              @PathVariable(name = "courseId") Long id) {
         try {
-            return ResponseEntity.ok().body(courseService.getOneCourseApi(accessToken, id));
+            return ResponseEntity.ok().body(courseService.getOneCourseApiAdmin(accessToken, id));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
         }
@@ -104,7 +104,7 @@ public class AdminCourseController {
                                                          @PathVariable(name = "id") String id,
                                                          @RequestBody ActionApproveOrRejectRequest request) {
         try {
-            courseService.handleCourseRegisterRequest(accessToken, Long.parseLong(id), request);
+            courseService.handleCourseRegisterByTutor(accessToken, Long.parseLong(id), request);
             return ResponseEntity.ok().body(new SuccessfulMessageResponse("Course has been processed."));
         } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
@@ -167,8 +167,8 @@ public class AdminCourseController {
             if (limit == null) {
                 limit = 20;
             }
-            List<MaterialCreationResponse> materials = courseService.getCourseMaterial(courseId, accessToken);
-            return ResponseEntity.ok().body(new MaterialListResponse(materials));
+            MaterialListResponse materials = courseService.getCourseMaterial(courseId, accessToken,page,limit);
+            return ResponseEntity.ok().body(materials);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
         }
@@ -242,6 +242,17 @@ public class AdminCourseController {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         } catch (Exception ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
+        }
+    }
+
+    @PutMapping("/{courseId}/toggle-public")
+    @PreAuthorize("hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
+    public ResponseEntity<?> handleToggleCourseByAdmin(@PathVariable(name = "courseId") Long courseId){
+        try{
+            courseService.handleToggleCourseByAdmin(courseId);
+            return ResponseEntity.ok().body(new SuccessfulMessageResponse("Toggle course public successful"));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
         }
     }
 

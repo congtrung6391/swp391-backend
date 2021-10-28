@@ -70,11 +70,11 @@ public class AdminUserManagementController {
                 limit = 20;
             }
             if(userId != null || name !=null){
-                List<UserInformationResponse> list = userManagement.adminSearchUser(userId,name,page,limit);
-                return ResponseEntity.ok().body(new UserListResponse(list));
+                UserListResponse list = userManagement.adminSearchUser(userId,name,page,limit);
+                return ResponseEntity.ok().body(list);
             }
-            List<UserInformationResponse> listUsers = userManagement.getAllUser(page, limit);
-            return ResponseEntity.ok().body(new UserListResponse(listUsers));
+            UserListResponse listUsers = userManagement.getAllUser(page, limit);
+            return ResponseEntity.ok().body(listUsers);
         } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }
