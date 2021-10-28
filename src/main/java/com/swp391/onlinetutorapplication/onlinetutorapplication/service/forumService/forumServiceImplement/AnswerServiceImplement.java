@@ -41,9 +41,6 @@ public class AnswerServiceImplement implements AnswerServiceInterface {
     private UserRepository userRepository;
 
     @Autowired
-    private QuestionRepository questionRepository;
-
-    @Autowired
     private RoleRepository roleRepository;
 
     public AnswerInformationResponse createAnswer(String accessToken, AnswerCreateRequest request, Long questionId) {
