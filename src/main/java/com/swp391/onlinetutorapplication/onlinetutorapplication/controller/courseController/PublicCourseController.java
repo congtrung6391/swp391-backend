@@ -17,7 +17,6 @@ import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api/public/course")
-@CrossOrigin(origins = "https://swp391-onlinetutor.herokuapp.com/")
 public class PublicCourseController {
     @Autowired
     private CourseServiceInterface courseService;
@@ -29,7 +28,7 @@ public class PublicCourseController {
     public ResponseEntity<?> registerCourse(@RequestHeader(name = "Authorization") String accessToken,
                                             @PathVariable(name = "id") Long id) {
         try {
-            courseService.handleCourseRegister(accessToken, id);
+            courseService.handleCourseRegisterByStudent(accessToken, id);
             return ResponseEntity.ok().body(new SuccessfulMessageResponse("Register course successful"));
         } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));

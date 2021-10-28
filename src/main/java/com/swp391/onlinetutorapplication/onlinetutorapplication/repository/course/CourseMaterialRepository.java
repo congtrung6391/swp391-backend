@@ -13,4 +13,5 @@ import java.util.Optional;
 @Repository
 public interface CourseMaterialRepository extends JpaRepository<CourseMaterial,Long> {
     Page<CourseMaterial> findAllByCourseAndStatusIsTrueOrderByIdDesc(Course course, Pageable pageable);
+    Optional<CourseMaterial> findByIdAndStatusIsTrue(Long id);
 }
