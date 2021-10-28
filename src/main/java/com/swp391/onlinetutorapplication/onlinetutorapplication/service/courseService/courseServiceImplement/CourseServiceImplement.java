@@ -527,7 +527,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
         if (tutor.getExpireAuthorization().isBefore(Instant.now())) {
             userService.handleUserLogout(accessToken);
         }
-        Course course = courseRepository.findById(courseId)
+        Course course = courseRepository.findByIdAndStatusIsTrue(courseId)
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Course cannot be found");
                 });
@@ -546,13 +546,10 @@ public class CourseServiceImplement implements CourseServiceInterface {
 
     @Override
     public List<TimeTableInformation> getTimeTableList(Long courseId) throws Exception {
-        Course course = courseRepository.findById(courseId).
+        Course course = courseRepository.findByIdAndStatusIsTrue(courseId).
                 orElseThrow(() -> {
                     throw new NoSuchElementException("Course cannot be found");
                 });
-        if (course.getStudent() != null) {
-            throw new Exception("Course cannot be found");
-        }
         List<CourseTimetable> timetableList = courseTimeTableRepository.findAllByCourseAndStatusIsTrue(course);
         List<TimeTableInformation> timeTableInformations = new ArrayList<>();
         for (CourseTimetable courseTimetable : timetableList) {

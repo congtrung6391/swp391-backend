@@ -4,6 +4,7 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.model.rating.Rat
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.ratingRequest.AddRatingRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.ratingRequest.UpdateRatingRequest;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.PasswordUpdateRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.UpdateProfileRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.authResponse.MessageResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.ratingResponse.RatingListResponse;
@@ -13,6 +14,7 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.TutorListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserInformationResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserListResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserUpdateResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.ratingService.ratingServiceInterface.RatingServiceInterface;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceInterface.UserManagementInterface;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceInterface.UserServiceInterface;
@@ -47,7 +49,26 @@ public class PublicUserManagementController {
             if(user == null) {
                 return ResponseEntity.badRequest().body(new SuccessfulMessageResponse("Update failed"));
             }else {
-                return ResponseEntity.ok().body(new MessageResponse("User id: " + id + " has been updated."));
+                return ResponseEntity.ok().body(new UserUpdateResponse(user));
+            }
+        }catch (NoSuchElementException ex) {
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
+        }catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
+        }
+    }
+
+        @PutMapping("/{id}/change-password")
+    @PreAuthorize("hasAuthority('SUPER_ADMIN') or hasAuthority('ADMIN') or hasAuthority('TUTOR') or hasAuthority('STUDENT')")
+    public ResponseEntity<?> updateUserPassword(@RequestHeader(name = "Authorization") String accessToken,
+                                            @PathVariable("id") Long id,
+                                            @Valid @RequestBody PasswordUpdateRequest request) {
+        try {
+            User user = userManagement.updateUserPassword(accessToken, id, request);
+            if(user == null) {
+                return ResponseEntity.badRequest().body(new SuccessfulMessageResponse("Update failed!"));
+            }else {
+                return ResponseEntity.ok().body(new MessageResponse("Password has been updated."));
             }
         } catch (Exception ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));

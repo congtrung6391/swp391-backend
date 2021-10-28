@@ -3,6 +3,7 @@ package com.swp391.onlinetutorapplication.onlinetutorapplication.service.userSer
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.ERole;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.PasswordUpdateRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.UpdateProfileRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserInformationResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserProfileResponse;
@@ -78,7 +79,7 @@ public class UserManagementImplement implements UserManagementInterface {
     }
 
     @Override
-    public User updateUser(String accessToken, Long id, UpdateProfileRequest updateProfileRequest) throws Exception {
+    public User updateUser(String accessToken, Long id, UpdateProfileRequest updateProfileRequest)  {
         accessToken = accessToken.replaceAll("Bearer ", "");
         User user = userRepository.findByAuthorizationToken(accessToken)
                 .orElseThrow(() -> {
@@ -89,7 +90,7 @@ public class UserManagementImplement implements UserManagementInterface {
         }
 
         if (!updateProfileRequest.getPhone().equals(user.getPhone())) {
-            if (updateProfileRequest.getPhone() == null) {
+            if (updateProfileRequest.getPhone().isEmpty()) {
                 user.setPhone(user.getPhone());
             }else {
                 user.setPhone(updateProfileRequest.getPhone());
@@ -119,7 +120,7 @@ public class UserManagementImplement implements UserManagementInterface {
         }
 
         if (!updateProfileRequest.getAffiliate().equals(user.getAffiliate())) {
-            if (updateProfileRequest.getAddress().isEmpty()) {
+            if (updateProfileRequest.getAffiliate().isEmpty()) {
                 user.setAffiliate(user.getAffiliate());
             }else {
                 user.setAffiliate(updateProfileRequest.getAffiliate());
@@ -130,7 +131,7 @@ public class UserManagementImplement implements UserManagementInterface {
             if (updateProfileRequest.getAvatar().isEmpty()) {
                 user.setAvatar(user.getAvatar());
             }else {
-                user.setAvatar(updateProfileRequest.getAffiliate());
+                user.setAvatar(updateProfileRequest.getAvatar());
             }
         }
 
@@ -163,25 +164,29 @@ public class UserManagementImplement implements UserManagementInterface {
             user.setBirthday(updateProfileRequest.getBirthday());}
         }
 
-        /*
-       //   updateProfileRequest.setPassword(encoder.encode(updateProfileRequest.getPassword()));
-        updateProfileRequest.setNewPassword(encoder.encode(updateProfileRequest.getNewPassword()));
-        if (!updateProfileRequest.getNewPassword().equals(user.getPassword())) {
-            if (updateProfileRequest.getNewPassword().isEmpty()) {
-                user.setPassword(user.getPassword());
-            }
-
-            if (!encoder.encode(updateProfileRequest.getPassword()).equals(user.getPassword())) {
-                throw new Exception("The old password is not correct");
-            }
-            user.setPassword(updateProfileRequest.getNewPassword());
-        }
-
-         */
-
         userRepository.save(user);
         return user;
 
+    }
+
+    @Override
+    public User updateUserPassword(String accessToken, Long id, PasswordUpdateRequest request) throws Exception{
+        accessToken = accessToken.replaceAll("Bearer ", "");
+        User user = userRepository.findByAuthorizationToken(accessToken)
+                .orElseThrow(() -> {
+                    throw new NoSuchElementException("Not found user");
+                });
+        if (user.getId() != id) {
+            throw new IllegalStateException("You are not allowed to change other people's password");
+        }
+
+        if (encoder.matches(request.getOldPassword(), user.getPassword())) {
+                user.setPassword(encoder.encode(request.getNewPassword()));
+            }else {
+                throw new Exception("The old password is not correct");
+            }
+        userRepository.save(user);
+        return user;
     }
 
     @Override

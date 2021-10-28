@@ -45,12 +45,4 @@ public class UpdateProfileRequest {
     @JsonProperty(required = false)
     private String birthday;
 
-    /*
-    @JsonProperty(required = false)
-    private String password;
-
-    @JsonProperty(required = false)
-    private String newPassword;
-
-     */
 }
