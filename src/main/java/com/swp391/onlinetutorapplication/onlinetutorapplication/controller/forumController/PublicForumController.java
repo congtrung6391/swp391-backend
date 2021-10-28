@@ -1,9 +1,12 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.controller.forumController;
 
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.forum.Answer;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.forum.Question;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.forumRequest.AnswerCreateRequest;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.forumRequest.AnswerUpdateRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.answerResponse.AnswerResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.forumRequest.AnswerCreateRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.forumRequest.QuestionRequest;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.answerResponse.AnswerUpdateResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.questionResponse.DetailQuestionResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.questionResponse.ListQuestionResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.questionResponse.QuestionResponse;
@@ -78,11 +81,11 @@ public class PublicForumController {
 
     @DeleteMapping("/question/{questionId}/answer/{answerId}")
     @PreAuthorize("hasAuthority('STUDENT') or hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
-    public ResponseEntity<?> deleteAnswer(@PathVariable(name = "questionId") Long questionId,
-                                          @PathVariable(name = "answerId") Long answerId,
-                                          @RequestHeader(name = "Authorization") String accessToken) {
-        try {
-            answerService.deleteAnswer(questionId, answerId, accessToken);
+    public ResponseEntity<?> deleteAnswer(@PathVariable(name = "questionId")String questionId,
+                                          @PathVariable(name = "answerId")String answerId,
+                                          @RequestHeader(name = "Authorization") String accessToken){
+        try{
+            answerService.deleteAnswer(Long.parseLong(questionId), Long.parseLong(answerId), accessToken);
             return ResponseEntity.ok().body(new SuccessfulMessageResponse("Delete Sucess"));
         } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
@@ -146,4 +149,24 @@ public class PublicForumController {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }
     }
+
+    @PutMapping ("/question/{questionId}/updateanswer/{answerId}")
+    @PreAuthorize("hasAuthority('STUDENT') or hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
+    public ResponseEntity<?> updateAnswer(
+                                          @RequestHeader(name = "Authorization") String accessToken,
+                                          @PathVariable(name = "questionId")Long questionId,
+                                          @PathVariable(name = "answerId")Long answerId,
+                                          @RequestBody AnswerUpdateRequest request){
+        try{
+            Answer answer = answerService.updateAnswer(request, questionId, answerId, accessToken);
+            return ResponseEntity.ok().body(new AnswerUpdateResponse(answer));
+        } catch (NoSuchElementException ex) {
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
+        }catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
+        } catch (Exception ex) {
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
+        }
+    }
+
 }

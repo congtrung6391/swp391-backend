@@ -10,11 +10,9 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class AnswerResponse {
+public class AnswerUpdateResponse {
+    private AnswerInformation answer;
     private boolean status = true;
-    private AnswerInformationResponse answer;
 
-    public AnswerResponse(AnswerInformationResponse answer){
-        this.answer = answer;
-    }
+    public AnswerUpdateResponse(Answer answer) { this.answer = new AnswerInformation(answer); }
 }

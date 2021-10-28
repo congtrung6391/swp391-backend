@@ -43,8 +43,12 @@ public class PublicUserManagementController {
                                         @PathVariable("id") Long id,
                                         @Valid @RequestBody UpdateProfileRequest updateProfileRequest) {
         try {
-            userManagement.updateUser(accessToken, id, updateProfileRequest);
-            return ResponseEntity.ok().body(new MessageResponse("User id: " + id + " has been updated."));
+            User user = userManagement.updateUser(accessToken, id, updateProfileRequest);
+            if(user == null) {
+                return ResponseEntity.badRequest().body(new SuccessfulMessageResponse("Update failed"));
+            }else {
+                return ResponseEntity.ok().body(new MessageResponse("User id: " + id + " has been updated."));
+            }
         } catch (Exception ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }

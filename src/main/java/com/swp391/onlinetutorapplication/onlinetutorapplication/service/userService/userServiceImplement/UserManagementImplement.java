@@ -78,7 +78,7 @@ public class UserManagementImplement implements UserManagementInterface {
     }
 
     @Override
-    public void updateUser(String accessToken, Long id, UpdateProfileRequest updateProfileRequest) throws Exception {
+    public User updateUser(String accessToken, Long id, UpdateProfileRequest updateProfileRequest) throws Exception {
         accessToken = accessToken.replaceAll("Bearer ", "");
         User user = userRepository.findByAuthorizationToken(accessToken)
                 .orElseThrow(() -> {
@@ -89,86 +89,98 @@ public class UserManagementImplement implements UserManagementInterface {
         }
 
         if (!updateProfileRequest.getPhone().equals(user.getPhone())) {
-            if (updateProfileRequest.getPhone().isEmpty()) {
+            if (updateProfileRequest.getPhone() == null) {
                 user.setPhone(user.getPhone());
+            }else {
+                user.setPhone(updateProfileRequest.getPhone());
             }
-            user.setPhone(updateProfileRequest.getPhone());
         }
         if (!updateProfileRequest.getFullName().equals(user.getFullName())) {
             if (updateProfileRequest.getFullName().isEmpty()) {
                 user.setFullName(user.getFullName());
+            }else {
+                user.setFullName(updateProfileRequest.getFullName());
             }
-            user.setFullName(updateProfileRequest.getFullName());
         }
         if (!updateProfileRequest.getGrade().equals(user.getGrade())) {
             String grade = Integer.toString(updateProfileRequest.getGrade());
             if (grade.isEmpty()) {
                 user.setGrade(user.getGrade());
+            }else {
+                user.setGrade(updateProfileRequest.getGrade());
             }
-            user.setGrade(updateProfileRequest.getGrade());
         }
         if (!updateProfileRequest.getAddress().equals(user.getAddress())) {
             if (updateProfileRequest.getAddress().isEmpty()) {
                 user.setAddress(user.getAddress());
+            }else {
+                user.setAddress(updateProfileRequest.getAddress());
             }
-            user.setAddress(updateProfileRequest.getAddress());
         }
 
         if (!updateProfileRequest.getAffiliate().equals(user.getAffiliate())) {
             if (updateProfileRequest.getAddress().isEmpty()) {
                 user.setAffiliate(user.getAffiliate());
+            }else {
+                user.setAffiliate(updateProfileRequest.getAffiliate());
             }
-            user.setAffiliate(updateProfileRequest.getAffiliate());
         }
 
         if (!updateProfileRequest.getAvatar().equals(user.getAvatar())) {
             if (updateProfileRequest.getAvatar().isEmpty()) {
                 user.setAvatar(user.getAvatar());
+            }else {
+                user.setAvatar(updateProfileRequest.getAffiliate());
             }
-            user.setAvatar(updateProfileRequest.getAffiliate());
         }
 
         if (!updateProfileRequest.getFacebookUrl().equals(user.getFacebookUrl())) {
             if (updateProfileRequest.getFacebookUrl().isEmpty()) {
                 user.setFacebookUrl(user.getFacebookUrl());
+            }else {
+                user.setFacebookUrl(updateProfileRequest.getFacebookUrl());
             }
-            user.setFacebookUrl(updateProfileRequest.getFacebookUrl());
         }
 
         if (!updateProfileRequest.getGender().equals(user.getGender())) {
             if (updateProfileRequest.getGender().isEmpty()) {
                 user.setGender(user.getGender());
-            }
-            user.setGender(updateProfileRequest.getGender());
+            }else {
+            user.setGender(updateProfileRequest.getGender());}
         }
         if (!updateProfileRequest.getGpa().equals(user.getGpa())) {
             String gpa = Double.toString(updateProfileRequest.getGpa());
             if (gpa.isEmpty()) {
                 user.setGpa(user.getGpa());
-            }
-            user.setGpa(updateProfileRequest.getGpa());
+            }else {
+            user.setGpa(updateProfileRequest.getGpa());}
         }
 
         if (!updateProfileRequest.getBirthday().equals(user.getBirthday())) {
             if (updateProfileRequest.getBirthday().isEmpty()) {
                 user.setBirthday(user.getBirthday());
-            }
-            user.setBirthday(updateProfileRequest.getBirthday());
+            }else {
+            user.setBirthday(updateProfileRequest.getBirthday());}
         }
 
+        /*
+       //   updateProfileRequest.setPassword(encoder.encode(updateProfileRequest.getPassword()));
+        updateProfileRequest.setNewPassword(encoder.encode(updateProfileRequest.getNewPassword()));
         if (!updateProfileRequest.getNewPassword().equals(user.getPassword())) {
             if (updateProfileRequest.getNewPassword().isEmpty()) {
                 user.setPassword(user.getPassword());
             }
-            updateProfileRequest.setPassword(encoder.encode(updateProfileRequest.getPassword()));
-            updateProfileRequest.setNewPassword(encoder.encode(updateProfileRequest.getNewPassword()));
-            if (!updateProfileRequest.getPassword().equals(user.getPassword())) {
+
+            if (!encoder.encode(updateProfileRequest.getPassword()).equals(user.getPassword())) {
                 throw new Exception("The old password is not correct");
             }
             user.setPassword(updateProfileRequest.getNewPassword());
         }
 
+         */
+
         userRepository.save(user);
+        return user;
 
     }
 
