@@ -10,11 +10,13 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.forumRequest.AnswerCreateRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.answerResponse.AnswerInformationResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.answerResponse.AnswerListResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.forumRequest.AnswerUpdateRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.forum.AnswerRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.forum.QuestionRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.role.RoleRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.user.UserRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.forumService.forumServiceInterface.AnswerServiceInterface;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,7 +28,12 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
+@Slf4j
 public class AnswerServiceImplement implements AnswerServiceInterface {
+
+    @Autowired
+    private QuestionRepository questionRepository;
+
     @Autowired
     private AnswerRepository answerRepository;
 
@@ -94,19 +101,48 @@ public class AnswerServiceImplement implements AnswerServiceInterface {
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Question cannot be found.");
                 });
-        Answer answer = answerRepository.findById(answerId)
+        Answer answer = answerRepository.findByIdAndStatusIsTrueAndUserIsNotNull(answerId)
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Answer cannot be found.");
                 });
         Role role = roleRepository.findByUserRole(ERole.SUPER_ADMIN).get();
         Role role2 = roleRepository.findByUserRole(ERole.ADMIN).get();
 
-        if (user == question.getUser() || user.getRoles().contains(role) || user.getRoles().contains(role2)) {
-
+        if (user == answer.getUser() || user.getRoles().contains(role) || user.getRoles().contains(role2)) {
             answer.setStatus(false);
             answerRepository.save(answer);
         } else {
             throw new Exception("You are not allowed to delete this answer.");
+        }
+    }
+
+    @Override
+    public Answer updateAnswer(AnswerUpdateRequest request, Long questionId, Long answerId, String accessToken) throws Exception{
+        accessToken = accessToken.replaceAll("Bearer ", "");
+        User user = userRepository.findByAuthorizationToken(accessToken).orElseThrow(() -> {
+            throw new NoSuchElementException("User cannot be found.");
+        });
+        Question question = questionRepository.findById(questionId)
+                .orElseThrow(() -> {
+                    throw new NoSuchElementException("Question cannot be found.");
+                });
+        Answer answer = answerRepository.findByIdAndStatusIsTrueAndUserIsNotNull(answerId)
+                .orElseThrow(() -> {
+                    throw new NoSuchElementException("Answer cannot be found.");
+                });
+        Role role = roleRepository.findByUserRole(ERole.SUPER_ADMIN).get();
+        Role role2 = roleRepository.findByUserRole(ERole.ADMIN).get();
+
+        if (user == answer.getUser() || user.getRoles().contains(role) || user.getRoles().contains(role2)){
+            if (request.getContent().isEmpty()){
+                throw new IllegalArgumentException("This field cannot be empty.");
+            }else{
+                answer.setContent(request.getContent());
+                answerRepository.save(answer);
+                return answer;
+            }
+        }else{
+            throw new Exception("You are not allowed to edit this answer.");
         }
     }
 }

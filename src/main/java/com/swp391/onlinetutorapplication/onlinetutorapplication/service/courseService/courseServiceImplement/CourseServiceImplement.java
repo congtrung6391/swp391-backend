@@ -446,7 +446,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
         User tutor = userRepository.findByAuthorizationToken(accessToken).orElseThrow(() -> {
             throw new NoSuchElementException("User not found");
         });
-        Course course = courseRepository.findByIdAndCourseStatusIsTrue(courseId)
+        Course course = courseRepository.findByIdAndStatusIsTrue(courseId)
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Course not found");
                 });
@@ -454,8 +454,13 @@ public class CourseServiceImplement implements CourseServiceInterface {
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Material not found");
                 });
+        Role superAdmin = roleRepository.findByUserRole(ERole.SUPER_ADMIN).get();
 
-        if (tutor != course.getTutor()) {
+        if (tutor.getRoles().contains(superAdmin)) {
+            courseMaterial.setStatus(false);
+            courseMaterialRepository.save(courseMaterial);
+        }
+        else if (tutor != course.getTutor()) {
             throw new Exception("You are not allowed to delete");
         } else {
             courseMaterial.setStatus(false);
@@ -472,15 +477,15 @@ public class CourseServiceImplement implements CourseServiceInterface {
         User tutor = userRepository.findByAuthorizationToken(accessToken).orElseThrow(() -> {
             throw new NoSuchElementException("User not found");
         });
-        Course course = courseRepository.findByIdAndCourseStatusIsTrue(courseId).orElseThrow(() -> {
+        Course course = courseRepository.findByIdAndStatusIsTrue(courseId).orElseThrow(() -> {
             throw new NoSuchElementException("Course not found");
         });
         CourseTimetable timetable = courseTimeTableRepository.findByIdAndStatusIsTrue(timetableId).orElseThrow(() -> {
             throw new NoSuchElementException("TimeTable not found");
         });
-        Role SuperAmin = roleRepository.findByUserRole(ERole.SUPER_ADMIN).get();
+        Role superAdmin = roleRepository.findByUserRole(ERole.SUPER_ADMIN).get();
 
-        if (tutor.getRoles().contains(SuperAmin)) {
+        if (tutor.getRoles().contains(superAdmin)) {
             timetable.setStatus(false);
             courseTimeTableRepository.save(timetable);
         } else if (tutor != course.getTutor()) {
@@ -552,9 +557,6 @@ public class CourseServiceImplement implements CourseServiceInterface {
                 orElseThrow(() -> {
                     throw new NoSuchElementException("Course cannot be found");
                 });
-        if (course.getStudent() != null) {
-            throw new Exception("Course cannot be found");
-        }
         List<CourseTimetable> timetableList = courseTimeTableRepository.findAllByCourseAndStatusIsTrue(course);
         List<TimeTableInformation> timeTableInformations = new ArrayList<>();
         for (CourseTimetable courseTimetable : timetableList) {

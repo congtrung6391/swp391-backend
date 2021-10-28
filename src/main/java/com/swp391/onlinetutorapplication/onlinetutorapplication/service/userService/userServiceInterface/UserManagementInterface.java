@@ -2,6 +2,7 @@ package com.swp391.onlinetutorapplication.onlinetutorapplication.service.userSer
 
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.PasswordUpdateRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.UpdateProfileRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.TutorListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserInformationResponse;
@@ -21,7 +22,9 @@ public interface UserManagementInterface {
 
     void saveUser(User user);
 
-    void updateUser(String accessToken, Long id, UpdateProfileRequest updateProfileRequest) throws Exception;
+    User updateUser(String accessToken, Long id, UpdateProfileRequest updateProfileRequest) ;
+
+    User updateUserPassword(String accessToken, Long id, PasswordUpdateRequest request) throws Exception;
 
     void createAccount(User user);
 
