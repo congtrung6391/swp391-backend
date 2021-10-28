@@ -261,7 +261,6 @@ public class CourseServiceImplement implements CourseServiceInterface {
         if (request.isAction() == true) {
             course.setCourseStatus(false);
             courseRepository.save(course);
-
         } else {
             course.setStudent(null);
             courseRepository.save(course);
@@ -439,16 +438,21 @@ public class CourseServiceImplement implements CourseServiceInterface {
         User tutor = userRepository.findByAuthorizationToken(accessToken).orElseThrow(() -> {
             throw new NoSuchElementException("User not found");
         });
-        Course course = courseRepository.findByIdAndCourseStatusIsTrue(courseId)
+        Course course = courseRepository.findByIdAndStatusIsTrue(courseId)
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Course not found");
                 });
-        CourseMaterial courseMaterial = courseMaterialRepository.findById(materialId)
+        CourseMaterial courseMaterial = courseMaterialRepository.findByIdAndStatusIsTrue(materialId)
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Material not found");
                 });
+        Role superAdmin = roleRepository.findByUserRole(ERole.SUPER_ADMIN).get();
 
-        if (tutor != course.getTutor()) {
+        if (tutor.getRoles().contains(superAdmin)) {
+            courseMaterial.setStatus(false);
+            courseMaterialRepository.save(courseMaterial);
+        }
+        else if (tutor != course.getTutor()) {
             throw new Exception("You are not allowed to delete");
         } else {
             courseMaterial.setStatus(false);
@@ -465,15 +469,15 @@ public class CourseServiceImplement implements CourseServiceInterface {
         User tutor = userRepository.findByAuthorizationToken(accessToken).orElseThrow(() -> {
             throw new NoSuchElementException("User not found");
         });
-        Course course = courseRepository.findByIdAndCourseStatusIsTrue(courseId).orElseThrow(() -> {
+        Course course = courseRepository.findByIdAndStatusIsTrue(courseId).orElseThrow(() -> {
             throw new NoSuchElementException("Course not found");
         });
         CourseTimetable timetable = courseTimeTableRepository.findById(timetableId).orElseThrow(() -> {
             throw new NoSuchElementException("TimeTable not found");
         });
-        Role SuperAmin = roleRepository.findByUserRole(ERole.SUPER_ADMIN).get();
+        Role superAdmin = roleRepository.findByUserRole(ERole.SUPER_ADMIN).get();
 
-        if (tutor.getRoles().contains(SuperAmin)) {
+        if (tutor.getRoles().contains(superAdmin)) {
             timetable.setStatus(false);
             courseTimeTableRepository.save(timetable);
         }

@@ -21,13 +21,12 @@ import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api/admin/course")
-@CrossOrigin(origins = "http://localhost:3000/")
 public class AdminCourseController {
 
     @Autowired
     private CourseServiceInterface courseService;
 
-    //Get all course for admin - by Nam
+    //Get all course for admin -    by Nam
     // localhost:8080/api/admin/course/
     @GetMapping("")
     @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN') or hasAuthority('TUTOR') or hasAuthority('STUDENT')")

@@ -1,0 +1,64 @@
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
+name: Build and deploy JAR app to Azure Web App - swptutor
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Java version
+        uses: actions/setup-java@v1
+        with:
+          java-version: '11'
+    
+      - name: Build with Maven
+        env:
+          CUSTOMCONNSTR_JDBC_URL: ${{ secrets.CUSTOMCONNSTR_JDBC_URL }}
+          CUSTOMCONNSTR_JDBC_USERNAME: ${{ secrets.CUSTOMCONNSTR_JDBC_USERNAME }}
+          CUSTOMCONNSTR_JDBC_PASSWORD: ${{ secrets.CUSTOMCONNSTR_JDBC_PASSWORD }}
+          CUSTOMCONNSTR_JWT_SECRET: ${{ secrets.CUSTOMCONNSTR_JWT_SECRET }}
+          CUSTOMCONNSTR_JWT_EXPRIRATION: ${{ secrets.CUSTOMCONNSTR_JWT_EXPRIRATION }}
+          CUSTOMCONNSTR_CROS_ORIGIN: ${{ secrets.CUSTOMCONNSTR_CROS_ORIGIN }}
+          CUSTOMCONNSTR_MAIL_HOST: ${{ secrets.CUSTOMCONNSTR_MAIL_HOST }}
+          CUSTOMCONNSTR_MAIL_PORTR: ${{ secrets.CUSTOMCONNSTR_MAIL_PORT }}
+          CUSTOMCONNSTR_MAIL_USERNAME: ${{ secrets.CUSTOMCONNSTR_MAIL_USERNAME }}
+          CUSTOMCONNSTR_MAIL_PASSWORD: ${{ secrets.CUSTOMCONNSTR_MAIL_PASSWORD }}
+        run: mvn clean install
+
+      - name: Upload artifact for deployment job
+        uses: actions/upload-artifact@v2
+        with:
+          name: java-app
+          path: '${{ github.workspace }}/target/*.jar'
+
+  deploy:
+    runs-on: windows-latest
+    needs: build
+    environment:
+      name: 'Production'
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+
+    steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v2
+        with:
+          name: java-app
+
+      - name: Deploy to Azure Web App
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: 'swptutor'
+          slot-name: 'Production'
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_2F109ED70A314BBBA6FC3DDD2DC66A3F }}
+          package: '*.jar'

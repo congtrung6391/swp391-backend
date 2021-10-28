@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 @RequestMapping("/api/public/forum")
-@CrossOrigin(origins = "http://localhost:3000/")
 @RestController
 public class PublicForumController {
 

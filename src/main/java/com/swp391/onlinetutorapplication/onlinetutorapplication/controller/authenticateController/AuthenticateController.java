@@ -26,9 +26,7 @@ import javax.validation.Valid;
 import java.util.NoSuchElementException;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000/")
 @RequestMapping("/api/auth")
-
 public class AuthenticateController {
 
 

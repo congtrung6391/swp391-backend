@@ -12,4 +12,5 @@ import java.util.Optional;
 @Repository
 public interface CourseMaterialRepository extends JpaRepository<CourseMaterial,Long> {
     List<CourseMaterial> findAllByCourseAndStatusIsTrue(Course course);
+    Optional<CourseMaterial> findByIdAndStatusIsTrue(Long id);
 }
