@@ -4,6 +4,7 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.model.forum.Ques
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.forumRequest.QuestionRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.questionResponse.DetailQuestionResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.questionResponse.ListQuestionResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.questionResponse.QuestionResponse;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,7 +14,7 @@ public interface QuestionServiceInterface {
 
     ListQuestionResponse getListQuestionByNameOrSubject(String name, Long subjectId, Integer page, Integer limit);
 
-    DetailQuestionResponse getDetailsQuestion(Long questionId);
+    QuestionResponse getDetailsQuestion(Long questionId);
 
     void deleteQuestion(String accessToken, Long questionId);
 

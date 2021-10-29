@@ -59,7 +59,7 @@ public class PublicForumController {
     @GetMapping("/question/{questionId}")
     public ResponseEntity<?> getDetailsQuestion(@PathVariable(name = "questionId") Long questionId) {
         try {
-            DetailQuestionResponse question = questionService.getDetailsQuestion(questionId);
+            QuestionResponse question = questionService.getDetailsQuestion(questionId);
             return ResponseEntity.ok().body(question);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
@@ -98,7 +98,8 @@ public class PublicForumController {
     public ResponseEntity<?> createQuestion(@RequestBody QuestionRequest questionRequest, @RequestHeader(name = "Authorization") String accessToken) {
         try {
             Question question = questionService.createQuestion(questionRequest, accessToken);
-            return ResponseEntity.ok().body(new QuestionResponse(question));
+            DetailQuestionResponse detail = new DetailQuestionResponse(question);
+            return ResponseEntity.ok().body(new QuestionResponse(detail));
         } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }
@@ -111,8 +112,8 @@ public class PublicForumController {
                                             @PathVariable("questionId") Long questionId) {
         try {
             Question question = questionService.updateQuestion(questionRequest, accessToken, questionId);
-            return ResponseEntity.ok().body(new QuestionResponse(question));
-
+            DetailQuestionResponse detail = new DetailQuestionResponse(question);
+            return ResponseEntity.ok().body(new QuestionResponse(detail));
         } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         } catch (Exception ex) {

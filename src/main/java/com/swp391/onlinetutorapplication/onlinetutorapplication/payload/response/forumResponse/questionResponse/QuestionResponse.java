@@ -14,7 +14,7 @@ public class QuestionResponse {
     private boolean status = true;
     private DetailQuestionResponse questionResponse;
 
-    public QuestionResponse(Question questionResponse) {
-        this.questionResponse = new DetailQuestionResponse(questionResponse);
+    public QuestionResponse(DetailQuestionResponse questionResponse) {
+        this.questionResponse = questionResponse;
     }
 }

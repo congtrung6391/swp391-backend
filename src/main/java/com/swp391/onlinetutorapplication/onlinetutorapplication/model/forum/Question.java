@@ -1,5 +1,6 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.model.forum;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Subject;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
 import lombok.AllArgsConstructor;
@@ -25,6 +26,7 @@ public class Question {
     private LocalDate createdDate = LocalDate.now();
     private Boolean status = true ;
     @OneToMany(mappedBy = "question")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private List<Answer> answer;
     @ManyToOne
     @JoinColumn(name = "user_id")
