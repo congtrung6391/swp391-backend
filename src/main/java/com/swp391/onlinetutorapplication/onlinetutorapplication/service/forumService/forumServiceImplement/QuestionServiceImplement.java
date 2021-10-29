@@ -5,14 +5,13 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.model.forum.Answ
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.forum.Question;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.forumRequest.QuestionRequest;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.answerResponse.AnswerListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.questionResponse.DetailQuestionResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.questionResponse.ListQuestionResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.questionResponse.QuestionResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.SubjectRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.forum.AnswerRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.forum.QuestionRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.user.UserRepository;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.service.forumService.forumServiceInterface.AnswerServiceInterface;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.forumService.forumServiceInterface.QuestionServiceInterface;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +20,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -77,12 +75,14 @@ public class QuestionServiceImplement implements QuestionServiceInterface {
     }
 
     @Override
-    public DetailQuestionResponse getDetailsQuestion(Long questionId) {
+    public QuestionResponse getDetailsQuestion(Long questionId) {
         Question question = questionRepository.findByIdAndStatusIsTrue(questionId)
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Question not found");
                 });
-        DetailQuestionResponse response = new DetailQuestionResponse(question);
+
+        DetailQuestionResponse detail = new DetailQuestionResponse(question);
+        QuestionResponse response = new QuestionResponse(detail);
         return response;
     }
 

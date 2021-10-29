@@ -16,7 +16,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class DetailQuestionResponse {
-    private Boolean status = true;
     private Long id;
     private String title;
     private String description;
@@ -30,6 +29,7 @@ public class DetailQuestionResponse {
         this.description = question.getDescription();
         this.createdDate = question.getCreatedDate();
         this.subject= question.getSubject();
+        this.author = new UserInformationResponse(question.getUser());
         this.author = new UserInformationResponse(question.getUser());
     }
 }
