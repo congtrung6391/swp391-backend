@@ -1,13 +1,18 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.service.forumService.forumServiceImplement;
 
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Subject;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.forum.Answer;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.forum.Question;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.forumRequest.QuestionRequest;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.answerResponse.AnswerListResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.questionResponse.DetailQuestionResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.questionResponse.ListQuestionResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.SubjectRepository;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.forum.AnswerRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.forum.QuestionRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.user.UserRepository;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.service.forumService.forumServiceInterface.AnswerServiceInterface;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.forumService.forumServiceInterface.QuestionServiceInterface;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,14 +34,22 @@ public class QuestionServiceImplement implements QuestionServiceInterface {
     private SubjectRepository subjectRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private AnswerRepository answerRepository;
 
     @Override
     public ListQuestionResponse getListQuestion(Integer page, Integer limit) {
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Question> pageQuestion = questionRepository.findAllByStatusIsTrueOrderByIdDesc(pageable);
         List<Question> list = pageQuestion.getContent();
+        for (Question question : list){
+            List<Answer> answers = answerRepository.findAllByQuestionAndStatusIsTrue(question);
+            question.setAnswer(answers);
+        }
         ListQuestionResponse response = new ListQuestionResponse(list);
         response.setTotalQuestion(pageQuestion.getTotalElements());
+        //get number of answer
+
         return response;
     }
 
@@ -64,12 +77,13 @@ public class QuestionServiceImplement implements QuestionServiceInterface {
     }
 
     @Override
-    public Question getDetailsQuestion(Long questionId) {
+    public DetailQuestionResponse getDetailsQuestion(Long questionId) {
         Question question = questionRepository.findByIdAndStatusIsTrue(questionId)
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Question not found");
                 });
-        return question;
+        DetailQuestionResponse response = new DetailQuestionResponse(question);
+        return response;
     }
 
     @Override
@@ -144,5 +158,12 @@ public class QuestionServiceImplement implements QuestionServiceInterface {
         questionRepository.save(question);
         return question;
 
+    }
+
+    @Override
+    public ListQuestionResponse getListQuestionByTopTrending(Integer page, Integer limit) {
+        Pageable pageable = PageRequest.of(page,limit);
+        Page<Question> questionPage = questionRepository.findAllByStatusIsTrueOrderByIdDesc(pageable);
+        return null;
     }
 }

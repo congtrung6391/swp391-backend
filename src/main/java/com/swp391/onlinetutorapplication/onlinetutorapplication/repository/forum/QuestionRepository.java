@@ -16,6 +16,6 @@ public interface QuestionRepository extends JpaRepository<Question,Long> {
     Page<Question> findAllByStatusIsTrueAndTitleContainingOrderByIdDesc(String name, Pageable pageable);
     Page<Question> findAllByStatusIsTrueAndSubjectOrderByIdDesc(Subject subject, Pageable pageable);
     Page<Question> findAllByStatusIsTrueAndTitleContainingAndSubjectOrderByIdDesc(String name, Subject subject, Pageable pageable);
-
+    Page<Question> findAllByStatusIsTrueOrderByAnswer(Pageable pageable);
     Optional<Question> findByIdAndStatusIsTrue(Long questionId);
 }

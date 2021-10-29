@@ -15,13 +15,15 @@ public class QuestionSearchResponse {
     private Long id;
     private String title;
     private String description;
+    private Long numberOfAnswer;
     private LocalDate createdDate;
-    private UserInformationResponse userInformationResponse;
+    private UserInformationResponse author;
 
     public QuestionSearchResponse(Question question){
         this.id = question.getId();
         this.title = question.getTitle();
         this.createdDate = question.getCreatedDate();
-        this.userInformationResponse = new UserInformationResponse(question.getUser());
+        this.numberOfAnswer = Long.valueOf(question.getAnswer().size());
+        this.author = new UserInformationResponse(question.getUser());
     }
 }
