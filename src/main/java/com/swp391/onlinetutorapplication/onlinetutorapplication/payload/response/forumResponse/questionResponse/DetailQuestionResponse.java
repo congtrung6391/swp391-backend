@@ -3,6 +3,7 @@ package com.swp391.onlinetutorapplication.onlinetutorapplication.payload.respons
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Subject;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.forum.Answer;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.forum.Question;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.answerResponse.AnswerListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserInformationResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,17 +21,15 @@ public class DetailQuestionResponse {
     private String title;
     private String description;
     private LocalDate createdDate;
-    private List<Answer> answer;
     private Subject subject;
-    private UserInformationResponse userInformationResponse;
+    private UserInformationResponse author;
 
     public DetailQuestionResponse(Question question){
         this.id = question.getId();
         this.title = question.getTitle();
         this.description = question.getDescription();
-        this.answer = question.getAnswer();
         this.createdDate = question.getCreatedDate();
         this.subject= question.getSubject();
-        this.userInformationResponse = new UserInformationResponse(question.getUser());
+        this.author = new UserInformationResponse(question.getUser());
     }
 }
