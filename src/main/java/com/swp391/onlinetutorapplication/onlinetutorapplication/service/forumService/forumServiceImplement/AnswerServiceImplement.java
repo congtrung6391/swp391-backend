@@ -72,7 +72,7 @@ public class AnswerServiceImplement implements AnswerServiceInterface {
         Question question = questionRepository.findByIdAndStatusIsTrue(id).orElseThrow(() -> {
             throw new IllegalArgumentException("Question not found");
         });
-        List<Answer> answerList = answerRepository.findAllByQuestionAndStatusIsTrue(question, pageable).orElseThrow(() -> {
+        List<Answer> answerList = answerRepository.findAllByQuestionAndStatusIsTrueOrderByIdDesc(question, pageable).orElseThrow(() -> {
             throw new IllegalArgumentException("Answer list not found");
         });
         int size = answerRepository.findAllByQuestionAndStatusIsTrue(question).size();

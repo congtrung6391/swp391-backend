@@ -1,13 +1,12 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.service.courseService.courseServiceInterface;
 
 import com.dropbox.core.DbxException;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Course;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.CourseTimetable;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Subject;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.*;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.*;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.CourseInformationResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.MaterialCreationResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.TimeTableInformation;
+import org.springframework.data.domain.Page;
 
 import java.awt.print.Pageable;
 import java.io.IOException;
@@ -54,4 +53,7 @@ public interface CourseServiceInterface {
     CourseTimetable createTimetable(TimeTableCreationRequest request, Long courseId, String accessToken) throws Exception;
 
     List<TimeTableInformation> getTimeTableList(Long courseId) throws Exception;
+
+    Page<Course> getCourses(CoursePage coursePage,
+                            CourseSearchCriteria courseSearchCriteria);
 }

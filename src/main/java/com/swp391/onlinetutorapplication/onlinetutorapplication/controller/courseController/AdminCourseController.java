@@ -1,12 +1,15 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.controller.courseController;
 
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Course;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.CoursePage;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.CourseSearchCriteria;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.CourseTimetable;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.*;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.authResponse.MessageResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.*;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.ErrorMessageResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.SuccessfulMessageResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.CourseCriteriaRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.courseService.courseServiceInterface.CourseServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.EmptyStackException;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -33,7 +37,7 @@ public class AdminCourseController {
     @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN') or hasAuthority('TUTOR') or hasAuthority('STUDENT')")
     public ResponseEntity<?> getAllCourseForAdmin(@RequestHeader(name = "Authorization") String accessToken,
                                                   @RequestParam(name = "page", required = false) Integer page,
-                                                  @RequestParam(name = "limit", required = false) Integer limit){
+                                                  @RequestParam(name = "limit", required = false) Integer limit) {
 //                                                  @RequestParam(name = "id", required = false) Long courseId,
 //                                                  @RequestParam(name = "courseName", required = false) String courseName,
 //                                                  @RequestParam(name = "subjectId", required = false) Long subjectId,
@@ -248,6 +252,28 @@ public class AdminCourseController {
         }
     }
 
-
+    @GetMapping("/hehe")
+    public ResponseEntity<?> getGetGet(@RequestParam(name = "page", required = false) Integer page,
+                                       @RequestParam(name = "limit", required = false) Integer limit,
+                                       @RequestParam(name = "id", required = false) Long courseId,
+                                       @RequestParam(name = "courseName", required = false) String courseName,
+                                       @RequestParam(name = "subjectId", required = false) Long subjectId,
+                                       @RequestParam(name = "fullName", required = false) String fullName) {
+        if (page == null || page < 1) {
+            page = 1;
+        }
+        if (limit == null) {
+            limit = 20;
+        }
+        CoursePage coursePage = new CoursePage();
+//        coursePage.setPageNumber(page);
+//        coursePage.setPageSize(limit);
+        CourseSearchCriteria courseSearchCriteria = new CourseSearchCriteria();
+        courseSearchCriteria.setCourseName(courseName);
+        courseSearchCriteria.setId(courseId);
+        courseSearchCriteria.setSubjectId(subjectId);
+        courseSearchCriteria.setTutorName(fullName);
+        return new ResponseEntity<>(courseService.getCourses(coursePage, courseSearchCriteria), HttpStatus.OK);
+    }
 }
 

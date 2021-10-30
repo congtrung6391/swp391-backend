@@ -1,10 +1,7 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.service.courseService.courseServiceImplement;
 
 import com.dropbox.core.DbxException;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Course;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.CourseMaterial;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.CourseTimetable;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Subject;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.*;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.ERole;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
@@ -12,10 +9,7 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.CourseInformationResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.MaterialCreationResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.TimeTableInformation;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.CourseMaterialRepository;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.CourseRepository;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.CourseTimeTableRepository;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.SubjectRepository;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.*;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.role.RoleRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.user.UserRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.courseService.courseServiceInterface.CourseServiceInterface;
@@ -24,6 +18,7 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userServ
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.jni.Local;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -64,6 +59,9 @@ public class CourseServiceImplement implements CourseServiceInterface {
 
     @Autowired
     private RoleRepository roleRepository;
+
+    @Autowired
+    private CourseCriteriaRepository courseCriteriaRepository;
 
 
     @Override
@@ -563,4 +561,8 @@ public class CourseServiceImplement implements CourseServiceInterface {
         return timeTableInformations;
     }
 
+    public Page<Course> getCourses(CoursePage coursePage,
+                                   CourseSearchCriteria courseSearchCriteria){
+        return courseCriteriaRepository.findWithFilter(coursePage, courseSearchCriteria);
+    }
 }

@@ -13,7 +13,7 @@ import java.util.Optional;
 public interface AnswerRepository extends JpaRepository<Answer, Long> {
     Optional<Answer> findByIdAndStatusIsTrue(Long id);
 
-    Optional<List<Answer>> findAllByQuestionAndStatusIsTrue(Question question, Pageable page);
+    Optional<List<Answer>> findAllByQuestionAndStatusIsTrueOrderByIdDesc(Question question, Pageable page);
 
     List<Answer> findAllByQuestionAndStatusIsTrue(Question question);
 
