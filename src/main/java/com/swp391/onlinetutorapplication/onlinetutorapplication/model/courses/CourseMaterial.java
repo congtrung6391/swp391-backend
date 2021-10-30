@@ -17,9 +17,9 @@ public class CourseMaterial {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(columnDefinition = "nvarchar(155)")
+    @Column(columnDefinition = "nvarchar(4000)")
     private String description;
-    @Column(columnDefinition = "nvarchar(155)")
+    @Column(columnDefinition = "nvarchar(4000)")
     private String title;
     private String fileAttach;
     private String linkShare;

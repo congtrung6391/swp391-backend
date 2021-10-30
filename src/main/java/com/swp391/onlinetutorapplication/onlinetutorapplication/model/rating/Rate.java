@@ -19,6 +19,7 @@ public class Rate {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Double value;
+    @Column(columnDefinition = "nvarchar(4000)")
     private String description;
     private LocalDateTime time;
 

@@ -21,12 +21,14 @@ public class Question {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(columnDefinition = "nvarchar(4000)", nullable = false)
     private String title;
+    @Column(columnDefinition = "nvarchar(4000)", nullable = true)
     private String description;
     private LocalDate createdDate = LocalDate.now();
-    private Boolean status = true ;
+    private Boolean status = true;
+
     @OneToMany(mappedBy = "question")
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private List<Answer> answer;
     @ManyToOne
     @JoinColumn(name = "user_id")

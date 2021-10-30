@@ -18,9 +18,9 @@ public class Course {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(columnDefinition = "nvarchar(155)")
+    @Column(columnDefinition = "nvarchar(4000)")
     private String courseName;
-    @Column(columnDefinition = "nvarchar(155)")
+    @Column(columnDefinition = "nvarchar(4000)")
     private String courseDescription;
     private int grade;
     private double cost;

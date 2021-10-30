@@ -46,8 +46,6 @@ public class QuestionServiceImplement implements QuestionServiceInterface {
         }
         ListQuestionResponse response = new ListQuestionResponse(list);
         response.setTotalQuestion(pageQuestion.getTotalElements());
-        //get number of answer
-
         return response;
     }
 
