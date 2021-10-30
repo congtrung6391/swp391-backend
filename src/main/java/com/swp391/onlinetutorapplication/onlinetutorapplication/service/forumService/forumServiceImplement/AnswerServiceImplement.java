@@ -137,6 +137,8 @@ public class AnswerServiceImplement implements AnswerServiceInterface {
                 throw new IllegalArgumentException("This field cannot be empty.");
             }else{
                 answer.setContent(request.getContent());
+                answer.setQuestion(question);
+                answer.setUser(user);
                 answerRepository.save(answer);
                 return answer;
             }

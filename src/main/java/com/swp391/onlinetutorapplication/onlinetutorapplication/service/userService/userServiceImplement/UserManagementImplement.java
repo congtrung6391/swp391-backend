@@ -89,21 +89,22 @@ public class UserManagementImplement implements UserManagementInterface {
             throw new IllegalStateException("You are not allowed to change other people's accounts");
         }
 
-        if (!updateProfileRequest.getPhone().equals(user.getPhone())) {
+        if (updateProfileRequest.getPhone() != null) {
             if (updateProfileRequest.getPhone().isEmpty()) {
                 user.setPhone(user.getPhone());
             }else {
                 user.setPhone(updateProfileRequest.getPhone());
             }
         }
-        if (!updateProfileRequest.getFullName().equals(user.getFullName())) {
+
+        if (updateProfileRequest.getFullName() != null) {
             if (updateProfileRequest.getFullName().isEmpty()) {
                 user.setFullName(user.getFullName());
             }else {
                 user.setFullName(updateProfileRequest.getFullName());
             }
         }
-        if (!updateProfileRequest.getGrade().equals(user.getGrade())) {
+        if (updateProfileRequest.getGrade() != null) {
             String grade = Integer.toString(updateProfileRequest.getGrade());
             if (grade.isEmpty()) {
                 user.setGrade(user.getGrade());
@@ -111,7 +112,7 @@ public class UserManagementImplement implements UserManagementInterface {
                 user.setGrade(updateProfileRequest.getGrade());
             }
         }
-        if (!updateProfileRequest.getAddress().equals(user.getAddress())) {
+        if (updateProfileRequest.getAddress() != null) {
             if (updateProfileRequest.getAddress().isEmpty()) {
                 user.setAddress(user.getAddress());
             }else {
@@ -119,7 +120,7 @@ public class UserManagementImplement implements UserManagementInterface {
             }
         }
 
-        if (!updateProfileRequest.getAffiliate().equals(user.getAffiliate())) {
+        if (updateProfileRequest.getAffiliate() != null) {
             if (updateProfileRequest.getAffiliate().isEmpty()) {
                 user.setAffiliate(user.getAffiliate());
             }else {
@@ -127,7 +128,7 @@ public class UserManagementImplement implements UserManagementInterface {
             }
         }
 
-        if (!updateProfileRequest.getAvatar().equals(user.getAvatar())) {
+        if (updateProfileRequest.getAvatar()!= null) {
             if (updateProfileRequest.getAvatar().isEmpty()) {
                 user.setAvatar(user.getAvatar());
             }else {
@@ -135,7 +136,7 @@ public class UserManagementImplement implements UserManagementInterface {
             }
         }
 
-        if (!updateProfileRequest.getFacebookUrl().equals(user.getFacebookUrl())) {
+        if (updateProfileRequest.getFacebookUrl()!= null) {
             if (updateProfileRequest.getFacebookUrl().isEmpty()) {
                 user.setFacebookUrl(user.getFacebookUrl());
             }else {
@@ -143,13 +144,13 @@ public class UserManagementImplement implements UserManagementInterface {
             }
         }
 
-        if (!updateProfileRequest.getGender().equals(user.getGender())) {
+        if (updateProfileRequest.getGender() != null) {
             if (updateProfileRequest.getGender().isEmpty()) {
                 user.setGender(user.getGender());
             }else {
             user.setGender(updateProfileRequest.getGender());}
         }
-        if (!updateProfileRequest.getGpa().equals(user.getGpa())) {
+        if (updateProfileRequest.getGpa() != null) {
             String gpa = Double.toString(updateProfileRequest.getGpa());
             if (gpa.isEmpty()) {
                 user.setGpa(user.getGpa());
@@ -157,7 +158,7 @@ public class UserManagementImplement implements UserManagementInterface {
             user.setGpa(updateProfileRequest.getGpa());}
         }
 
-        if (!updateProfileRequest.getBirthday().equals(user.getBirthday())) {
+        if (updateProfileRequest.getBirthday() != null) {
             if (updateProfileRequest.getBirthday().isEmpty()) {
                 user.setBirthday(user.getBirthday());
             }else {
