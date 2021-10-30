@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-@CrossOrigin(origins = "localhost:3000/")
 @RestController
 @RequestMapping("/api/admin")
 
@@ -71,11 +70,11 @@ public class AdminUserManagementController {
                 limit = 20;
             }
             if(userId != null || name !=null){
-                List<UserInformationResponse> list = userManagement.adminSearchUser(userId,name,page,limit);
-                return ResponseEntity.ok().body(new UserListResponse(list));
+                UserListResponse list = userManagement.adminSearchUser(userId,name,page,limit);
+                return ResponseEntity.ok().body(list);
             }
-            List<UserInformationResponse> listUsers = userManagement.getAllUser(page, limit);
-            return ResponseEntity.ok().body(new UserListResponse(listUsers));
+            UserListResponse listUsers = userManagement.getAllUser(page, limit);
+            return ResponseEntity.ok().body(listUsers);
         } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }

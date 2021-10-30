@@ -4,13 +4,14 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.model.rating.Rat
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.ratingRequest.AddRatingRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.ratingRequest.UpdateRatingRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.ratingResponse.RatingInformationResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.ratingResponse.RatingListResponse;
 
 import java.util.List;
 
 public interface RatingServiceInterface {
-    List<Rate> getAllRating(Long tutorId,Integer page, Integer limit);
+    RatingListResponse getAllRating(Long tutorId, Integer page, Integer limit);
 
-    List<Rate> getTutorRatingBySubject(Long tutorId, Long subjectId,Integer page, Integer limit);
+    RatingListResponse getTutorRatingBySubject(Long tutorId, Long subjectId,Integer page, Integer limit);
 
     void deleteRating(String accessToken,Long tutorId, Long ratingId);
 

@@ -17,23 +17,12 @@ import java.util.List;
 @NoArgsConstructor
 public class UserListResponse {
     private Boolean status = true;
-    private int totalUser;
+    private Long totalUser;
     List<UserInformationResponse> userList;
 
     public UserListResponse(List<UserInformationResponse> userList) {
-        this.totalUser = userList.size();
         this.userList = userList;
     }
 
-    public UserListResponse(List<UserInformationResponse> userList, Integer page, Integer limit) {
-        page = page-1;
-        this.totalUser = userList.size();
-        List<UserInformationResponse> responses = new ArrayList<>();
-        int index = page*limit;
-        int des = userList.size()<(index+limit) ? userList.size() : index+limit;
-        for(int i = index; i< des ; i++){
-            responses.add(userList.get(i));
-        }
-        this.userList = responses;
-    }
+
 }

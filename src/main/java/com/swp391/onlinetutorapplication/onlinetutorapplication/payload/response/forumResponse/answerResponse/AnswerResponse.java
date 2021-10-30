@@ -1,5 +1,6 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.answerResponse;
 
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.forum.Answer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

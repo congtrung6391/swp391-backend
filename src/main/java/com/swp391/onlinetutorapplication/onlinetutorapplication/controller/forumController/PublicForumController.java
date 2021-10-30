@@ -1,9 +1,12 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.controller.forumController;
 
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.forum.Answer;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.forum.Question;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.forumRequest.AnswerCreateRequest;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.forumRequest.AnswerUpdateRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.answerResponse.AnswerResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.forumRequest.AnswerCreateRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.forumRequest.QuestionRequest;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.answerResponse.AnswerUpdateResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.questionResponse.DetailQuestionResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.questionResponse.ListQuestionResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.questionResponse.QuestionResponse;
@@ -21,7 +24,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 @RequestMapping("/api/public/forum")
-@CrossOrigin(origins = "http://localhost:3000/")
 @RestController
 public class PublicForumController {
 
@@ -43,13 +45,12 @@ public class PublicForumController {
             if (limit == null) {
                 limit = 20;
             }
-            List<Question> questionList = new ArrayList<>();
             if (name != null || subjectId != null) {
-                questionList = questionService.getListQuestionByNameOrSubject(name, subjectId, page, limit);
-                return ResponseEntity.ok().body(new ListQuestionResponse(questionList));
+                ListQuestionResponse responseList = questionService.getListQuestionByNameOrSubject(name, subjectId, page, limit);
+                return ResponseEntity.ok().body(responseList);
             }
-            questionList = questionService.getListQuestion(page, limit);
-            return ResponseEntity.ok().body(new ListQuestionResponse(questionList));
+            ListQuestionResponse responseList = questionService.getListQuestion(page, limit);
+            return ResponseEntity.ok().body(responseList);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
         }
@@ -58,8 +59,8 @@ public class PublicForumController {
     @GetMapping("/question/{questionId}")
     public ResponseEntity<?> getDetailsQuestion(@PathVariable(name = "questionId") Long questionId) {
         try {
-            Question question = questionService.getDetailsQuestion(questionId);
-            return ResponseEntity.ok().body(new DetailQuestionResponse(question));
+            QuestionResponse question = questionService.getDetailsQuestion(questionId);
+            return ResponseEntity.ok().body(question);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
         }
@@ -79,11 +80,11 @@ public class PublicForumController {
 
     @DeleteMapping("/question/{questionId}/answer/{answerId}")
     @PreAuthorize("hasAuthority('STUDENT') or hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
-    public ResponseEntity<?> deleteAnswer(@PathVariable(name = "questionId") Long questionId,
-                                          @PathVariable(name = "answerId") Long answerId,
-                                          @RequestHeader(name = "Authorization") String accessToken) {
-        try {
-            answerService.deleteAnswer(questionId, answerId, accessToken);
+    public ResponseEntity<?> deleteAnswer(@PathVariable(name = "questionId")String questionId,
+                                          @PathVariable(name = "answerId")String answerId,
+                                          @RequestHeader(name = "Authorization") String accessToken){
+        try{
+            answerService.deleteAnswer(Long.parseLong(questionId), Long.parseLong(answerId), accessToken);
             return ResponseEntity.ok().body(new SuccessfulMessageResponse("Delete Sucess"));
         } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
@@ -97,7 +98,8 @@ public class PublicForumController {
     public ResponseEntity<?> createQuestion(@RequestBody QuestionRequest questionRequest, @RequestHeader(name = "Authorization") String accessToken) {
         try {
             Question question = questionService.createQuestion(questionRequest, accessToken);
-            return ResponseEntity.ok().body(new QuestionResponse(question));
+            DetailQuestionResponse detail = new DetailQuestionResponse(question);
+            return ResponseEntity.ok().body(new QuestionResponse(detail));
         } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }
@@ -110,8 +112,8 @@ public class PublicForumController {
                                             @PathVariable("questionId") Long questionId) {
         try {
             Question question = questionService.updateQuestion(questionRequest, accessToken, questionId);
-            return ResponseEntity.ok().body(new QuestionResponse(question));
-
+            DetailQuestionResponse detail = new DetailQuestionResponse(question);
+            return ResponseEntity.ok().body(new QuestionResponse(detail));
         } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         } catch (Exception ex) {
@@ -147,4 +149,24 @@ public class PublicForumController {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }
     }
+
+    @PutMapping ("/question/{questionId}/answer/{answerId}")
+    @PreAuthorize("hasAuthority('STUDENT') or hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
+    public ResponseEntity<?> updateAnswer(
+                                          @RequestHeader(name = "Authorization") String accessToken,
+                                          @PathVariable(name = "questionId")Long questionId,
+                                          @PathVariable(name = "answerId")Long answerId,
+                                          @RequestBody AnswerUpdateRequest request){
+        try{
+            Answer answer = answerService.updateAnswer(request, questionId, answerId, accessToken);
+            return ResponseEntity.ok().body(new AnswerUpdateResponse(answer));
+        } catch (NoSuchElementException ex) {
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
+        }catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
+        } catch (Exception ex) {
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
+        }
+    }
+
 }

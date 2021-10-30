@@ -3,8 +3,11 @@ package com.swp391.onlinetutorapplication.onlinetutorapplication.service.userSer
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.ERole;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.PasswordUpdateRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.UpdateProfileRequest;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.TutorListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserInformationResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserProfileResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.role.RoleRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.user.UserRepository;
@@ -78,7 +81,7 @@ public class UserManagementImplement implements UserManagementInterface {
     }
 
     @Override
-    public void updateUser(String accessToken, Long id, UpdateProfileRequest updateProfileRequest) throws Exception {
+    public User updateUser(String accessToken, Long id, UpdateProfileRequest updateProfileRequest)  {
         accessToken = accessToken.replaceAll("Bearer ", "");
         User user = userRepository.findByAuthorizationToken(accessToken)
                 .orElseThrow(() -> {
@@ -88,100 +91,119 @@ public class UserManagementImplement implements UserManagementInterface {
             throw new IllegalStateException("You are not allowed to change other people's accounts");
         }
 
-        if (!updateProfileRequest.getPhone().equals(user.getPhone())) {
+        if (updateProfileRequest.getPhone() != null) {
             if (updateProfileRequest.getPhone().isEmpty()) {
                 user.setPhone(user.getPhone());
+            }else {
+                user.setPhone(updateProfileRequest.getPhone());
             }
-            user.setPhone(updateProfileRequest.getPhone());
         }
-        if (!updateProfileRequest.getFullName().equals(user.getFullName())) {
+
+        if (updateProfileRequest.getFullName() != null) {
             if (updateProfileRequest.getFullName().isEmpty()) {
                 user.setFullName(user.getFullName());
+            }else {
+                user.setFullName(updateProfileRequest.getFullName());
             }
-            user.setFullName(updateProfileRequest.getFullName());
         }
-        if (!updateProfileRequest.getGrade().equals(user.getGrade())) {
+        if (updateProfileRequest.getGrade() != null) {
             String grade = Integer.toString(updateProfileRequest.getGrade());
             if (grade.isEmpty()) {
                 user.setGrade(user.getGrade());
+            }else {
+                user.setGrade(updateProfileRequest.getGrade());
             }
-            user.setGrade(updateProfileRequest.getGrade());
         }
-        if (!updateProfileRequest.getAddress().equals(user.getAddress())) {
+        if (updateProfileRequest.getAddress() != null) {
             if (updateProfileRequest.getAddress().isEmpty()) {
                 user.setAddress(user.getAddress());
+            }else {
+                user.setAddress(updateProfileRequest.getAddress());
             }
-            user.setAddress(updateProfileRequest.getAddress());
         }
 
-        if (!updateProfileRequest.getAffiliate().equals(user.getAffiliate())) {
-            if (updateProfileRequest.getAddress().isEmpty()) {
+        if (updateProfileRequest.getAffiliate() != null) {
+            if (updateProfileRequest.getAffiliate().isEmpty()) {
                 user.setAffiliate(user.getAffiliate());
+            }else {
+                user.setAffiliate(updateProfileRequest.getAffiliate());
             }
-            user.setAffiliate(updateProfileRequest.getAffiliate());
         }
 
-        if (!updateProfileRequest.getAvatar().equals(user.getAvatar())) {
+        if (updateProfileRequest.getAvatar()!= null) {
             if (updateProfileRequest.getAvatar().isEmpty()) {
                 user.setAvatar(user.getAvatar());
+            }else {
+                user.setAvatar(updateProfileRequest.getAvatar());
             }
-            user.setAvatar(updateProfileRequest.getAffiliate());
         }
 
-        if (!updateProfileRequest.getFacebookUrl().equals(user.getFacebookUrl())) {
+        if (updateProfileRequest.getFacebookUrl()!= null) {
             if (updateProfileRequest.getFacebookUrl().isEmpty()) {
                 user.setFacebookUrl(user.getFacebookUrl());
+            }else {
+                user.setFacebookUrl(updateProfileRequest.getFacebookUrl());
             }
-            user.setFacebookUrl(updateProfileRequest.getFacebookUrl());
         }
 
-        if (!updateProfileRequest.getGender().equals(user.getGender())) {
+        if (updateProfileRequest.getGender() != null) {
             if (updateProfileRequest.getGender().isEmpty()) {
                 user.setGender(user.getGender());
-            }
-            user.setGender(updateProfileRequest.getGender());
+            }else {
+            user.setGender(updateProfileRequest.getGender());}
         }
-        if (!updateProfileRequest.getGpa().equals(user.getGpa())) {
+        if (updateProfileRequest.getGpa() != null) {
             String gpa = Double.toString(updateProfileRequest.getGpa());
             if (gpa.isEmpty()) {
                 user.setGpa(user.getGpa());
-            }
-            user.setGpa(updateProfileRequest.getGpa());
+            }else {
+            user.setGpa(updateProfileRequest.getGpa());}
         }
 
-        if (!updateProfileRequest.getBirthday().equals(user.getBirthday())) {
+        if (updateProfileRequest.getBirthday() != null) {
             if (updateProfileRequest.getBirthday().isEmpty()) {
                 user.setBirthday(user.getBirthday());
-            }
-            user.setBirthday(updateProfileRequest.getBirthday());
-        }
-
-        if (!updateProfileRequest.getNewPassword().equals(user.getPassword())) {
-            if (updateProfileRequest.getNewPassword().isEmpty()) {
-                user.setPassword(user.getPassword());
-            }
-            updateProfileRequest.setPassword(encoder.encode(updateProfileRequest.getPassword()));
-            updateProfileRequest.setNewPassword(encoder.encode(updateProfileRequest.getNewPassword()));
-            if (!updateProfileRequest.getPassword().equals(user.getPassword())) {
-                throw new Exception("The old password is not correct");
-            }
-            user.setPassword(updateProfileRequest.getNewPassword());
+            }else {
+            user.setBirthday(updateProfileRequest.getBirthday());}
         }
 
         userRepository.save(user);
+        return user;
 
     }
 
     @Override
-    public List<UserInformationResponse> getAllUser(Integer page, Integer limit) {
+    public User updateUserPassword(String accessToken, Long id, PasswordUpdateRequest request) throws Exception{
+        accessToken = accessToken.replaceAll("Bearer ", "");
+        User user = userRepository.findByAuthorizationToken(accessToken)
+                .orElseThrow(() -> {
+                    throw new NoSuchElementException("Not found user");
+                });
+        if (user.getId() != id) {
+            throw new IllegalStateException("You are not allowed to change other people's password");
+        }
+
+        if (encoder.matches(request.getOldPassword(), user.getPassword())) {
+                user.setPassword(encoder.encode(request.getNewPassword()));
+            }else {
+                throw new Exception("The old password is not correct");
+            }
+        userRepository.save(user);
+        return user;
+    }
+
+    @Override
+    public UserListResponse getAllUser(Integer page, Integer limit) {
         Pageable pageable = PageRequest.of(page - 1, limit);
-        List<User> users = userRepository.findAllByStatusIsTrueOrderByIdDesc(pageable);
+        Page<User> users = userRepository.findAllByStatusIsTrueOrderByIdDesc(pageable);
         List<UserInformationResponse> userList = new ArrayList<>();
         for (User user : users) {
             UserInformationResponse response = new UserInformationResponse(user);
             userList.add(response);
         }
-        return userList;
+        UserListResponse response = new UserListResponse(userList);
+        response.setTotalUser(users.getTotalElements());
+        return response;
     }
 
     @Override
@@ -207,26 +229,28 @@ public class UserManagementImplement implements UserManagementInterface {
     }
 
     @Override
-    public List<UserInformationResponse> getListTutor(Integer page, Integer limit) {
+    public TutorListResponse getListTutor(Integer page, Integer limit) {
         Pageable pageable = PageRequest.of(page - 1, limit);
         Role role = roleRepository.findByUserRole(ERole.TUTOR)
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Not found role");
                 });
-        List<User> users = userRepository.findAllByRolesAndStatusIsTrueOrderByIdDesc(role, pageable);
+        Page<User> users = userRepository.findAllByRolesAndStatusIsTrueOrderByIdDesc(role, pageable);
         List<UserInformationResponse> tutorList = new ArrayList<>();
         for (User user : users) {
-            UserInformationResponse response = new UserInformationResponse(user);
-            tutorList.add(response);
+            UserInformationResponse responseUser = new UserInformationResponse(user);
+            tutorList.add(responseUser);
         }
-        return tutorList;
+        TutorListResponse response = new TutorListResponse(tutorList);
+        response.setTotalUser(users.getTotalElements());
+        return response;
     }
 
     //admin search user - by Nam
     @Override
-    public List<UserInformationResponse> adminSearchUser(String id, String name, Integer page, Integer limit) {
+    public UserListResponse adminSearchUser(String id, String name, Integer page, Integer limit) {
         Pageable pageable = PageRequest.of((page - 1), limit);
-        List<User> users = new ArrayList<>();
+        Page<User> users = null;
         if (name == null || name.isEmpty()) {
             users = userRepository.findAllByIdAndStatusIsTrue(Long.parseLong(id), pageable).
                     orElseThrow(() -> {
@@ -249,14 +273,15 @@ public class UserManagementImplement implements UserManagementInterface {
             UserInformationResponse response = new UserInformationResponse(user);
             responseList.add(response);
         }
-        return responseList;
+        UserListResponse response = new UserListResponse(responseList);
+        response.setTotalUser(users.getTotalElements());
+        return response;
     }
 
     //public search tutor - by Nam
     @Override
-    public List<UserInformationResponse> publicSearchUser(String name, Integer page, Integer limit) {
+    public TutorListResponse publicSearchTutor(String name, Integer page, Integer limit) {
         Role role = roleRepository.findByUserRole(ERole.TUTOR).get();
-
         page -= 1;
         Pageable pageable = PageRequest.of(page, limit);
 
@@ -270,7 +295,9 @@ public class UserManagementImplement implements UserManagementInterface {
             UserInformationResponse response = new UserInformationResponse(user);
             responseList.add(response);
         }
-        return responseList;
+        TutorListResponse response = new TutorListResponse(responseList);
+        response.setTotalUser(users.getTotalElements());
+        return response;
     }
 }
 

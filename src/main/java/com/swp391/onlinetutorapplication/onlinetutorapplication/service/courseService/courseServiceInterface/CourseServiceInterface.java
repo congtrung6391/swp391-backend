@@ -4,25 +4,24 @@ import com.dropbox.core.DbxException;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.*;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.*;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.CourseInformationResponse;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.MaterialCreationResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.CourseListResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.MaterialListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.TimeTableInformation;
 import org.springframework.data.domain.Page;
 
-import java.awt.print.Pageable;
 import java.io.IOException;
 import java.util.List;
 
 public interface CourseServiceInterface {
     Course handleCourseCreate(CourseCreationRequest courseCreationRequest, String accessToken);
 
-    //    List<CourseInformationResponse> getAllCourseInformationForAdmin(String accessToken, Integer page, Integer limit, Long id, String courseName, Long subjectId, String fullName);
-    List<CourseInformationResponse> getAllCourseInformationForAdmin(String accessToken, Integer page, Integer limit);
+    CourseListResponse getAllCourseInformationForAdmin(String accessToken, Integer page, Integer limit);
 
-    CourseInformationResponse getOneCourseApi(String accessToken, Long courseId);
+    CourseInformationResponse getOneCourseApiAdmin(String accessToken, Long courseId);
 
-    List<CourseInformationResponse> getAllCourseInformationForStudent(Integer page, Integer limit);
+    CourseListResponse getAllCourseInformationForStudent(Integer page, Integer limit);
 
-    void handleCourseRegister(String accessToken, Long id);
+    void handleCourseRegisterByStudent(String accessToken, Long id);
 
     void saveSubject(Subject subject);
 
@@ -34,7 +33,7 @@ public interface CourseServiceInterface {
 
     Object updateMaterial(Long courseId, Long materialId, MaterialCreationRequest request) throws IOException, DbxException;
 
-    List<MaterialCreationResponse> getCourseMaterial(Long courseId, String accessToken) throws IOException, DbxException;
+    MaterialListResponse getCourseMaterial(Long courseId, String accessToken, Integer page, Integer limit) throws IOException, DbxException;
 
     Object getShareableLink(Long courseId, String materialId, String fileName);
 
@@ -42,7 +41,7 @@ public interface CourseServiceInterface {
 
     void deleteMaterial(Long materialId, Long courseId, String accessToken) throws Exception;
 
-    void handleCourseRegisterRequest(String accessToken, Long id, ActionApproveOrRejectRequest actionApproveOrRejectRequest);
+    void handleCourseRegisterByTutor(String accessToken, Long id, ActionApproveOrRejectRequest actionApproveOrRejectRequest);
 
     CourseInformationResponse getOneCourseApiPublic(Long courseId);
 
@@ -53,6 +52,8 @@ public interface CourseServiceInterface {
     CourseTimetable createTimetable(TimeTableCreationRequest request, Long courseId, String accessToken) throws Exception;
 
     List<TimeTableInformation> getTimeTableList(Long courseId) throws Exception;
+
+    void handleToggleCourseByAdmin(Long courseId);
 
     Page<Course> getCourses(CoursePage coursePage,
                             CourseSearchCriteria courseSearchCriteria);
