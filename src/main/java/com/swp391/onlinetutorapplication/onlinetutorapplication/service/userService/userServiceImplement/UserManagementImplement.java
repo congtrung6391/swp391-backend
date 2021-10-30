@@ -148,7 +148,7 @@ public class UserManagementImplement implements UserManagementInterface {
             }
         }
 
-        if (updateProfileRequest.getGender() != null ) {
+        if (updateProfileRequest.getGender() != null) {
             if (updateProfileRequest.getGender().isEmpty()) {
                 user.setGender(null);
             }else {
