@@ -94,7 +94,8 @@ public class UserManagementImplement implements UserManagementInterface {
         if (updateProfileRequest.getPhone() != null) {
             if (updateProfileRequest.getPhone().isEmpty()) {
                 user.setPhone(user.getPhone());
-            }else {
+            }else
+             {
                 user.setPhone(updateProfileRequest.getPhone());
             }
         }
@@ -106,17 +107,20 @@ public class UserManagementImplement implements UserManagementInterface {
                 user.setFullName(updateProfileRequest.getFullName());
             }
         }
+
         if (updateProfileRequest.getGrade() != null) {
-            String grade = Integer.toString(updateProfileRequest.getGrade());
-            if (grade.isEmpty()) {
-                user.setGrade(user.getGrade());
+            if (updateProfileRequest.getGrade().isEmpty()) {
+                user.setGrade(null);
             }else {
-                user.setGrade(updateProfileRequest.getGrade());
-            }
+                user.setGrade(Integer.parseInt(updateProfileRequest.getGrade()));}
         }
+        //else if (updateProfileRequest.getGrade().toString().isEmpty()){
+          //  user.setGrade(null);
+        //}
+
         if (updateProfileRequest.getAddress() != null) {
             if (updateProfileRequest.getAddress().isEmpty()) {
-                user.setAddress(user.getAddress());
+                user.setAddress(null);
             }else {
                 user.setAddress(updateProfileRequest.getAddress());
             }
@@ -124,7 +128,7 @@ public class UserManagementImplement implements UserManagementInterface {
 
         if (updateProfileRequest.getAffiliate() != null) {
             if (updateProfileRequest.getAffiliate().isEmpty()) {
-                user.setAffiliate(user.getAffiliate());
+                user.setAffiliate(null);
             }else {
                 user.setAffiliate(updateProfileRequest.getAffiliate());
             }
@@ -132,7 +136,7 @@ public class UserManagementImplement implements UserManagementInterface {
 
         if (updateProfileRequest.getAvatar()!= null) {
             if (updateProfileRequest.getAvatar().isEmpty()) {
-                user.setAvatar(user.getAvatar());
+                user.setAvatar(null);
             }else {
                 user.setAvatar(updateProfileRequest.getAvatar());
             }
@@ -140,7 +144,7 @@ public class UserManagementImplement implements UserManagementInterface {
 
         if (updateProfileRequest.getFacebookUrl()!= null) {
             if (updateProfileRequest.getFacebookUrl().isEmpty()) {
-                user.setFacebookUrl(user.getFacebookUrl());
+                user.setFacebookUrl(null);
             }else {
                 user.setFacebookUrl(updateProfileRequest.getFacebookUrl());
             }
@@ -148,21 +152,20 @@ public class UserManagementImplement implements UserManagementInterface {
 
         if (updateProfileRequest.getGender() != null) {
             if (updateProfileRequest.getGender().isEmpty()) {
-                user.setGender(user.getGender());
+                user.setGender(null);
             }else {
             user.setGender(updateProfileRequest.getGender());}
         }
         if (updateProfileRequest.getGpa() != null) {
-            String gpa = Double.toString(updateProfileRequest.getGpa());
-            if (gpa.isEmpty()) {
-                user.setGpa(user.getGpa());
+            if (updateProfileRequest.getGpa().isEmpty()) {
+                user.setGpa(null);
             }else {
-            user.setGpa(updateProfileRequest.getGpa());}
+            user.setGpa(Double.parseDouble(updateProfileRequest.getGpa()));}
         }
 
         if (updateProfileRequest.getBirthday() != null) {
             if (updateProfileRequest.getBirthday().isEmpty()) {
-                user.setBirthday(user.getBirthday());
+                user.setBirthday(null);
             }else {
             user.setBirthday(updateProfileRequest.getBirthday());}
         }

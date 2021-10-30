@@ -22,7 +22,7 @@ public class UpdateProfileRequest {
     private String phone;
 
     @JsonProperty(required = false)
-    private Integer grade;
+    private String grade;
 
     @JsonProperty(required = false)
     private String address;
@@ -37,7 +37,7 @@ public class UpdateProfileRequest {
     private String affiliate;
 
     @JsonProperty(required = false)
-    private Double gpa;
+    private String gpa;
 
     @JsonProperty(required = false)
     private String gender;
