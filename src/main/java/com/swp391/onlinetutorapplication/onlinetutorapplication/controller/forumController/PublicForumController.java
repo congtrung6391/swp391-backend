@@ -2,10 +2,10 @@ package com.swp391.onlinetutorapplication.onlinetutorapplication.controller.foru
 
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.forum.Answer;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.forum.Question;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.forumRequest.AnswerUpdateRequest;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.answerResponse.AnswerResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.forumRequest.AnswerCreateRequest;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.forumRequest.AnswerUpdateRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.forumRequest.QuestionRequest;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.answerResponse.AnswerResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.answerResponse.AnswerUpdateResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.questionResponse.DetailQuestionResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.questionResponse.ListQuestionResponse;
@@ -19,8 +19,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 @RequestMapping("/api/public/forum")
@@ -37,7 +35,8 @@ public class PublicForumController {
     public ResponseEntity<?> getQuestionList(@RequestParam(required = false) String name,
                                              @RequestParam(required = false) Long subjectId,
                                              @RequestParam(required = false) Integer page,
-                                             @RequestParam(required = false) Integer limit) {
+                                             @RequestParam(required = false) Integer limit,
+                                             @RequestParam(required = false) String sortBy) {
         try {
             if (page == null || page < 1) {
                 page = 1;
@@ -45,8 +44,23 @@ public class PublicForumController {
             if (limit == null) {
                 limit = 20;
             }
+            System.out.println("1."+name+", "+subjectId+", "+sortBy);
+
             if (name != null || subjectId != null) {
-                ListQuestionResponse responseList = questionService.getListQuestionByNameOrSubject(name, subjectId, page, limit);
+                ListQuestionResponse responseList;
+                System.out.println("2."+name+", "+subjectId+", "+sortBy);
+                if (sortBy != null && sortBy.equals("top-trend")) {
+                    System.out.println("3."+name+", "+subjectId+", "+sortBy);
+                    responseList = questionService.getListQuestionByNameOrSubjectAndTopTrending(name, subjectId, page, limit);
+                } else {
+                    System.out.println("4."+name+", "+subjectId+", "+sortBy);
+                    responseList = questionService.getListQuestionByNameOrSubject(name, subjectId, page, limit);
+                }
+                return ResponseEntity.ok().body(responseList);
+            }
+            if (sortBy != null && sortBy.equals("top-trend")) {
+                System.out.println(sortBy);
+                ListQuestionResponse responseList = questionService.getListQuestionByTopTrending(page, limit);
                 return ResponseEntity.ok().body(responseList);
             }
             ListQuestionResponse responseList = questionService.getListQuestion(page, limit);
@@ -80,10 +94,10 @@ public class PublicForumController {
 
     @DeleteMapping("/question/{questionId}/answer/{answerId}")
     @PreAuthorize("hasAuthority('STUDENT') or hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
-    public ResponseEntity<?> deleteAnswer(@PathVariable(name = "questionId")String questionId,
-                                          @PathVariable(name = "answerId")String answerId,
-                                          @RequestHeader(name = "Authorization") String accessToken){
-        try{
+    public ResponseEntity<?> deleteAnswer(@PathVariable(name = "questionId") String questionId,
+                                          @PathVariable(name = "answerId") String answerId,
+                                          @RequestHeader(name = "Authorization") String accessToken) {
+        try {
             answerService.deleteAnswer(Long.parseLong(questionId), Long.parseLong(answerId), accessToken);
             return ResponseEntity.ok().body(new SuccessfulMessageResponse("Delete Sucess"));
         } catch (NoSuchElementException ex) {
@@ -150,19 +164,19 @@ public class PublicForumController {
         }
     }
 
-    @PutMapping ("/question/{questionId}/updateanswer/{answerId}")
+    @PutMapping("/question/{questionId}/updateanswer/{answerId}")
     @PreAuthorize("hasAuthority('STUDENT') or hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
     public ResponseEntity<?> updateAnswer(
-                                          @RequestHeader(name = "Authorization") String accessToken,
-                                          @PathVariable(name = "questionId")Long questionId,
-                                          @PathVariable(name = "answerId")Long answerId,
-                                          @RequestBody AnswerUpdateRequest request){
-        try{
+            @RequestHeader(name = "Authorization") String accessToken,
+            @PathVariable(name = "questionId") Long questionId,
+            @PathVariable(name = "answerId") Long answerId,
+            @RequestBody AnswerUpdateRequest request) {
+        try {
             Answer answer = answerService.updateAnswer(request, questionId, answerId, accessToken);
             return ResponseEntity.ok().body(new AnswerUpdateResponse(answer));
         } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
-        }catch (IllegalArgumentException ex) {
+        } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         } catch (Exception ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
