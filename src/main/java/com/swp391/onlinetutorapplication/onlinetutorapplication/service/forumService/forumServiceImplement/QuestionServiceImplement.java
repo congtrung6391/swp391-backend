@@ -20,6 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -40,7 +41,7 @@ public class QuestionServiceImplement implements QuestionServiceInterface {
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Question> pageQuestion = questionRepository.findAllByStatusIsTrueOrderByIdDesc(pageable);
         List<Question> list = pageQuestion.getContent();
-        for (Question question : list){
+        for (Question question : list) {
             List<Answer> answers = answerRepository.findAllByQuestionAndStatusIsTrue(question);
             question.setAnswer(answers);
         }
@@ -160,8 +161,57 @@ public class QuestionServiceImplement implements QuestionServiceInterface {
 
     @Override
     public ListQuestionResponse getListQuestionByTopTrending(Integer page, Integer limit) {
-        Pageable pageable = PageRequest.of(page,limit);
-        Page<Question> questionPage = questionRepository.findAllByStatusIsTrueOrderByIdDesc(pageable);
-        return null;
+
+        Pageable pageable = PageRequest.of(page - 1, limit);
+        Page<Long> questionID = questionRepository.findAllByListAndAnswer(pageable);
+        List<Question> questionList = new ArrayList<>();
+
+        for (Long id : questionID.getContent()) {
+            Question question = questionRepository.findByIdAndStatusIsTrue(id).get();
+            questionList.add(question);
+        }
+
+        ListQuestionResponse response = new ListQuestionResponse(questionList);
+        response.setTotalQuestion(questionID.getTotalElements());
+
+        return response;
     }
+
+    @Override
+    public ListQuestionResponse getListQuestionByNameOrSubjectAndTopTrending(String name, Long subjectId, Integer page, Integer limit) {
+        Pageable pageable = PageRequest.of(page - 1, limit);
+        Page<Long> questionID = null;
+        if (name != null && subjectId == null) {
+
+            questionID = questionRepository.findAllByListAndAnswerAndName("%" + name + "%", pageable);
+
+        } else if (name == null && subjectId != null) {
+
+            Subject subject = subjectRepository.findById(subjectId).orElseThrow(() -> {
+                throw new NoSuchElementException("Subject not found");
+            });
+            questionID = questionRepository.findAllByListAndAnswerAndSubject(subject, pageable);
+
+        } else if (name != null && subjectId != null) {
+
+            Subject subject = subjectRepository.findById(subjectId).orElseThrow(() -> {
+                throw new NoSuchElementException("Subject not found");
+            });
+            questionID = questionRepository.findAllByListAndAnswerAndSubjectAndName(subject, "%" + name + "%", pageable);
+
+        }
+
+        List<Question> questionList = new ArrayList<>();
+
+        for (Long id : questionID.getContent()) {
+            Question question = questionRepository.findByIdAndStatusIsTrue(id).get();
+            questionList.add(question);
+        }
+
+        ListQuestionResponse response = new ListQuestionResponse(questionList);
+        response.setTotalQuestion(questionID.getTotalElements());
+
+        return response;
+    }
+
 }
