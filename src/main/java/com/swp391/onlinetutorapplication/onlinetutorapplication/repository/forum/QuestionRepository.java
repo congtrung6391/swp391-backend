@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -21,14 +20,42 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
 
     Page<Question> findAllByStatusIsTrueAndTitleContainingAndSubjectOrderByIdDesc(String name, Subject subject, Pageable pageable);
 
-    @Query("select q, count(a.question.id)  as cnt " +
+    @Query("select q.id " +
             "from  Question q " +
             "left join Answer a " +
             "on a.question.id = q.id " +
             "where q.status = true " +
-            "group by q " +
-            "order by cnt")
-    Page<Object> findAllByListAndAnswer(Pageable pageable);
+            "group by q.id " +
+            "order by count (a.question.id) desc ")
+    Page<Long> findAllByListAndAnswer(Pageable pageable);
+
+    @Query("select q.id " +
+            "from  Question q " +
+            "left join Answer a " +
+            "on a.question.id = q.id " +
+            "where q.status = true and q.subject = ?1 " +
+            "group by q.id " +
+            "order by count (a.question.id) desc")
+    Page<Long> findAllByListAndAnswerAndSubject(Subject subject, Pageable pageable);
+
+    @Query("select q.id " +
+            "from  Question q " +
+            "left join Answer a " +
+            "on a.question.id = q.id " +
+            "where q.status = true and q.title like ?1 " +
+            "group by q.id " +
+            "order by count (a.question.id) desc ")
+    Page<Long> findAllByListAndAnswerAndName(String name, Pageable pageable);
+
+    @Query("select q.id " +
+            "from  Question q " +
+            "left join Answer a " +
+            "on a.question.id = q.id " +
+            "where q.status = true and q.subject =?1 and q.title like ?2 " +
+            "group by q.id " +
+            "order by count (a.question.id) desc ")
+    Page<Long> findAllByListAndAnswerAndSubjectAndName(Subject subject, String name, Pageable pageable);
+
 
     Optional<Question> findByIdAndStatusIsTrue(Long questionId);
 }

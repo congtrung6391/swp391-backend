@@ -23,4 +23,6 @@ public interface QuestionServiceInterface {
     Question updateQuestion(QuestionRequest questionRequest, String accessToken, Long questionId) throws Exception;
 
     ListQuestionResponse getListQuestionByTopTrending(Integer page, Integer limit);
+
+    ListQuestionResponse getListQuestionByNameOrSubjectAndTopTrending(String name, Long subjectId, Integer page, Integer limit);
 }

@@ -178,22 +178,21 @@ public class CourseServiceImplement implements CourseServiceInterface {
 
 
     @Override
-    public Page<Course> getAllCourseInformationForStudent(PublicCourseSearchCriteria publicCourseSearchCriteria,
-                                                          CoursePage coursePage) {
+    public CourseListResponse getAllCourseInformationForStudent(PublicCourseSearchCriteria publicCourseSearchCriteria,
+                                                                CoursePage coursePage) {
         Page<Course> listAllCourse = publicCourseCriteriaRepository.findWithFilter(coursePage ,publicCourseSearchCriteria);
-        return listAllCourse;
-//        List<CourseInformationResponse> allCourseApi = new ArrayList<>();
-//        List<Course> list = listAllCourse.getContent();
-//        if (!list.isEmpty()) {
-//            for (Course course : list) {
-//                CourseInformationResponse response = new CourseInformationResponse(course);
-//                response.setTutor(course.getTutor());
-//                allCourseApi.add(response);
-//            }
-//        }
-//        CourseListResponse response = new CourseListResponse(allCourseApi);
-//        response.setTotalCourse(listAllCourse.getTotalElements());
-//        return response;
+        List<CourseInformationResponse> allCourseApi = new ArrayList<>();
+        List<Course> list = listAllCourse.getContent();
+        if (!list.isEmpty()) {
+            for (Course course : list) {
+                CourseInformationResponse response = new CourseInformationResponse(course);
+                response.setTutor(course.getTutor());
+                allCourseApi.add(response);
+            }
+        }
+        CourseListResponse response = new CourseListResponse(allCourseApi);
+        response.setTotalCourse(listAllCourse.getTotalElements());
+        return response;
     }
 
     @Override //by Nam
@@ -296,8 +295,8 @@ public class CourseServiceImplement implements CourseServiceInterface {
                 Subject subject = subjectRepository.findById(request.getSubjectId()).get();
                 course.setSubject(subject);
             }
-            if (request.getCourseStatus() != null) {//missing courseStatus or not
-                course.setLearningStatus(request.getCourseStatus());
+            if (request.getLearningStatus() != null) {//missing learningStatus or not
+                course.setLearningStatus(request.getLearningStatus());
             }
 
             courseRepository.save(course);
@@ -551,9 +550,9 @@ public class CourseServiceImplement implements CourseServiceInterface {
     }
 
     @Override
-    public void handleToggleCourseByAdmin(Long courseId) {
+    public void handleToggleCourseByAdmin(Long courseId){
         Course course = courseRepository.findByIdAndLearningStatusIsFalse(courseId)
-                .orElseThrow(() -> {
+                .orElseThrow(()->{
                     throw new NoSuchElementException("Course was public or deleted");
                 });
 

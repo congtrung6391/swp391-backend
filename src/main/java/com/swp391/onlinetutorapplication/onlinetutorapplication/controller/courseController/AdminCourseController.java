@@ -18,6 +18,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @RestController
@@ -124,9 +125,9 @@ public class AdminCourseController {
     public ResponseEntity<?> deleteCourse(@PathVariable("id") String id) {
         try {
             courseService.deleteCourse(Long.parseLong(id));
-            return ResponseEntity.ok().body(new MessageResponse("Course has been successfully deleted."));
+            return ResponseEntity.ok().body(new SuccessfulMessageResponse("Course has been successfully deleted."));
         } catch (NoSuchElementException ex) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Course not found"));
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse("Course not found"));
         }
     }
 
@@ -251,9 +252,9 @@ public class AdminCourseController {
     }
 
     @PutMapping("/{courseId}/toggle-public")
-    @PreAuthorize("hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
-    public ResponseEntity<?> handleToggleCourseByAdmin(@PathVariable(name = "courseId") Long courseId) {
-        try {
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
+    public ResponseEntity<?> handleToggleCourseByAdmin(@PathVariable(name = "courseId") Long courseId){
+        try{
             courseService.handleToggleCourseByAdmin(courseId);
             return ResponseEntity.ok().body(new SuccessfulMessageResponse("Toggle course public successful"));
         } catch (Exception e) {

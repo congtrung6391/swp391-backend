@@ -1,6 +1,5 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceInterface;
 
-import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.resetPasswordRequest.ResetPasswordRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.LoginRequest;
@@ -9,7 +8,6 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.authResponse.MessageResponse;
 
 import javax.mail.MessagingException;
-import java.util.List;
 
 public interface UserServiceInterface {
     JwtResponse handleUserLogin(LoginRequest loginRequest) throws Exception;

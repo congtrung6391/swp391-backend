@@ -14,5 +14,5 @@ public class CourseUpdateRequest {
     private Integer grade;
     private Integer length;
     private Long subjectId;
-    private Boolean courseStatus;
+    private Boolean learningStatus;
 }

@@ -7,7 +7,6 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.CourseListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.MaterialListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.TimeTableInformation;
-import org.springframework.data.domain.Page;
 
 import java.io.IOException;
 import java.util.List;
@@ -21,8 +20,8 @@ public interface CourseServiceInterface {
 
     CourseInformationResponse getOneCourseApiAdmin(String accessToken, Long courseId);
 
-    Page<Course> getAllCourseInformationForStudent(PublicCourseSearchCriteria publicCourseSearchCriteria,
-                                                   CoursePage coursePage);
+    CourseListResponse getAllCourseInformationForStudent(PublicCourseSearchCriteria publicCourseSearchCriteria,
+                                                         CoursePage coursePage);
 
     void handleCourseRegisterByStudent(String accessToken, Long id);
 
