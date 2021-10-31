@@ -44,25 +44,24 @@ public class PublicForumController {
             if (limit == null) {
                 limit = 20;
             }
-            System.out.println("1."+name+", "+subjectId+", "+sortBy);
 
             if (name != null || subjectId != null) {
+
                 ListQuestionResponse responseList;
-                System.out.println("2."+name+", "+subjectId+", "+sortBy);
                 if (sortBy != null && sortBy.equals("top-trend")) {
-                    System.out.println("3."+name+", "+subjectId+", "+sortBy);
                     responseList = questionService.getListQuestionByNameOrSubjectAndTopTrending(name, subjectId, page, limit);
                 } else {
-                    System.out.println("4."+name+", "+subjectId+", "+sortBy);
                     responseList = questionService.getListQuestionByNameOrSubject(name, subjectId, page, limit);
                 }
+
                 return ResponseEntity.ok().body(responseList);
             }
+
             if (sortBy != null && sortBy.equals("top-trend")) {
-                System.out.println(sortBy);
                 ListQuestionResponse responseList = questionService.getListQuestionByTopTrending(page, limit);
                 return ResponseEntity.ok().body(responseList);
             }
+
             ListQuestionResponse responseList = questionService.getListQuestion(page, limit);
             return ResponseEntity.ok().body(responseList);
         } catch (Exception e) {
