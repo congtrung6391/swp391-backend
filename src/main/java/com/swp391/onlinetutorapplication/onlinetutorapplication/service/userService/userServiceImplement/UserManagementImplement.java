@@ -91,77 +91,81 @@ public class UserManagementImplement implements UserManagementInterface {
             throw new IllegalStateException("You are not allowed to change other people's accounts");
         }
 
-        if (!updateProfileRequest.getPhone().equals(user.getPhone())) {
+        if (updateProfileRequest.getPhone() != null) {
             if (updateProfileRequest.getPhone().isEmpty()) {
                 user.setPhone(user.getPhone());
-            }else {
+            }else
+             {
                 user.setPhone(updateProfileRequest.getPhone());
             }
         }
-        if (!updateProfileRequest.getFullName().equals(user.getFullName())) {
+
+        if (updateProfileRequest.getFullName() != null) {
             if (updateProfileRequest.getFullName().isEmpty()) {
                 user.setFullName(user.getFullName());
             }else {
                 user.setFullName(updateProfileRequest.getFullName());
             }
         }
-        if (!updateProfileRequest.getGrade().equals(user.getGrade())) {
-            String grade = Integer.toString(updateProfileRequest.getGrade());
-            if (grade.isEmpty()) {
-                user.setGrade(user.getGrade());
+
+        if (updateProfileRequest.getGrade() != null) {
+            if (updateProfileRequest.getGrade().isEmpty()) {
+                user.setGrade(null);
             }else {
-                user.setGrade(updateProfileRequest.getGrade());
-            }
+                user.setGrade(Integer.parseInt(updateProfileRequest.getGrade()));}
         }
-        if (!updateProfileRequest.getAddress().equals(user.getAddress())) {
+        //else if (updateProfileRequest.getGrade().toString().isEmpty()){
+          //  user.setGrade(null);
+        //}
+
+        if (updateProfileRequest.getAddress() != null) {
             if (updateProfileRequest.getAddress().isEmpty()) {
-                user.setAddress(user.getAddress());
+                user.setAddress(null);
             }else {
                 user.setAddress(updateProfileRequest.getAddress());
             }
         }
 
-        if (!updateProfileRequest.getAffiliate().equals(user.getAffiliate())) {
+        if (updateProfileRequest.getAffiliate() != null) {
             if (updateProfileRequest.getAffiliate().isEmpty()) {
-                user.setAffiliate(user.getAffiliate());
+                user.setAffiliate(null);
             }else {
                 user.setAffiliate(updateProfileRequest.getAffiliate());
             }
         }
 
-        if (!updateProfileRequest.getAvatar().equals(user.getAvatar())) {
+        if (updateProfileRequest.getAvatar()!= null) {
             if (updateProfileRequest.getAvatar().isEmpty()) {
-                user.setAvatar(user.getAvatar());
+                user.setAvatar(null);
             }else {
                 user.setAvatar(updateProfileRequest.getAvatar());
             }
         }
 
-        if (!updateProfileRequest.getFacebookUrl().equals(user.getFacebookUrl())) {
+        if (updateProfileRequest.getFacebookUrl()!= null) {
             if (updateProfileRequest.getFacebookUrl().isEmpty()) {
-                user.setFacebookUrl(user.getFacebookUrl());
+                user.setFacebookUrl(null);
             }else {
                 user.setFacebookUrl(updateProfileRequest.getFacebookUrl());
             }
         }
 
-        if (!updateProfileRequest.getGender().equals(user.getGender())) {
+        if (updateProfileRequest.getGender() != null) {
             if (updateProfileRequest.getGender().isEmpty()) {
-                user.setGender(user.getGender());
+                user.setGender(null);
             }else {
             user.setGender(updateProfileRequest.getGender());}
         }
-        if (!updateProfileRequest.getGpa().equals(user.getGpa())) {
-            String gpa = Double.toString(updateProfileRequest.getGpa());
-            if (gpa.isEmpty()) {
-                user.setGpa(user.getGpa());
+        if (updateProfileRequest.getGpa() != null) {
+            if (updateProfileRequest.getGpa().isEmpty()) {
+                user.setGpa(null);
             }else {
-            user.setGpa(updateProfileRequest.getGpa());}
+            user.setGpa(Double.parseDouble(updateProfileRequest.getGpa()));}
         }
 
-        if (!updateProfileRequest.getBirthday().equals(user.getBirthday())) {
+        if (updateProfileRequest.getBirthday() != null) {
             if (updateProfileRequest.getBirthday().isEmpty()) {
-                user.setBirthday(user.getBirthday());
+                user.setBirthday(null);
             }else {
             user.setBirthday(updateProfileRequest.getBirthday());}
         }
