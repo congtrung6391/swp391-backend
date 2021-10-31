@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
 import javax.validation.Valid;
+import java.net.URI;
 import java.util.NoSuchElementException;
 
 @RestController
@@ -79,7 +80,8 @@ public class AuthenticateController {
     @GetMapping("/activate")
     public ResponseEntity activateUser(@RequestParam(name = "token") String token) {
         userService.activeAccount(token);
-        return ResponseEntity.ok().build();//Bấm vào link là bay về trang chủ liền
+        //Bấm vào link là bay về trang chủ liền
+        return ResponseEntity.status(HttpStatus.FOUND).location(URI.create("https://swp391-onlinetutor.herokuapp.com/")).build();
     }
 
     //Sau khi nhập xong email bấm enter thì chuyển tới trang nhập code thì
