@@ -12,13 +12,13 @@ import java.util.Optional;
 @Repository
 public interface CourseRepository extends JpaRepository<Course, Long> {
 
-    Optional<Course> findByIdAndCourseStatusIsTrue(Long id);
+    Optional<Course> findByIdAndLearningStatusIsTrue(Long id);
 
-    Optional<Course> findByIdAndTutorAndCourseStatusIsTrue(Long id, User tutor);
+    Optional<Course> findByIdAndTutorAndLearningStatusIsTrue(Long id, User tutor);
 
     Optional<Course> findById(Long id);
 
-    Optional<Course> findByIdAndStudentIsNotNullAndCourseStatusIsTrue(Long id);
+    Optional<Course> findByIdAndStudentIsNotNullAndLearningStatusIsTrue(Long id);
 
     Page<Course> findAllByTutorAndStatusIsTrueOrderByIdDesc(User tutor, Pageable pageable);
 
@@ -36,11 +36,11 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
 
     Page<Course> findAllByStudentAndStatusIsTrueOrderByIdDesc(User student, Pageable pageable);
 
-    Page<Course> findAllByStudentIsNullAndPublicCourseIsTrueOrderByIdDesc(Pageable pageable);
+    Page<Course> findAllByStudentIsNullAndPublicStatusIsTrueOrderByIdDesc(Pageable pageable);
 
-    Optional<Course> findByIdAndPublicCourseIsTrue(Long id);
+    Optional<Course> findByIdAndPublicStatusIsTrue(Long id);
 
-    Optional<Course> findByIdAndPublicCourseIsFalse(Long id);
+    Optional<Course> findByIdAndPublicStatusIsFalse(Long id);
 
-    Optional<Course> findByIdAndCourseStatusIsFalse(Long id);
+    Optional<Course> findByIdAndLearningStatusIsFalse(Long id);
 }
