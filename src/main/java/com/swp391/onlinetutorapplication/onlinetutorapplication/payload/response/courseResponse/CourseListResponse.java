@@ -12,23 +12,11 @@ import java.util.List;
 @AllArgsConstructor
 public class CourseListResponse {
     private Boolean status = true;
-    private int totalCourse;
+    private Long totalCourse;
     List<CourseInformationResponse> courseList;
 
     public CourseListResponse(List<CourseInformationResponse> courseList) {
-        this.totalCourse = courseList.size();
         this.courseList = courseList;
     }
 
-    public CourseListResponse(List<CourseInformationResponse> courseList, Integer page, Integer limit) {
-        page = page-1;
-        this.totalCourse = courseList.size();
-        List<CourseInformationResponse> responses = new ArrayList<>();
-        int index = page*limit;
-        int des = courseList.size()<(index+limit) ? courseList.size() : index+limit;
-        for(int i = index; i< des ; i++){
-            responses.add(courseList.get(i));
-        }
-        this.courseList = responses;
-    }
 }

@@ -18,7 +18,8 @@ public class CourseInformationResponse {
     private int grade;
     private double cost;
     private int length;
-    private Boolean courseStatus;
+    private Boolean learningStatus;
+    private Boolean publicStatus;
     private Subject subject;
     private CourseTutorInformation tutor;
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -32,7 +33,8 @@ public class CourseInformationResponse {
         this.cost = course.getCost();
         this.length = course.getLength();
         this.subject = course.getSubject();
-        this.courseStatus = course.getCourseStatus();
+        this.learningStatus = course.getLearningStatus();
+        this.publicStatus = course.getPublicStatus();
     }
 
     public void setTutor(User tutor) {

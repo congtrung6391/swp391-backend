@@ -28,7 +28,7 @@ public class PublicCourseController {
     public ResponseEntity<?> registerCourse(@RequestHeader(name = "Authorization") String accessToken,
                                             @PathVariable(name = "id") Long id) {
         try {
-            courseService.handleCourseRegister(accessToken, id);
+            courseService.handleCourseRegisterByStudent(accessToken, id);
             return ResponseEntity.ok().body(new SuccessfulMessageResponse("Register course successful"));
         } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
@@ -49,9 +49,9 @@ public class PublicCourseController {
             if (limit == null) {
                 limit = 20;
             }
-            return ResponseEntity.ok().body(new CourseListResponse(
+            return ResponseEntity.ok().body(
                     courseService.getAllCourseInformationForStudent(page, limit)
-            ));
+            );
         } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }

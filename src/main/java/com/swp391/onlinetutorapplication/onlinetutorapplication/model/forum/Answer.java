@@ -18,6 +18,7 @@ public class Answer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(columnDefinition = "nvarchar(4000)", nullable = false)
     private String content;
     private LocalDate createdDate = LocalDate.now();
     private Boolean status = true;

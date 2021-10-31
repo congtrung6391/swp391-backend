@@ -18,14 +18,15 @@ public class Course {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(columnDefinition = "nvarchar(155)")
+    @Column(columnDefinition = "nvarchar(4000)")
     private String courseName;
-    @Column(columnDefinition = "nvarchar(155)")
+    @Column(columnDefinition = "nvarchar(4000)")
     private String courseDescription;
     private int grade;
     private double cost;
     private int length;
-    private Boolean courseStatus = false;
+    private Boolean learningStatus = false;
+    private Boolean publicStatus = false;
     private Boolean status = true;
     @ManyToOne
     @JoinColumn(name = "subject_id")
