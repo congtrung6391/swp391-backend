@@ -82,9 +82,6 @@ public class PublicCourseController {
             publicCourseSearchCriteria.setMaxCost(maxCost);
             publicCourseSearchCriteria.setMinLength(minLength);
             publicCourseSearchCriteria.setMaxLength(maxLength);
-//            return ResponseEntity.ok().body(
-//                    courseService.getAllCourseInformationForStudent(publicCourseSearchCriteria, coursePage)
-//            );
             return ResponseEntity.ok().body(courseService.getAllCourseInformationForStudent(publicCourseSearchCriteria, coursePage));
         } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
