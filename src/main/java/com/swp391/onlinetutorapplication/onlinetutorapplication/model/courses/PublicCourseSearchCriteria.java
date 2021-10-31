@@ -9,9 +9,12 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CourseSearchCriteria {
-    private Long id;
+public class PublicCourseSearchCriteria {
     private String courseName;
     private Long subjectId;
+    private Long minCost;
+    private Long maxCost;
+    private int minLength;
+    private int maxLength;
     private String tutorName;
 }

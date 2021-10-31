@@ -50,7 +50,7 @@ public class MailSenderService {
 
         helper.setTo(email);
         helper.setSubject("CONFIRM ACCOUNT REGISTRATION");
-        javaMailSender.send(message);
+//        javaMailSender.send(message);
     }
 
     public void sendEmailResetPassword(String username, Long resetCode, String email) throws MessagingException {

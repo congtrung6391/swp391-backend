@@ -1,5 +1,8 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.controller.courseController;
 
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.AdminCourseSearchCriteria;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.CoursePage;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.PublicCourseSearchCriteria;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.authResponse.MessageResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.CourseListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.TimeTableInformation;
@@ -41,7 +44,14 @@ public class PublicCourseController {
     // Get localhost:8080/api/public/course
     @GetMapping("")
     public ResponseEntity<?> getAllCourseForPublic(@RequestParam(name = "page", required = false) Integer page,
-                                                   @RequestParam(name = "limit", required = false) Integer limit) {
+                                                   @RequestParam(name = "limit", required = false) Integer limit,
+                                                   @RequestParam(name = "courseName", required = false) String courseName,
+                                                   @RequestParam(name = "subjectId", required = false) Long subjectId,
+                                                   @RequestParam(name = "tutorName", required = false) String fullName,
+                                                   @RequestParam(name = "minCost", required = false) Long minCost,
+                                                   @RequestParam(name = "maxCost", required = false) Long maxCost,
+                                                   @RequestParam(name = "minLength", required = false) Integer minLength,
+                                                   @RequestParam(name = "maxLength", required = false) Integer maxLength) {
         try {
             if (page == null || page < 1) {
                 page = 1;
@@ -49,9 +59,33 @@ public class PublicCourseController {
             if (limit == null) {
                 limit = 20;
             }
-            return ResponseEntity.ok().body(
-                    courseService.getAllCourseInformationForStudent(page, limit)
-            );
+            if(minCost == null){
+                minCost = 0L;
+            }
+            if(maxCost == null){
+                maxCost = 2000000L;
+            }
+            if(minLength == null){
+                minLength = 60;
+            }
+            if(maxLength == null){
+                maxLength = 300;
+            }
+            CoursePage coursePage = new CoursePage();
+            coursePage.setPageSize(limit);
+            coursePage.setPageNumber(page - 1);
+            PublicCourseSearchCriteria publicCourseSearchCriteria = new PublicCourseSearchCriteria();
+            publicCourseSearchCriteria.setCourseName(courseName);
+            publicCourseSearchCriteria.setSubjectId(subjectId);
+            publicCourseSearchCriteria.setTutorName(fullName);
+            publicCourseSearchCriteria.setMinCost(minCost);
+            publicCourseSearchCriteria.setMaxCost(maxCost);
+            publicCourseSearchCriteria.setMinLength(minLength);
+            publicCourseSearchCriteria.setMaxLength(maxLength);
+//            return ResponseEntity.ok().body(
+//                    courseService.getAllCourseInformationForStudent(publicCourseSearchCriteria, coursePage)
+//            );
+            return ResponseEntity.ok().body(courseService.getAllCourseInformationForStudent(publicCourseSearchCriteria, coursePage));
         } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }

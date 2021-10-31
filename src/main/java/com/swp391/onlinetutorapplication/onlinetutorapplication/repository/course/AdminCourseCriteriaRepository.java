@@ -13,23 +13,25 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.ERole.*;
+
 @Repository
-public class CourseCriteriaRepository {
+public class AdminCourseCriteriaRepository {
     private final EntityManager entityManager;
     private final CriteriaBuilder criteriaBuilder;
 
-    public CourseCriteriaRepository(EntityManager entityManager) {
+    public AdminCourseCriteriaRepository(EntityManager entityManager) {
         this.entityManager = entityManager;
         this.criteriaBuilder = entityManager.getCriteriaBuilder();
     }
 
     public Page<Course> findWithFilter(CoursePage coursePage,
-                                       CourseSearchCriteria courseSearchCriteria) {
+                                       AdminCourseSearchCriteria adminCourseSearchCriteria) {
         CriteriaQuery<Course> criteriaQuery = criteriaBuilder.createQuery(Course.class);
         Root<Course> courseRoot = criteriaQuery.from(Course.class);
         Join<Course, User> courseUserJoin = courseRoot.join(Course_.tutor, JoinType.INNER);
         Join<Course, Subject> courseSubjectJoin = courseRoot.join(Course_.subject, JoinType.INNER);
-        Predicate predicate = getPredicate(courseSearchCriteria,
+        Predicate predicate = getPredicate(adminCourseSearchCriteria,
                 courseRoot,
                 courseUserJoin,
                 courseSubjectJoin);
@@ -47,33 +49,53 @@ public class CourseCriteriaRepository {
         return new PageImpl<>(typedQuery.getResultList(), pageable, courseCount);
     }
 
-    private Predicate getPredicate(CourseSearchCriteria courseSearchCriteria,
+    private Predicate getPredicate(AdminCourseSearchCriteria adminCourseSearchCriteria,
                                    Root<Course> courseRoot,
                                    Join<Course, User> courseUserJoin,
                                    Join<Course, Subject> courseSubjectJoin) {
         List<Predicate> predicates = new ArrayList<>();
-        if (Objects.nonNull(courseSearchCriteria.getId())) {
+        predicates.add(
+                criteriaBuilder.isTrue(courseRoot.get(Course_.STATUS))
+        );
+        if (adminCourseSearchCriteria.getRole().getUserRole().equals(SUPER_ADMIN)) {//admin thi cho lay theo id
+            if (Objects.nonNull(adminCourseSearchCriteria.getId())) {
+                predicates.add(
+                        criteriaBuilder.equal(courseRoot.get(Course_.ID),
+                                adminCourseSearchCriteria.getId())
+                );
+            }
+        }
+        if (adminCourseSearchCriteria.getRole().getUserRole().equals(TUTOR)) {//tutor lay theo tutor
             predicates.add(
-                    criteriaBuilder.equal(courseRoot.get(Course_.ID),
-                            courseSearchCriteria.getId())
+                    criteriaBuilder.equal(courseRoot.get(Course_.tutor),
+                            adminCourseSearchCriteria.getUserId())
             );
         }
-        if (Objects.nonNull(courseSearchCriteria.getCourseName())) {
+        if (adminCourseSearchCriteria.getRole().getUserRole().equals(STUDENT)) {//student lay theo student id va public status true
+            predicates.add(
+                    criteriaBuilder.equal(courseRoot.get(Course_.STUDENT),
+                            adminCourseSearchCriteria.getUserId())
+            );
+            predicates.add(
+                    criteriaBuilder.isTrue(courseRoot.get(Course_.PUBLIC_STATUS))
+            );
+        }
+        if (Objects.nonNull(adminCourseSearchCriteria.getCourseName())) {
             predicates.add(
                     criteriaBuilder.like(courseRoot.get(Course_.COURSE_NAME),
-                            "%" + courseSearchCriteria.getCourseName() + "%")
+                            "%" + adminCourseSearchCriteria.getCourseName() + "%")
             );
         }
-        if (Objects.nonNull(courseSearchCriteria.getTutorName())) {
+        if (Objects.nonNull(adminCourseSearchCriteria.getTutorName())) {
             predicates.add(
                     criteriaBuilder.like(courseUserJoin.get(User_.FULL_NAME),
-                           "%" + courseSearchCriteria.getTutorName() + "%")
+                            "%" + adminCourseSearchCriteria.getTutorName() + "%")
             );
         }
-        if (Objects.nonNull(courseSearchCriteria.getSubjectId())) {
+        if (Objects.nonNull(adminCourseSearchCriteria.getSubjectId())) {
             predicates.add(
                     criteriaBuilder.equal(courseSubjectJoin.get(Subject_.ID),
-                            courseSearchCriteria.getSubjectId())
+                            adminCourseSearchCriteria.getSubjectId())
             );
         }
         return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
@@ -81,9 +103,9 @@ public class CourseCriteriaRepository {
 
     private void setOrder(CoursePage coursePage, CriteriaQuery<Course> criteriaQuery, Root<Course> courseRoot) {
         if (coursePage.getSortDirection().equals(Sort.Direction.DESC)) {
-            criteriaQuery.orderBy(criteriaBuilder.desc(courseRoot.get(coursePage.getSortBy())));
+            criteriaQuery.orderBy(criteriaBuilder.desc(courseRoot.get(Course_.ID)));
         } else {
-            criteriaQuery.orderBy(criteriaBuilder.desc(courseRoot.get(coursePage.getSortBy())));
+            criteriaQuery.orderBy(criteriaBuilder.desc(courseRoot.get(Course_.ID)));
         }
     }
 

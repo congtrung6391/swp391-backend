@@ -2,14 +2,13 @@ package com.swp391.onlinetutorapplication.onlinetutorapplication.controller.cour
 
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Course;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.CoursePage;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.CourseSearchCriteria;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.AdminCourseSearchCriteria;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.CourseTimetable;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.*;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.authResponse.MessageResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.*;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.ErrorMessageResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.SuccessfulMessageResponse;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.CourseCriteriaRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.courseService.courseServiceInterface.CourseServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,8 +18,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.EmptyStackException;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 @RestController
@@ -33,14 +30,14 @@ public class AdminCourseController {
     //Get all course for admin -    by Nam
     // localhost:8080/api/admin/course/
     @GetMapping("")
-    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN') or hasAuthority('TUTOR') or hasAuthority('STUDENT')")
+//    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN') or hasAuthority('TUTOR') or hasAuthority('STUDENT')")
     public ResponseEntity<?> getAllCourseForAdmin(@RequestHeader(name = "Authorization") String accessToken,
                                                   @RequestParam(name = "page", required = false) Integer page,
-                                                  @RequestParam(name = "limit", required = false) Integer limit) {
-//                                                  @RequestParam(name = "id", required = false) Long courseId,
-//                                                  @RequestParam(name = "courseName", required = false) String courseName,
-//                                                  @RequestParam(name = "subjectId", required = false) Long subjectId,
-//                                                  @RequestParam(name = "fullName", required = false) String fullName) {
+                                                  @RequestParam(name = "limit", required = false) Integer limit,
+                                                  @RequestParam(name = "id", required = false) Long courseId,
+                                                  @RequestParam(name = "courseName", required = false) String courseName,
+                                                  @RequestParam(name = "subjectId", required = false) Long subjectId,
+                                                  @RequestParam(name = "tutorName", required = false) String fullName) {
         try {
             if (page == null || page < 1) {
                 page = 1;
@@ -48,16 +45,19 @@ public class AdminCourseController {
             if (limit == null) {
                 limit = 20;
             }
-//            if(courseName == null){
-//                courseName = "";
-//            }
-//            if(fullName == null){
-//                fullName = "";
-//            }
-//            return ResponseEntity.ok().body(new CourseListResponse(
-//                    courseService.getAllCourseInformationForAdmin(accessToken, page, limit, courseId, courseName, subjectId, fullName)));
-            return ResponseEntity.ok().body(courseService.getAllCourseInformationForAdmin(accessToken, page, limit));
-        } catch (NoSuchElementException ex) {
+            CoursePage coursePage = new CoursePage();
+            coursePage.setPageSize(limit);
+            coursePage.setPageNumber(page - 1);
+            AdminCourseSearchCriteria adminCourseSearchCriteria = new AdminCourseSearchCriteria();
+            adminCourseSearchCriteria.setId(courseId);
+            adminCourseSearchCriteria.setCourseName(courseName);
+            adminCourseSearchCriteria.setSubjectId(subjectId);
+            adminCourseSearchCriteria.setTutorName(fullName);
+
+            return ResponseEntity.ok().body(courseService.getAllCourseInformationForAdmin(accessToken,
+                    adminCourseSearchCriteria,
+                    coursePage));
+        } catch (Exception ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }
     }
@@ -172,7 +172,7 @@ public class AdminCourseController {
             if (limit == null) {
                 limit = 20;
             }
-            MaterialListResponse materials = courseService.getCourseMaterial(courseId, accessToken,page,limit);
+            MaterialListResponse materials = courseService.getCourseMaterial(courseId, accessToken, page, limit);
             return ResponseEntity.ok().body(materials);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
@@ -252,11 +252,11 @@ public class AdminCourseController {
 
     @PutMapping("/{courseId}/toggle-public")
     @PreAuthorize("hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
-    public ResponseEntity<?> handleToggleCourseByAdmin(@PathVariable(name = "courseId") Long courseId){
-        try{
+    public ResponseEntity<?> handleToggleCourseByAdmin(@PathVariable(name = "courseId") Long courseId) {
+        try {
             courseService.handleToggleCourseByAdmin(courseId);
             return ResponseEntity.ok().body(new SuccessfulMessageResponse("Toggle course public successful"));
-        }catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
         }
     }

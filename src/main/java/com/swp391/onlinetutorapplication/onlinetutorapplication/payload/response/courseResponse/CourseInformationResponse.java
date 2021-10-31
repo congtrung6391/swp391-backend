@@ -32,7 +32,7 @@ public class CourseInformationResponse {
         this.cost = course.getCost();
         this.length = course.getLength();
         this.subject = course.getSubject();
-        this.courseStatus = course.getCourseStatus();
+        this.courseStatus = course.getLearningStatus();
     }
 
     public void setTutor(User tutor) {
