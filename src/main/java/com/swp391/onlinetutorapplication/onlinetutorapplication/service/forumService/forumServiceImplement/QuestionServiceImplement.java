@@ -3,6 +3,8 @@ package com.swp391.onlinetutorapplication.onlinetutorapplication.service.forumSe
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Subject;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.forum.Answer;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.forum.Question;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.ERole;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.forumRequest.QuestionRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.forumResponse.questionResponse.DetailQuestionResponse;
@@ -11,6 +13,7 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.SubjectRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.forum.AnswerRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.forum.QuestionRepository;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.role.RoleRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.user.UserRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.forumService.forumServiceInterface.QuestionServiceInterface;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +38,8 @@ public class QuestionServiceImplement implements QuestionServiceInterface {
     private UserRepository userRepository;
     @Autowired
     private AnswerRepository answerRepository;
+    @Autowired
+    private RoleRepository roleRepository;
 
     @Override
     public ListQuestionResponse getListQuestion(Integer page, Integer limit) {
@@ -137,10 +142,10 @@ public class QuestionServiceImplement implements QuestionServiceInterface {
         Question question = questionRepository.findByIdAndStatusIsTrue(questionId).orElseThrow(() -> {
             throw new NoSuchElementException("Question not found");
         });
+        Role admin = roleRepository.findByUserRole(ERole.ADMIN).get();
+        Role superadmin = roleRepository.findByUserRole(ERole.SUPER_ADMIN).get();
 
-        if (user != question.getUser()) {
-            throw new Exception("You are not allow to update");
-        } else {
+        if (user == question.getUser() || user.getRoles().contains(admin) || user.getRoles().contains(superadmin)) {
             if (questionRequest.getTitle() != null) {
                 question.setTitle(questionRequest.getTitle());
             }
@@ -153,6 +158,8 @@ public class QuestionServiceImplement implements QuestionServiceInterface {
                 });
                 question.setSubject(subject);
             }
+        } else {
+            throw new Exception("You are not allow to update");
         }
         questionRepository.save(question);
         return question;
