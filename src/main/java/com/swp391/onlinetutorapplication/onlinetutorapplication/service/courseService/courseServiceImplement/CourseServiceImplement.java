@@ -243,7 +243,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("User cannot be found.");
                 });
-        Course course = courseRepository.findByIdAndStudentIsNotNullAndLearningStatusIsTrue(id)
+        Course course = courseRepository.findByIdAndStudentIsNotNullAndPublicStatusIsTrue(id)
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Course cannot be found.");
                 });
