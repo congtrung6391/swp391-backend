@@ -58,7 +58,10 @@ public class CourseServiceImplement implements CourseServiceInterface {
     private RoleRepository roleRepository;
 
     @Autowired
-    private CourseCriteriaRepository courseCriteriaRepository;
+    private AdminCourseCriteriaRepository adminCourseCriteriaRepository;
+
+    @Autowired
+    private PublicCourseCriteriaRepository publicCourseCriteriaRepository;
 
 
     @Override
@@ -90,33 +93,22 @@ public class CourseServiceImplement implements CourseServiceInterface {
 
     @Override
     public CourseListResponse getAllCourseInformationForAdmin(String accessToken,
-                                                              Integer page,
-                                                              Integer limit) {
-        Pageable pageable = PageRequest.of(page - 1, limit);
+                                                              AdminCourseSearchCriteria adminCourseSearchCriteria,
+                                                              CoursePage coursePage) {
         Page<Course> listAllCourse = null;
         accessToken = accessToken.replaceAll("Bearer ", "");
         User user = userRepository.findByAuthorizationToken(accessToken).get();
         Set<Role> roles = user.getRoles();
         for (Role role : roles) {
-            switch (role.getUserRole()) {
-                case SUPER_ADMIN:
-                case ADMIN:
-                    listAllCourse = courseRepository.findAllByStatusIsTrueOrderByIdDesc(pageable);
-                    break;
-                case TUTOR:
-                    listAllCourse = courseRepository.findAllByTutorAndStatusIsTrueOrderByIdDesc(user, pageable);
-                    break;
-                case STUDENT:
-                    listAllCourse = courseRepository.findAllByStudentAndStatusIsTrueOrderByIdDesc(user, pageable);
-                    break;
-                default:
-                    return null;
-            }
+            adminCourseSearchCriteria.setRole(role);
         }
+        adminCourseSearchCriteria.setUserId(user.getId());
+        listAllCourse = adminCourseCriteriaRepository.findWithFilter(coursePage, adminCourseSearchCriteria);
 
         List<CourseInformationResponse> allCourseApi = new ArrayList<>();
-        if (!listAllCourse.isEmpty()) {
-            for (Course course : listAllCourse) {
+        List<Course> list = listAllCourse.getContent();
+        if (!list.isEmpty()) {
+            for (Course course : list) {
                 CourseInformationResponse response = new CourseInformationResponse(course);
                 response.setTutor(course.getTutor());
                 if (course.getStudent() != null) {
@@ -186,13 +178,13 @@ public class CourseServiceImplement implements CourseServiceInterface {
 
 
     @Override
-    public CourseListResponse getAllCourseInformationForStudent(Integer page, Integer limit) {
-        Pageable pageable = PageRequest.of(page - 1, limit);
-        Page<Course> listAllCourse = courseRepository.findAllByStudentIsNullAndPublicStatusIsTrueOrderByIdDesc(pageable);
-
+    public CourseListResponse getAllCourseInformationForStudent(PublicCourseSearchCriteria publicCourseSearchCriteria,
+                                                                CoursePage coursePage) {
+        Page<Course> listAllCourse = publicCourseCriteriaRepository.findWithFilter(coursePage ,publicCourseSearchCriteria);
         List<CourseInformationResponse> allCourseApi = new ArrayList<>();
-        if (!listAllCourse.isEmpty()) {
-            for (Course course : listAllCourse) {
+        List<Course> list = listAllCourse.getContent();
+        if (!list.isEmpty()) {
+            for (Course course : list) {
                 CourseInformationResponse response = new CourseInformationResponse(course);
                 response.setTutor(course.getTutor());
                 allCourseApi.add(response);
@@ -451,8 +443,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
         if (tutor.getRoles().contains(superAdmin)) {
             courseMaterial.setStatus(false);
             courseMaterialRepository.save(courseMaterial);
-        }
-        else if (tutor != course.getTutor()) {
+        } else if (tutor != course.getTutor()) {
             throw new Exception("You are not allowed to delete");
         } else {
             courseMaterial.setStatus(false);
@@ -556,11 +547,6 @@ public class CourseServiceImplement implements CourseServiceInterface {
             timeTableInformations.add(response);
         }
         return timeTableInformations;
-    }
-
-    public Page<Course> getCourses(CoursePage coursePage,
-                                   CourseSearchCriteria courseSearchCriteria){
-        return courseCriteriaRepository.findWithFilter(coursePage, courseSearchCriteria);
     }
 
     @Override

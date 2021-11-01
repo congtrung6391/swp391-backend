@@ -43,6 +43,7 @@ public class AnswerServiceImplement implements AnswerServiceInterface {
     @Autowired
     private RoleRepository roleRepository;
 
+    @Override
     public AnswerInformationResponse createAnswer(String accessToken, AnswerCreateRequest request, Long questionId) {
         accessToken = accessToken.replaceAll("Bearer ", "");
         User currentUser = userRepository.findByAuthorizationToken(accessToken)
@@ -72,6 +73,7 @@ public class AnswerServiceImplement implements AnswerServiceInterface {
         return new AnswerInformationResponse(answer);
     }
 
+    @Override
     public AnswerListResponse getAnswerList(Long id, Integer page, Integer limit) {
         Pageable pageable = PageRequest.of(page - 1, limit);
         Question question = questionRepository.findByIdAndStatusIsTrue(id).orElseThrow(() -> {
