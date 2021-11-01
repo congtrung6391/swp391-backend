@@ -213,7 +213,6 @@ public class CourseServiceImplement implements CourseServiceInterface {
             throw new NoSuchElementException("Course not available now");
         }
         course.setStudent(student);
-        course.setPublicStatus(false);
         courseRepository.save(course);
     }
 
@@ -248,9 +247,9 @@ public class CourseServiceImplement implements CourseServiceInterface {
                     throw new NoSuchElementException("Course cannot be found.");
                 });
         if (request.isAction() == true) {
-            course.setPublicStatus(false);
+            course.setLearningStatus(true);
         } else {
-            course.setPublicStatus(true);
+            course.setLearningStatus(false);
             course.setStudent(null);
         }
         courseRepository.save(course);
@@ -557,7 +556,6 @@ public class CourseServiceImplement implements CourseServiceInterface {
                 });
 
         course.setPublicStatus(true);
-        course.setLearningStatus(true);
         courseRepository.save(course);
     }
 }

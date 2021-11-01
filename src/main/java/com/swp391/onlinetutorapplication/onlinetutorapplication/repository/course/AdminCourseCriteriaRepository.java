@@ -67,7 +67,7 @@ public class AdminCourseCriteriaRepository {
         }
         if (adminCourseSearchCriteria.getRole().getUserRole().equals(TUTOR)) {//tutor lay theo tutor
             predicates.add(
-                    criteriaBuilder.equal(courseRoot.get(Course_.tutor),
+                    criteriaBuilder.equal(courseRoot.get(Course_.TUTOR),
                             adminCourseSearchCriteria.getUserId())
             );
         }
