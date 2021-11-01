@@ -14,7 +14,7 @@ import java.util.Optional;
 public interface AnswerRepository extends JpaRepository<Answer, Long> {
     Optional<Answer> findByIdAndStatusIsTrue(Long id);
 
-    Page<Answer> findAllByQuestionAndStatusIsTrue(Question question, Pageable page);
+    Page<Answer> findAllByQuestionAndStatusIsTrueOrderByIdDesc(Question question, Pageable page);
 
     List<Answer> findAllByQuestionAndStatusIsTrue(Question question);
 

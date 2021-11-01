@@ -1,19 +1,13 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.service.courseService.courseServiceImplement;
 
 import com.dropbox.core.DbxException;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Course;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.CourseMaterial;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.CourseTimetable;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Subject;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.*;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.ERole;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.*;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.*;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.CourseMaterialRepository;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.CourseRepository;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.CourseTimeTableRepository;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.SubjectRepository;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.course.*;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.role.RoleRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.user.UserRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.courseService.courseServiceInterface.CourseServiceInterface;
@@ -63,6 +57,9 @@ public class CourseServiceImplement implements CourseServiceInterface {
     @Autowired
     private RoleRepository roleRepository;
 
+    @Autowired
+    private CourseCriteriaRepository courseCriteriaRepository;
+
 
     @Override
     public Course handleCourseCreate(CourseCreationRequest courseCreationRequest, String accessToken) {
@@ -94,11 +91,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
     @Override
     public CourseListResponse getAllCourseInformationForAdmin(String accessToken,
                                                               Integer page,
-                                                              Integer limit,
-                                                              Long id,
-                                                              String courseName,
-                                                              Long subjectId,
-                                                              String fullName) {
+                                                              Integer limit) {
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<Course> listAllCourse = null;
         accessToken = accessToken.replaceAll("Bearer ", "");
@@ -108,7 +101,6 @@ public class CourseServiceImplement implements CourseServiceInterface {
             switch (role.getUserRole()) {
                 case SUPER_ADMIN:
                 case ADMIN:
-//                    listAllCourse = courseRepository.findAllByStatusIsTrueOrderByIdDesc(id, courseName, subjectId, fullName, pageable);
                     listAllCourse = courseRepository.findAllByStatusIsTrueOrderByIdDesc(pageable);
                     break;
                 case TUTOR:
@@ -566,6 +558,11 @@ public class CourseServiceImplement implements CourseServiceInterface {
         return timeTableInformations;
     }
 
+    public Page<Course> getCourses(CoursePage coursePage,
+                                   CourseSearchCriteria courseSearchCriteria){
+        return courseCriteriaRepository.findWithFilter(coursePage, courseSearchCriteria);
+    }
+
     @Override
     public void handleToggleCourseByAdmin(Long courseId){
         Course course = courseRepository.findByIdAndLearningStatusIsFalse(courseId)
@@ -577,5 +574,4 @@ public class CourseServiceImplement implements CourseServiceInterface {
         course.setLearningStatus(true);
         courseRepository.save(course);
     }
-
 }

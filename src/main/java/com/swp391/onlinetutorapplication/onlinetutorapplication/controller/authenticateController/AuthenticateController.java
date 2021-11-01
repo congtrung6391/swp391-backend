@@ -28,6 +28,7 @@ import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api/auth")
+
 public class AuthenticateController {
 
 

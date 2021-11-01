@@ -2,6 +2,7 @@ package com.swp391.onlinetutorapplication.onlinetutorapplication.payload.respons
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.forum.Answer;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserInformationResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,16 +19,16 @@ public class AnswerInformationResponse {
     private String content;
     private LocalDate createdDate;
     private Long questionId;
-    private Long userId;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Long replyId;
+    private UserInformationResponse user;
 
     public AnswerInformationResponse(Answer answer){
         this.id = answer.getId();
         this.content = answer.getContent();
         this.createdDate = answer.getCreatedDate();
         this.questionId = answer.getQuestion().getId();
-        this.userId = answer.getUser().getId();
+        this.user = new UserInformationResponse(answer.getUser());
         if(answer.getReplyId() != null){
             this.replyId = answer.getReplyId().getId();
         }
