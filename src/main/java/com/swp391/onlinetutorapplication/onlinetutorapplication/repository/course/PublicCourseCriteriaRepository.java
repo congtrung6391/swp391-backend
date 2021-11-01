@@ -60,7 +60,7 @@ public class PublicCourseCriteriaRepository {
                 criteriaBuilder.isTrue(courseRoot.get(Course_.PUBLIC_STATUS))
         );
         predicates.add(
-                criteriaBuilder.isNotNull(courseRoot.get(Course_.STUDENT))
+                criteriaBuilder.isNull(courseRoot.get(Course_.STUDENT))
         );
         if (Objects.nonNull(publicCourseSearchCriteria.getCourseName())) {
             predicates.add(
