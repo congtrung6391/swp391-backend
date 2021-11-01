@@ -26,6 +26,8 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
 
     Page<Course> findAllByStudentIsNullAndPublicStatusIsTrueOrderByIdDesc(Pageable pageable);
 
+    Optional<Course> findByIdAndPublicStatusIsTrueAndStudentIsNull(Long id);
+
     Optional<Course> findByIdAndPublicStatusIsTrue(Long id);
 
     Optional<Course> findByIdAndPublicStatusIsFalse(Long id);

@@ -141,7 +141,6 @@ public class CourseServiceImplement implements CourseServiceInterface {
                 case SUPER_ADMIN:
                     break;
                 case TUTOR:
-//                        if(course.getTutor().getId())
                     if (course.getTutor().getId() != currentUser.getId()) {
                         if (course.getStudent() != null) {
                             throw new IllegalArgumentException("You are not allow to view this course");
@@ -153,6 +152,8 @@ public class CourseServiceImplement implements CourseServiceInterface {
                         if (course.getStudent().getId() != currentUser.getId()) {
                             throw new IllegalArgumentException("You are not allow to view this course");
                         }
+                    }else{
+                        throw new IllegalArgumentException("You are not allow to view this course");
                     }
                     break;
             }
@@ -164,7 +165,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
     }
 
     public CourseInformationResponse getOneCourseApiPublic(Long courseId) {
-        Course course = courseRepository.findByIdAndPublicStatusIsTrue(courseId)
+        Course course = courseRepository.findByIdAndPublicStatusIsTrueAndStudentIsNull(courseId)
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Course not found");
                 });
@@ -393,7 +394,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
                 case STUDENT:
                     if (course.getStudent() == null) {
                         throw new IllegalArgumentException("You are not allow to see other material");
-                    } else if (course.getLearningStatus() == true) {
+                    } else if (course.getLearningStatus() == false) {
                         throw new IllegalArgumentException("You are not allow to see the material");
                     }
                     if (currentUser.getId() != course.getStudent().getId()) {
