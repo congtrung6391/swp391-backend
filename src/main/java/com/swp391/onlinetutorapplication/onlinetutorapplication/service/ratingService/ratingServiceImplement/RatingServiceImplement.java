@@ -71,6 +71,13 @@ public class RatingServiceImplement implements RatingServiceInterface {
         }
         return sum/rateList.size();
     }
+
+    @Override
+    public Long getTotalRate(User user) {
+        List<Rate> rateList = rateRepository.findAllByStatusIsTrueAndTutor(user);
+        return Long.valueOf(rateList.size());
+    }
+
     @Override
     public RatingListResponse getAllRating(Long tutorId, Integer page, Integer limit) {
         Pageable pageable = PageRequest.of(page - 1, limit);

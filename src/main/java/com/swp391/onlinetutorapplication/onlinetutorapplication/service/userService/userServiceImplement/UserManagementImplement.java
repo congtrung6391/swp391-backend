@@ -249,6 +249,7 @@ public class UserManagementImplement implements UserManagementInterface {
         for (User user : users) {
             UserInformationResponse responseUser = new UserInformationResponse(user);
             responseUser.setAvgRate(ratingService.getAvgRating(user,null));
+            responseUser.setTotalRate(ratingService.getTotalRate(user));
             tutorList.add(responseUser);
         }
         TutorListResponse response = new TutorListResponse(tutorList);
@@ -304,6 +305,7 @@ public class UserManagementImplement implements UserManagementInterface {
         for (User user : users.toList()) {
             UserInformationResponse response = new UserInformationResponse(user);
             response.setAvgRate(ratingService.getAvgRating(user,null));
+            response.setTotalRate(ratingService.getTotalRate(user));
             responseList.add(response);
         }
         TutorListResponse response = new TutorListResponse(responseList);
