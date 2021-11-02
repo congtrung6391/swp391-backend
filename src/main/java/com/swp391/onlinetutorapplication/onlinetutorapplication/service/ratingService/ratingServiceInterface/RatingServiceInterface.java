@@ -13,6 +13,8 @@ import java.util.List;
 public interface RatingServiceInterface {
     Double getAvgRating(User tutor, Subject subject);
 
+    Long getTotalRate(User user);
+
     RatingListResponse getAllRating(Long tutorId, Integer page, Integer limit);
 
     RatingListResponse getTutorRatingBySubject(Long tutorId, Long subjectId,Integer page, Integer limit);

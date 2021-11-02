@@ -31,6 +31,8 @@ public class UserProfileResponse {
 
     private String affiliate;
 
+    private String avatar;
+
     private Double gpa;
 
     private String gender;
@@ -39,7 +41,7 @@ public class UserProfileResponse {
 
     private Boolean status = true;
 
-    public UserProfileResponse(String username, String fullName, String email, String phone, Integer grade, String address, String facebookUrl, String affiliate, Double gpa, String gender, Set<Role> role) {
+    public UserProfileResponse(String username, String fullName, String email, String phone, Integer grade, String address, String facebookUrl, String affiliate,String avatar, Double gpa, String gender, Set<Role> role) {
         this.username = username;
         this.fullName = fullName;
         this.email = email;
@@ -48,6 +50,7 @@ public class UserProfileResponse {
         this.address = address;
         this.facebookUrl = facebookUrl;
         this.affiliate = affiliate;
+        this.avatar = avatar;
         this.gpa = gpa;
         this.gender = gender;
         this.role = role;
