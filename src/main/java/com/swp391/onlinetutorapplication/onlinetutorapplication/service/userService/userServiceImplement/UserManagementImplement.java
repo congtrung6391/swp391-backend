@@ -71,7 +71,8 @@ public class UserManagementImplement implements UserManagementInterface {
                 user.getFacebookUrl(),
                 user.getAffiliate(),
                 user.getGpa(),
-                user.getGender()
+                user.getGender(),
+                user.getRoles()
         );
     }
 
