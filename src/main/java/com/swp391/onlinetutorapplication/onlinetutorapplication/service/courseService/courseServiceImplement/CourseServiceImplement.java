@@ -152,8 +152,6 @@ public class CourseServiceImplement implements CourseServiceInterface {
                         if (course.getStudent().getId() != currentUser.getId()) {
                             throw new IllegalArgumentException("You are not allow to view this course");
                         }
-                    }else{
-                        throw new IllegalArgumentException("You are not allow to view this course");
                     }
                     break;
             }
