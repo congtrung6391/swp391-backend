@@ -247,6 +247,9 @@ public class CourseServiceImplement implements CourseServiceInterface {
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Course cannot be found.");
                 });
+        if(course.getLearningStatus()==true){
+            throw new IllegalArgumentException("Can not do this action again");
+        }
         if (request.isAction() == true) {
             course.setLearningStatus(true);
         } else {
