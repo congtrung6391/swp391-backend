@@ -57,7 +57,8 @@ public class RatingServiceImplement implements RatingServiceInterface {
         return tutor;
     }
 
-    private Double getAvgRating(User tutor, Subject subject){
+    @Override
+    public Double getAvgRating(User tutor, Subject subject){
         List<Rate> rateList = new ArrayList<>();
         if(tutor != null && subject != null){
             rateList = rateRepository.findAllByStatusIsTrueAndTutorAndSubject(tutor,subject);
