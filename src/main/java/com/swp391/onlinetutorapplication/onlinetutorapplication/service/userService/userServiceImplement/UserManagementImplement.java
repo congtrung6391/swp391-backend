@@ -11,6 +11,8 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserProfileResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.role.RoleRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.user.UserRepository;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.service.ratingService.ratingServiceImplement.RatingServiceImplement;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.service.ratingService.ratingServiceInterface.RatingServiceInterface;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceInterface.UserManagementInterface;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +39,9 @@ public class UserManagementImplement implements UserManagementInterface {
 
     @Autowired
     private PasswordEncoder encoder;
+
+    @Autowired
+    private RatingServiceInterface ratingService;
 
     @Override
     public User getUser(String username) {
@@ -243,6 +248,7 @@ public class UserManagementImplement implements UserManagementInterface {
         List<UserInformationResponse> tutorList = new ArrayList<>();
         for (User user : users) {
             UserInformationResponse responseUser = new UserInformationResponse(user);
+            responseUser.setAvgRate(ratingService.getAvgRating(user,null));
             tutorList.add(responseUser);
         }
         TutorListResponse response = new TutorListResponse(tutorList);
@@ -297,6 +303,7 @@ public class UserManagementImplement implements UserManagementInterface {
 
         for (User user : users.toList()) {
             UserInformationResponse response = new UserInformationResponse(user);
+            response.setAvgRate(ratingService.getAvgRating(user,null));
             responseList.add(response);
         }
         TutorListResponse response = new TutorListResponse(responseList);
