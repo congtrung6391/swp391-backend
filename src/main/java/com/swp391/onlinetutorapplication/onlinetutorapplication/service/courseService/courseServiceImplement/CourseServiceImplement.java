@@ -247,6 +247,9 @@ public class CourseServiceImplement implements CourseServiceInterface {
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Course cannot be found.");
                 });
+        if(course.getLearningStatus()==true){
+            throw new IllegalArgumentException("Can not do this action again");
+        }
         if (request.isAction() == true) {
             course.setLearningStatus(true);
         } else {
@@ -467,8 +470,8 @@ public class CourseServiceImplement implements CourseServiceInterface {
             throw new NoSuchElementException("TimeTable not found");
         });
         Role superAdmin = roleRepository.findByUserRole(ERole.SUPER_ADMIN).get();
-
-        if (tutor.getRoles().contains(superAdmin)) {
+        Role admin = roleRepository.findByUserRole(ERole.ADMIN).get();
+        if ((tutor.getRoles().contains(superAdmin)) || (tutor.getRoles().contains(admin))) {
             timetable.setStatus(false);
             courseTimeTableRepository.save(timetable);
         } else if (tutor != course.getTutor()) {
@@ -482,7 +485,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
 
     @Override
     public CourseTimetable updateCourseTimeTable(Long timeTableId, Long courseId, TimeTableRequest timeTableRequest) throws Exception {
-        Course course = courseRepository.findByIdAndLearningStatusIsTrue(courseId).orElseThrow(() -> {
+        Course course = courseRepository.findByIdAndStatusIsTrue(courseId).orElseThrow(() -> {
             throw new NoSuchElementException("Course not found");
         });
         CourseTimetable timetable = courseTimeTableRepository.findByIdAndStatusIsTrue(timeTableId).orElseThrow(() -> {
