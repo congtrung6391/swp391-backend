@@ -43,6 +43,7 @@ public class AnswerServiceImplement implements AnswerServiceInterface {
     @Autowired
     private RoleRepository roleRepository;
 
+    @Override
     public AnswerInformationResponse createAnswer(String accessToken, AnswerCreateRequest request, Long questionId) {
         accessToken = accessToken.replaceAll("Bearer ", "");
         User currentUser = userRepository.findByAuthorizationToken(accessToken)
@@ -72,19 +73,20 @@ public class AnswerServiceImplement implements AnswerServiceInterface {
         return new AnswerInformationResponse(answer);
     }
 
+    @Override
     public AnswerListResponse getAnswerList(Long id, Integer page, Integer limit) {
         Pageable pageable = PageRequest.of(page - 1, limit);
         Question question = questionRepository.findByIdAndStatusIsTrue(id).orElseThrow(() -> {
             throw new IllegalArgumentException("Question not found");
         });
-        Page<Answer> answerList = answerRepository.findAllByQuestionAndStatusIsTrue(question, pageable);
+        Page<Answer> answerList = answerRepository.findAllByQuestionAndStatusIsTrueOrderByIdDesc(question, pageable);
         List<AnswerInformationResponse> responseList = new ArrayList<>();
 
         for (Answer answer : answerList.getContent()) {
             responseList.add(new AnswerInformationResponse(answer));
         }
         AnswerListResponse response = new AnswerListResponse(responseList);
-        response.setSize(answerList.getTotalElements());
+        response.setTotalAnswer(answerList.getTotalElements());
         return response;
     }
 
@@ -98,14 +100,15 @@ public class AnswerServiceImplement implements AnswerServiceInterface {
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Question cannot be found.");
                 });
-        Answer answer = answerRepository.findByIdAndStatusIsTrueAndUserIsNotNull(answerId)
+        Answer answer = answerRepository.findById(answerId)
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Answer cannot be found.");
                 });
         Role role = roleRepository.findByUserRole(ERole.SUPER_ADMIN).get();
         Role role2 = roleRepository.findByUserRole(ERole.ADMIN).get();
 
-        if (user == answer.getUser() || user.getRoles().contains(role) || user.getRoles().contains(role2)) {
+        if (user == question.getUser() || user.getRoles().contains(role) || user.getRoles().contains(role2)) {
+
             answer.setStatus(false);
             answerRepository.save(answer);
         } else {
