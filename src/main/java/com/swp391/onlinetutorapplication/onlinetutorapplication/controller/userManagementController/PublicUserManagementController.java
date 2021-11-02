@@ -47,7 +47,7 @@ public class PublicUserManagementController {
         try {
             User user = userManagement.updateUser(accessToken, id, updateProfileRequest);
             if(user == null) {
-                return ResponseEntity.badRequest().body(new SuccessfulMessageResponse("Update failed"));
+                return ResponseEntity.badRequest().body(new ErrorMessageResponse("Update failed"));
             }else {
                 return ResponseEntity.ok().body(new UserUpdateResponse(user));
             }
