@@ -153,9 +153,6 @@ public class CourseServiceImplement implements CourseServiceInterface {
                             throw new IllegalArgumentException("You are not allow to view this course");
                         }
                     }
-//                    else{
-//                        throw new IllegalArgumentException("You are not allow to view this course");
-//                    }
                     break;
             }
         }
