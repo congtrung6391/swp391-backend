@@ -14,11 +14,12 @@ public class MailSenderService {
         return "<html>\n" +
                 "<body>\n" +
                 "\t<h2>Email confirmation account</h2>\n" +
-                "\t<p>Dear " + username + " ,</p>\n" +
+                "\t<b>Dear " + username + " ,</b>\n" +
                 "\t<p>This is email for confirm your registration account. Please click the link below to confirm your registration.</p><br>\n" +
-                "\t<a href=\"https://swptutor.azurewebsites.net/api/auth/activate?token=" + token + "\"><button>CLICK HERE</button></a>\n" +
-                "\t<br>\n" +
-                "\t<p>Thanks for using our product. Have a nice day!</p>\n" +
+                "\t<a href=\"https://swp391-onlinetutor.herokuapp.com/active-account?code=" + token + "\"><button>CLICK HERE</button></a>\n" +
+                "\t<p>Thanks for using our product.</p>\n" +
+                "\t<b>Have a nice day!</b>\n" +
+                "\t<b><i>Online Tutor Application</i></b>\n" +
                 "</body>\n" +
                 "</html>";
     }
