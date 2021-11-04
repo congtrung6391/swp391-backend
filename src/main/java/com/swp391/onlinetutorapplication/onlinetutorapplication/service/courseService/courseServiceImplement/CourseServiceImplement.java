@@ -557,7 +557,11 @@ public class CourseServiceImplement implements CourseServiceInterface {
                     throw new NoSuchElementException("Course was public or deleted");
                 });
 
-        course.setPublicStatus(true);
+        if(course.getPublicStatus()==false) {
+            course.setPublicStatus(true);
+        }else{
+            course.setPublicStatus(false);
+        }
         courseRepository.save(course);
     }
 
@@ -572,5 +576,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
                     throw new NoSuchElementException("Course have no student registered");
                 });
         course.setStudent(null);
+        course.setPublicStatus(true);
+        courseRepository.save(course);
     }
 }

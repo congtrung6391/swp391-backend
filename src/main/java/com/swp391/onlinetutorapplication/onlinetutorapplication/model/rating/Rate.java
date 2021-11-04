@@ -6,6 +6,7 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Nationalized;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -20,6 +21,7 @@ public class Rate {
     private Long id;
     private Double value;
     @Column(columnDefinition = "nvarchar(4000)")
+    @Nationalized
     private String description;
     private LocalDateTime time;
 
