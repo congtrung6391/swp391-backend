@@ -52,11 +52,11 @@ public class AuthenticateController {
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody RegistrationRequest registrationRequest)
             throws MessagingException {
-        MessageResponse messageResponse = userService.handleUserRegistration(registrationRequest);
-        if (messageResponse.getMessage().contains("Error")) {
-            return ResponseEntity.badRequest().body(messageResponse);
-        } else {
-            return ResponseEntity.ok(messageResponse);
+        try{
+            userService.handleUserRegistration(registrationRequest);
+            return ResponseEntity.ok().body(new SuccessfulMessageResponse("User registered successfully!"));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
         }
     }
 

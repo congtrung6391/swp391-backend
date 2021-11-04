@@ -72,4 +72,6 @@ public interface CourseServiceInterface {
     List<TimeTableInformation> getTimeTableList(Long courseId) throws Exception;
 
     void handleToggleCourseByAdmin(Long courseId);
+
+    void handleStudentRejectRegisterCourse(Long courseId, String accessToken);
 }

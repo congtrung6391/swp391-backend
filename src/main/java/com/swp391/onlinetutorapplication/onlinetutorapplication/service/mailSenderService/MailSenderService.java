@@ -30,7 +30,7 @@ public class MailSenderService {
                 "\t<h2>Email Reset Password</h2>\n" +
                 "\t<p>Dear " + username + " ,</p>\n" +
                 "\t<p>This is email for confirm your registration account. Please use code below to reset your password.</p><br>\n" +
-                "\t<a href=\"https://swptutor.azurewebsites.net/api/auth/reset-password/" + resetCode + "\"><button>CLICK HERE</button></a>\n" +
+                "\t<b>" + resetCode + "</b>\n" +
                 "\t<br>\n" +
                 "\t<p>Thanks for using our product. Have a nice day!</p>\n" +
                 "</body>\n" +
