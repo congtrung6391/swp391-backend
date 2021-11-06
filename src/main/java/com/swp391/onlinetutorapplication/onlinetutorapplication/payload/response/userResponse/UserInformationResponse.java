@@ -22,6 +22,8 @@ public class UserInformationResponse {
     private String email;
     private String fullName;
     private String avatar;
+    private Double avgRate;
+    private Long totalRate;
     private Set<Role> role;
 
     public UserInformationResponse(User user){

@@ -1,10 +1,13 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse;
 
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.role.Role;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.Set;
 
 @Getter
 @Setter
@@ -16,11 +19,13 @@ public class CourseTutorInformation {
     private String fullName;
     private String email;
     private String phone;
+    private Set<Role> role;
 
     public CourseTutorInformation(User tutor){
         this.id = tutor.getId();
         this.fullName = tutor.getFullName();
         this.email = tutor.getEmail();
         this.phone = tutor.getPhone();
+        this.role = tutor.getRoles();
     }
 }

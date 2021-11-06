@@ -57,7 +57,8 @@ public class RatingServiceImplement implements RatingServiceInterface {
         return tutor;
     }
 
-    private Double getAvgRating(User tutor, Subject subject){
+    @Override
+    public Double getAvgRating(User tutor, Subject subject){
         List<Rate> rateList = new ArrayList<>();
         if(tutor != null && subject != null){
             rateList = rateRepository.findAllByStatusIsTrueAndTutorAndSubject(tutor,subject);
@@ -70,6 +71,13 @@ public class RatingServiceImplement implements RatingServiceInterface {
         }
         return sum/rateList.size();
     }
+
+    @Override
+    public Long getTotalRate(User user) {
+        List<Rate> rateList = rateRepository.findAllByStatusIsTrueAndTutor(user);
+        return Long.valueOf(rateList.size());
+    }
+
     @Override
     public RatingListResponse getAllRating(Long tutorId, Integer page, Integer limit) {
         Pageable pageable = PageRequest.of(page - 1, limit);

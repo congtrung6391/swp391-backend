@@ -1,7 +1,8 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.controller.courseController;
 
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.CoursePage;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.PublicCourseSearchCriteria;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.authResponse.MessageResponse;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.CourseListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.TimeTableInformation;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.TimeTableListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.ErrorMessageResponse;
@@ -41,7 +42,14 @@ public class PublicCourseController {
     // Get localhost:8080/api/public/course
     @GetMapping("")
     public ResponseEntity<?> getAllCourseForPublic(@RequestParam(name = "page", required = false) Integer page,
-                                                   @RequestParam(name = "limit", required = false) Integer limit) {
+                                                   @RequestParam(name = "limit", required = false) Integer limit,
+                                                   @RequestParam(name = "courseName", required = false) String courseName,
+                                                   @RequestParam(name = "subjectId", required = false) Long subjectId,
+                                                   @RequestParam(name = "tutorName", required = false) String fullName,
+                                                   @RequestParam(name = "minCost", required = false) Long minCost,
+                                                   @RequestParam(name = "maxCost", required = false) Long maxCost,
+                                                   @RequestParam(name = "minLength", required = false) Integer minLength,
+                                                   @RequestParam(name = "maxLength", required = false) Integer maxLength) {
         try {
             if (page == null || page < 1) {
                 page = 1;
@@ -49,9 +57,30 @@ public class PublicCourseController {
             if (limit == null) {
                 limit = 20;
             }
-            return ResponseEntity.ok().body(
-                    courseService.getAllCourseInformationForStudent(page, limit)
-            );
+            if (minCost == null) {
+                minCost = 0L;
+            }
+            if (maxCost == null) {
+                maxCost = 2000000L;
+            }
+            if (minLength == null) {
+                minLength = 60;
+            }
+            if (maxLength == null) {
+                maxLength = 300;
+            }
+            CoursePage coursePage = new CoursePage();
+            coursePage.setPageSize(limit);
+            coursePage.setPageNumber(page - 1);
+            PublicCourseSearchCriteria publicCourseSearchCriteria = new PublicCourseSearchCriteria();
+            publicCourseSearchCriteria.setCourseName(courseName);
+            publicCourseSearchCriteria.setSubjectId(subjectId);
+            publicCourseSearchCriteria.setTutorName(fullName);
+            publicCourseSearchCriteria.setMinCost(minCost);
+            publicCourseSearchCriteria.setMaxCost(maxCost);
+            publicCourseSearchCriteria.setMinLength(minLength);
+            publicCourseSearchCriteria.setMaxLength(maxLength);
+            return ResponseEntity.ok().body(courseService.getAllCourseInformationForStudent(publicCourseSearchCriteria, coursePage));
         } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }
@@ -84,6 +113,19 @@ public class PublicCourseController {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         } catch (Exception ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
+        }
+    }
+
+    @PutMapping("/{courseId}/reject-course")
+    @PreAuthorize("hasAuthority('STUDENT') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
+    public ResponseEntity<?> studentRejectRegisterCourse(
+            @PathVariable(name = "courseId") Long courseId,
+            @RequestHeader(name = "Authorization") String accessToken) {
+        try {
+            courseService.handleStudentRejectRegisterCourse(courseId, accessToken);
+            return ResponseEntity.ok().body(new SuccessfulMessageResponse("Reject register course successful"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
         }
     }
 }
