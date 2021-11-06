@@ -1,12 +1,14 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.controller.courseController;
 
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.AdminCourseSearchCriteria;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Course;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.CoursePage;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.AdminCourseSearchCriteria;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.CourseTimetable;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.*;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.authResponse.MessageResponse;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.*;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.CourseResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.ListStudentInCourseResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.MaterialListResponse;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.TimeTableResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.ErrorMessageResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.SuccessfulMessageResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.courseService.courseServiceInterface.CourseServiceInterface;
@@ -18,7 +20,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 @RestController
@@ -103,14 +104,15 @@ public class AdminCourseController {
     }
 
     // Approve or reject course
-    // localhost:8080/api/admin/course/:id/register
-    @PutMapping("/{id}/register")
+    // localhost:8080/api/admin/course/:id/student/:courseStudentId
+    @PutMapping("/{id}/student/{courseStudentId}")
     @PreAuthorize("hasAuthority('TUTOR') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
     public ResponseEntity<?> handleCourseRegisterRequest(@RequestHeader(name = "Authorization") String accessToken,
                                                          @PathVariable(name = "id") String id,
+                                                         @PathVariable(name = "courseStudentId") Long courseStudentId,
                                                          @RequestBody ActionApproveOrRejectRequest request) {
         try {
-            courseService.handleCourseRegisterByTutor(accessToken, Long.parseLong(id), request);
+            courseService.handleCourseRegisterByTutor(accessToken, Long.parseLong(id), courseStudentId, request);
             return ResponseEntity.ok().body(new SuccessfulMessageResponse("Course has been processed."));
         } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
@@ -253,8 +255,8 @@ public class AdminCourseController {
 
     @PutMapping("/{courseId}/toggle-public")
     @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
-    public ResponseEntity<?> handleToggleCourseByAdmin(@PathVariable(name = "courseId") Long courseId){
-        try{
+    public ResponseEntity<?> handleToggleCourseByAdmin(@PathVariable(name = "courseId") Long courseId) {
+        try {
             courseService.handleToggleCourseByAdmin(courseId);
             return ResponseEntity.ok().body(new SuccessfulMessageResponse("Toggle course public successful"));
         } catch (Exception e) {
@@ -262,6 +264,26 @@ public class AdminCourseController {
         }
     }
 
-
+    @GetMapping("/{courseId}/student")
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN') or hasAuthority('TUTOR')")
+    public ResponseEntity<?> getListStudentInCourse(@PathVariable(name = "courseId") Long courseId,
+                                                    @RequestHeader(name = "Authorization") String accessToken,
+                                                    @RequestParam(required = false) String studentId,
+                                                    @RequestParam(required = false) String studentName,
+                                                    @RequestParam(required = false) Integer page,
+                                                    @RequestParam(required = false) Integer limit) {
+        try {
+            if (page == null || page < 1) {
+                page = 1;
+            }
+            if (limit == null) {
+                limit = 20;
+            }
+            ListStudentInCourseResponse response = courseService.getListStudentInOneCourse(courseId,accessToken, studentId, studentName, page, limit);
+            return ResponseEntity.ok().body(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
+        }
+    }
 }
 
