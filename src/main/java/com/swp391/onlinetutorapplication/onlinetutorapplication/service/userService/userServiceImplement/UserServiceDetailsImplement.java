@@ -126,12 +126,12 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
     }
 
     @Override
-    public MessageResponse handleUserRegistration(RegistrationRequest registrationRequest) throws MessagingException {
+    public void handleUserRegistration(RegistrationRequest registrationRequest) throws MessagingException {
         if (userRepository.existsByUsername(registrationRequest.getUsername())) {
-            return new MessageResponse("Error: Username is already taken!");
+            throw new IllegalStateException("Error: Username is already taken!");
         }
         if (userRepository.existsByEmail(registrationRequest.getEmail())) {
-            return new MessageResponse("Error: Email is already taken!");
+            throw new IllegalStateException("Error: Email is already taken!");
         }
         //Create user
         String stringOfToken = UUID.randomUUID().toString();
@@ -172,7 +172,6 @@ public class UserServiceDetailsImplement implements UserDetailsService, UserServ
         user.setRoles(roles);
         userRepository.save(user);
         mailSenderService.sendEmailActivate(user.getUsername(), stringOfToken, user.getEmail());
-        return new MessageResponse("User registered successfully!");
     }
 
     @Override

@@ -36,6 +36,7 @@ public class User {
     private String password;
     private String phone;
     private Integer grade;
+    @Column(columnDefinition = "nvarchar(500)")
     private String address;
     private String avatar;
     private String facebookUrl;

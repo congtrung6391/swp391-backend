@@ -557,6 +557,25 @@ public class CourseServiceImplement implements CourseServiceInterface {
                     throw new NoSuchElementException("Course was public or deleted");
                 });
 
+        if(course.getPublicStatus()==false) {
+            course.setPublicStatus(true);
+        }else{
+            course.setPublicStatus(false);
+        }
+        courseRepository.save(course);
+    }
+
+    public void handleStudentRejectRegisterCourse(Long courseId, String accessToken){
+        accessToken = accessToken.replaceAll("Beaer ","");
+        User student = userRepository.findByAuthorizationToken(accessToken)
+                .orElseThrow(()->{
+                    throw new NoSuchElementException("Student expired");
+                });
+        Course course = courseRepository.findByIdAndStudentIsNotNullAndPublicStatusIsTrue(courseId)
+                .orElseThrow(()->{
+                    throw new NoSuchElementException("Course have no student registered");
+                });
+        course.setStudent(null);
         course.setPublicStatus(true);
         courseRepository.save(course);
     }
