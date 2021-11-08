@@ -274,11 +274,14 @@ public class CourseServiceImplement implements CourseServiceInterface {
             throw new NoSuchElementException("Not found student registered this course");
         }
         CourseStudent courseStudent = courseStudentRepository.findById(courseStudentId).get();
-        if (courseStudent.getLearningStatus() == true || courseStudent.getStatus() == false) {
-            throw new IllegalArgumentException("Can not do this action again");
+
+        if(courseStudent.getStatus()==false){
+            throw new IllegalArgumentException("You rejected this student");
         }
+
         if (request.isAction() == true) {
             courseStudent.setLearningStatus(true);
+            courseStudent.setStatus(true);
         } else {
             courseStudent.setLearningStatus(false);
             courseStudent.setStatus(false);
