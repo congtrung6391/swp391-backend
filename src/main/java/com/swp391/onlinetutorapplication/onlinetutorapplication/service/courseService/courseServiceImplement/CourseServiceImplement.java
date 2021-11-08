@@ -111,6 +111,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
             for (Course course : courses.getContent()) {
                 CourseInformationResponse info = new CourseInformationResponse(course);
                 info.setLearningStatus(courseStudentRepository.findByCourseAndStudent(course, user).getLearningStatus());
+                info.setTutor(course.getTutor());
                 allCourseApi.add(info);
             }
             CourseListResponse response = new CourseListResponse(allCourseApi);
