@@ -59,9 +59,7 @@ public class PublicCourseCriteriaRepository {
         predicates.add(
                 criteriaBuilder.isTrue(courseRoot.get(Course_.PUBLIC_STATUS))
         );
-        predicates.add(
-                criteriaBuilder.isNull(courseRoot.get(Course_.STUDENT))
-        );
+
         if (Objects.nonNull(publicCourseSearchCriteria.getCourseName())) {
             predicates.add(
                     criteriaBuilder.like(courseRoot.get(Course_.COURSE_NAME),

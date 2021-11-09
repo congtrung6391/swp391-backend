@@ -132,9 +132,6 @@ public class CourseServiceImplement implements CourseServiceInterface {
             for (Course course : list) {
                 CourseInformationResponse response = new CourseInformationResponse(course);
                 response.setTutor(course.getTutor());
-                if (course.getStudent() != null) {
-                    response.setStudent(course.getStudent());
-                }
                 allCourseApi.add(response);
             }
         }
@@ -253,7 +250,6 @@ public class CourseServiceImplement implements CourseServiceInterface {
     public void deleteCourse(Long id) {
         Course course = courseRepository.findByIdAndStatusIsTrue(id).get();
         course.setStatus(false);
-        course.setLearningStatus(false);
         course.setPublicStatus(false);
         courseRepository.save(course);
     }
@@ -304,7 +300,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
                         course = courseRepository.findByIdAndStatusIsTrue(courseID).get();
                         break;
                     case TUTOR:
-                        course = courseRepository.findByIdAndTutorAndLearningStatusIsTrue(courseID, user).get();
+                        course = courseRepository.findByIdAndTutorAndStatusIsTrue(courseID, user).get();
                         break;
                     default:
                         return null;
@@ -580,19 +576,19 @@ public class CourseServiceImplement implements CourseServiceInterface {
                     throw new NoSuchElementException("Course cannot be found");
                 });
         List<CourseTimetable> timetableList = courseTimeTableRepository.findAllByCourseAndStatusIsTrue(course);
-        List<TimeTableInformation> timeTableInformations = new ArrayList<>();
+        List<TimeTableInformation> timeTableInformation = new ArrayList<>();
         for (CourseTimetable courseTimetable : timetableList) {
             TimeTableInformation response = new TimeTableInformation(courseTimetable);
-            timeTableInformations.add(response);
+            timeTableInformation.add(response);
         }
-        return timeTableInformations;
+        return timeTableInformation;
     }
 
     @Override
     public void handleToggleCourseByAdmin(Long courseId) {
-        Course course = courseRepository.findByIdAndLearningStatusIsFalse(courseId)
+        Course course = courseRepository.findByIdAndStatusIsTrue(courseId)
                 .orElseThrow(() -> {
-                    throw new NoSuchElementException("Course was public or deleted");
+                    throw new NoSuchElementException("Course was deleted");
                 });
 
         if (course.getPublicStatus() == false) {
@@ -609,11 +605,10 @@ public class CourseServiceImplement implements CourseServiceInterface {
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Student expired");
                 });
-        Course course = courseRepository.findByIdAndStudentIsNotNullAndPublicStatusIsTrue(courseId)
+        Course course = courseRepository.findByIdAndStatusIsTrue(courseId)
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Course have no student registered");
                 });
-        course.setStudent(null);
         course.setPublicStatus(true);
         courseRepository.save(course);
     }
