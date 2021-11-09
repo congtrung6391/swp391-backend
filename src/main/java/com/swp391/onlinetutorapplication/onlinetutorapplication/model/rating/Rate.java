@@ -21,7 +21,6 @@ public class Rate {
     private Long id;
     private Double value;
     @Column(columnDefinition = "nvarchar(4000)")
-    @Nationalized
     private String description;
     private LocalDateTime time;
 
