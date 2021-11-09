@@ -135,7 +135,7 @@ public class AnswerServiceImplement implements AnswerServiceInterface {
 
         if (user == answer.getUser() || user.getRoles().contains(role) || user.getRoles().contains(role2)){
             if (request.getContent().isEmpty()){
-                throw new IllegalArgumentException("This field cannot be empty.");
+                 throw new IllegalArgumentException("This field cannot be empty.");
             }else{
                 answer.setContent(request.getContent());
                 answer.setQuestion(question);
