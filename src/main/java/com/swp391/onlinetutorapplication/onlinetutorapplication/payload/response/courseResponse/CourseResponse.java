@@ -17,8 +17,5 @@ public class CourseResponse {
     public CourseResponse(Course course){
         this.course = new CourseInformationResponse(course);
         this.course.setTutor(course.getTutor());
-        if(course.getStudent() != null){
-            this.course.setStudent(course.getStudent());
-        }
     }
 }

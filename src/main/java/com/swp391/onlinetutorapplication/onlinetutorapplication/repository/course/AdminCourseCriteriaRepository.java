@@ -71,15 +71,15 @@ public class AdminCourseCriteriaRepository {
                             adminCourseSearchCriteria.getUserId())
             );
         }
-        if (adminCourseSearchCriteria.getRole().getUserRole().equals(STUDENT)) {//student lay theo student id va public status true
-            predicates.add(
-                    criteriaBuilder.equal(courseRoot.get(Course_.STUDENT),
-                            adminCourseSearchCriteria.getUserId())
-            );
-            predicates.add(
-                    criteriaBuilder.isTrue(courseRoot.get(Course_.PUBLIC_STATUS))
-            );
-        }
+//        if (adminCourseSearchCriteria.getRole().getUserRole().equals(STUDENT)) {//student lay theo student id va public status true
+//            predicates.add(
+//                    criteriaBuilder.equal(courseRoot.get(Course_.STUDENT),
+//                            adminCourseSearchCriteria.getUserId())
+//            );
+//            predicates.add(
+//                    criteriaBuilder.isTrue(courseRoot.get(Course_.PUBLIC_STATUS))
+//            );
+//        }
         if (Objects.nonNull(adminCourseSearchCriteria.getCourseName())) {
             predicates.add(
                     criteriaBuilder.like(courseRoot.get(Course_.COURSE_NAME),
