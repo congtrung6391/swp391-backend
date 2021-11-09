@@ -21,7 +21,10 @@ public class UserInformationResponse {
     private String username;
     private String email;
     private String fullName;
+    private String phone;
     private String avatar;
+    private Double avgRate;
+    private Long totalRate;
     private Set<Role> role;
 
     public UserInformationResponse(User user){
@@ -29,6 +32,7 @@ public class UserInformationResponse {
         this.username = user.getUsername();
         this.email = user.getEmail();
         this.fullName = user.getFullName();
+        this.phone = user.getPhone();
         this.avatar = user.getAvatar();
         this.role = user.getRoles();
     }

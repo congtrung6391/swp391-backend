@@ -3,10 +3,7 @@ package com.swp391.onlinetutorapplication.onlinetutorapplication.service.courseS
 import com.dropbox.core.DbxException;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.*;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.courseRequest.*;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.CourseInformationResponse;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.CourseListResponse;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.MaterialListResponse;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.TimeTableInformation;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.*;
 
 import java.io.IOException;
 import java.util.List;
@@ -52,7 +49,7 @@ public interface CourseServiceInterface {
     void deleteMaterial(Long materialId, Long courseId, String accessToken) throws Exception;
 
     void handleCourseRegisterByTutor(String accessToken,
-                                     Long id,
+                                     Long id, Long courseStudentId,
                                      ActionApproveOrRejectRequest actionApproveOrRejectRequest);
 
     CourseInformationResponse getOneCourseApiPublic(Long courseId);
@@ -72,4 +69,9 @@ public interface CourseServiceInterface {
     List<TimeTableInformation> getTimeTableList(Long courseId) throws Exception;
 
     void handleToggleCourseByAdmin(Long courseId);
+
+    void handleStudentRejectRegisterCourse(Long courseId, String accessToken);
+
+
+    ListStudentInCourseResponse getListStudentInOneCourse(Long courseId,String accessToken, String studentId, String studentName, Integer page, Integer limit);
 }

@@ -12,7 +12,7 @@ import javax.mail.MessagingException;
 public interface UserServiceInterface {
     JwtResponse handleUserLogin(LoginRequest loginRequest) throws Exception;
 
-    MessageResponse handleUserRegistration(RegistrationRequest registrationRequest) throws MessagingException;
+    void handleUserRegistration(RegistrationRequest registrationRequest) throws MessagingException;
 
     void activeAccount(String activateToken);
 

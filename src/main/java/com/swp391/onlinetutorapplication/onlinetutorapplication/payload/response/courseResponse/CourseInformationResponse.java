@@ -2,11 +2,15 @@ package com.swp391.onlinetutorapplication.onlinetutorapplication.payload.respons
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Course;
+import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.CourseStudent;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.Subject;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -18,8 +22,8 @@ public class CourseInformationResponse {
     private int grade;
     private double cost;
     private int length;
-    private Boolean learningStatus;
     private Boolean publicStatus;
+    private Boolean learningStatus;
     private Subject subject;
     private CourseTutorInformation tutor;
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -33,8 +37,11 @@ public class CourseInformationResponse {
         this.cost = course.getCost();
         this.length = course.getLength();
         this.subject = course.getSubject();
-        this.learningStatus = course.getLearningStatus();
         this.publicStatus = course.getPublicStatus();
+    }
+
+    public CourseInformationResponse() {
+
     }
 
     public void setTutor(User tutor) {

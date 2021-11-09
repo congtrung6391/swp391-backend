@@ -1,10 +1,8 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.controller.courseController;
 
-import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.AdminCourseSearchCriteria;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.CoursePage;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.courses.PublicCourseSearchCriteria;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.authResponse.MessageResponse;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.CourseListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.TimeTableInformation;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.courseResponse.TimeTableListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.ErrorMessageResponse;
@@ -59,16 +57,16 @@ public class PublicCourseController {
             if (limit == null) {
                 limit = 20;
             }
-            if(minCost == null){
+            if (minCost == null) {
                 minCost = 0L;
             }
-            if(maxCost == null){
+            if (maxCost == null) {
                 maxCost = 2000000L;
             }
-            if(minLength == null){
+            if (minLength == null) {
                 minLength = 60;
             }
-            if(maxLength == null){
+            if (maxLength == null) {
                 maxLength = 300;
             }
             CoursePage coursePage = new CoursePage();
@@ -115,6 +113,19 @@ public class PublicCourseController {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         } catch (Exception ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
+        }
+    }
+
+    @PutMapping("/{courseId}/reject-course")
+    @PreAuthorize("hasAuthority('STUDENT') or hasAuthority('ADMIN') or hasAuthority('SUPER_ADMIN')")
+    public ResponseEntity<?> studentRejectRegisterCourse(
+            @PathVariable(name = "courseId") Long courseId,
+            @RequestHeader(name = "Authorization") String accessToken) {
+        try {
+            courseService.handleStudentRejectRegisterCourse(courseId, accessToken);
+            return ResponseEntity.ok().body(new SuccessfulMessageResponse("Reject register course successful"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
         }
     }
 }

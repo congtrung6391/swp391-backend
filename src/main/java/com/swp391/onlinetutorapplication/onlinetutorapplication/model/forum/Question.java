@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Nationalized;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -22,8 +23,10 @@ public class Question {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(columnDefinition = "nvarchar(4000)", nullable = false)
+    @Nationalized
     private String title;
     @Column(columnDefinition = "nvarchar(4000)", nullable = true)
+    @Nationalized
     private String description;
     private LocalDate createdDate = LocalDate.now();
     private Boolean status = true;
