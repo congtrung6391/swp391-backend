@@ -27,7 +27,6 @@ public class Course {
     private int grade;
     private double cost;
     private int length;
-    private Boolean learningStatus = false;
     private Boolean publicStatus = false;
     private Boolean status = true;
     @ManyToOne
@@ -36,9 +35,7 @@ public class Course {
     @ManyToOne
     @JoinColumn(name = "tutor_id")
     private User tutor;
-    @ManyToOne
-    @JoinColumn(name = "student_id")
-    private User student;
+
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
     private Set<CourseMaterial> courseMaterial;
 

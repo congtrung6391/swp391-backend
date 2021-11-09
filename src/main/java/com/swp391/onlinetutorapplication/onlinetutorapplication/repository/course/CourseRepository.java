@@ -14,29 +14,17 @@ import java.util.Optional;
 @Repository
 public interface CourseRepository extends JpaRepository<Course, Long> {
 
-    Optional<Course> findByIdAndLearningStatusIsTrue(Long id);
 
-    Optional<Course> findByIdAndTutorAndLearningStatusIsTrue(Long id, User tutor);
+    Optional<Course> findByIdAndTutorAndStatusIsTrue(Long id, User tutor);
 
     Optional<Course> findById(Long id);
 
-    Optional<Course> findByIdAndStudentIsNotNullAndPublicStatusIsTrue(Long id);
 
     Optional<Course> findByIdAndStatusIsTrue(Long id);
 
-    Page<Course> findAllByStudentAndStatusIsTrueOrderByIdDesc(User student, Pageable pageable);
-
-    Page<Course> findAllByStudentIsNullAndPublicStatusIsTrueOrderByIdDesc(Pageable pageable);
 
     Optional<Course> findByIdAndPublicStatusIsTrue(Long id);
 
-//    Optional<Course> findByIdAndPublicStatusIsTrue(Long id);
-
-    Optional<Course> findByIdAndPublicStatusIsFalse(Long id);
-
-    Optional<Course> findByIdAndLearningStatusIsFalse(Long id);
-
-    Course findByCourseStudents(CourseStudent courseStudents);
 
     @Query("select c from Course c join CourseStudent cs on c = cs.course and cs.student = ?1 order by c.id desc ")
     Page<Course> findByStudentRole(User student, Pageable pageable);
