@@ -661,7 +661,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
             }
         } else {
             //list khong search
-            courseStudents = courseStudentRepository.findAllByCourseOrderById(course, pageable);
+            courseStudents = courseStudentRepository.findAllByCourseAndStatusIsTrueOrderById(course, pageable);
         }
 
 
