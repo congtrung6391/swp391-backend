@@ -20,24 +20,24 @@ public interface CourseStudentRepository extends JpaRepository<CourseStudent, Lo
 
     List<CourseStudent> findAllByCourse(Course course);
 
-    Page<CourseStudent> findAllByCourseOrderById(Course course, Pageable pageable);
+    Page<CourseStudent> findAllByCourseAndStatusIsTrueOrderById(Course course, Pageable pageable);
 
     CourseStudent findByIdAndCourse(Long id,Course course);
 
     @Query("select cs from CourseStudent cs " +
-            "join User u on cs.student = u and  u.id = ?1  " +
+            "join User u on cs.student = u and  u.id = ?1 and cs.status = true " +
             "where cs.course = ?2 " +
             "order by cs.id desc ")
     Page<CourseStudent> findListByStudentId(Long studentId,Course course, Pageable pageable);
 
     @Query("select cs from CourseStudent cs " +
-            "join User u on cs.student = u and  u.fullName like ?1  " +
+            "join User u on cs.student = u and  u.fullName like ?1 and cs.status = true " +
             "where cs.course = ?2 " +
             "order by cs.id desc ")
     Page<CourseStudent> findByStudentName(String studentName,Course course, Pageable pageable);
 
     @Query("select cs from CourseStudent cs " +
-            "join User u on cs.student = u and  u.fullName like ?1 and u.id =?2 " +
+            "join User u on cs.student = u and  u.fullName like ?1 and u.id =?2 and cs.status = true " +
             "where cs.course = ?3 " +
             "order by cs.id desc ")
     Page<CourseStudent> findByStudentNameAndId(String studentName,Long studentId,Course course, Pageable pageable);
