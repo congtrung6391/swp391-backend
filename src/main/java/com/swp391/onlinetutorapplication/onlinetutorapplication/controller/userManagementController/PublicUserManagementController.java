@@ -95,15 +95,17 @@ public class PublicUserManagementController {
             if (limit == null) {
                 limit = 20;
             }
+            TutorListResponse listResponse = null;
+
             if (name != null) {
-                TutorListResponse list = userManagement.publicSearchTutor(name, page, limit);
-                return ResponseEntity.ok().body(list);
-            }
-            if (order != null && order.equals("rating")) {
-                TutorListResponse listResponse = userManagement.getListTutorOrderByRating(page, limit);
+                listResponse = userManagement.publicSearchTutor(name, page, limit);
                 return ResponseEntity.ok().body(listResponse);
             }
-            TutorListResponse listResponse = userManagement.getListTutor(page, limit);
+            if (order != null) {
+                listResponse = userManagement.getListTutorOrderByRating(page, limit,order);
+                return ResponseEntity.ok().body(listResponse);
+            }
+            listResponse = userManagement.getListTutor(page, limit);
             return ResponseEntity.ok().body(listResponse);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
