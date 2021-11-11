@@ -55,4 +55,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("select u.id from User u join Rate r on u.id=r.tutor.id group by u.id order by avg(r.value) desc ")
     Page<Long> sortingTutorByRating(Pageable pageable);
+
+    @Query("select u.id from User u join Rate r on u.id=r.tutor.id group by u.id order by count(r.tutor.id) desc ")
+    Page<Long> sortingTutorByNumberRating(Pageable pageable);
 }
