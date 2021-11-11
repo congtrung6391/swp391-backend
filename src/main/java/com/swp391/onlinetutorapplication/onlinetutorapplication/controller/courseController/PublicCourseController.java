@@ -49,7 +49,8 @@ public class PublicCourseController {
                                                    @RequestParam(name = "minCost", required = false) Long minCost,
                                                    @RequestParam(name = "maxCost", required = false) Long maxCost,
                                                    @RequestParam(name = "minLength", required = false) Integer minLength,
-                                                   @RequestParam(name = "maxLength", required = false) Integer maxLength) {
+                                                   @RequestParam(name = "maxLength", required = false) Integer maxLength,
+                                                   @RequestHeader(name = "Authorization", required = false) String accessToken) {
         try {
             if (page == null || page < 1) {
                 page = 1;
@@ -80,7 +81,7 @@ public class PublicCourseController {
             publicCourseSearchCriteria.setMaxCost(maxCost);
             publicCourseSearchCriteria.setMinLength(minLength);
             publicCourseSearchCriteria.setMaxLength(maxLength);
-            return ResponseEntity.ok().body(courseService.getAllCourseInformationForStudent(publicCourseSearchCriteria, coursePage));
+            return ResponseEntity.ok().body(courseService.getAllCourseInformationForStudent(publicCourseSearchCriteria, coursePage, accessToken));
         } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }
@@ -96,9 +97,10 @@ public class PublicCourseController {
     }
 
     @GetMapping("/{courseId}/info")
-    public ResponseEntity<?> getOneCourseApiPublic(@PathVariable(name = "courseId") Long id) {
+    public ResponseEntity<?> getOneCourseApiPublic(@PathVariable(name = "courseId") Long id,
+                                                   @RequestHeader(name = "Authorization", required = false) String accessToken) {
         try {
-            return ResponseEntity.ok().body(courseService.getOneCourseApiPublic(id));
+            return ResponseEntity.ok().body(courseService.getOneCourseApiPublic(id, accessToken));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
         }

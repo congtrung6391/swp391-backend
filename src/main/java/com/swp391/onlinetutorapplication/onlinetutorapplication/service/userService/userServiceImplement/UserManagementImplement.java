@@ -313,6 +313,22 @@ public class UserManagementImplement implements UserManagementInterface {
         response.setTotalUser(users.getTotalElements());
         return response;
     }
+
+    @Override
+    public TutorListResponse getListTutorOrderByRating(Integer page, Integer limit) {
+        Pageable pageable = PageRequest.of(page-1,limit);
+        Page<Long> tutorId = userRepository.sortingTutorByRating(pageable);
+        List<UserInformationResponse> responseList = new ArrayList<>();
+        for(Long id : tutorId.getContent()){
+            User tutor = userRepository.findByIdAndStatusIsTrue(id).get();
+            UserInformationResponse info = new UserInformationResponse(tutor);
+            info.setAvgRate(ratingService.getAvgRating(tutor,null));
+            info.setTotalRate(ratingService.getTotalRate(tutor));
+            responseList.add(info);
+        }
+        TutorListResponse response = new TutorListResponse(responseList);
+        return response;
+    }
 }
 
 

@@ -18,7 +18,7 @@ public interface CourseServiceInterface {
     CourseInformationResponse getOneCourseApiAdmin(String accessToken, Long courseId);
 
     CourseListResponse getAllCourseInformationForStudent(PublicCourseSearchCriteria publicCourseSearchCriteria,
-                                                         CoursePage coursePage);
+                                                         CoursePage coursePage, String accessToken);
 
     void handleCourseRegisterByStudent(String accessToken, Long id);
 
@@ -52,7 +52,7 @@ public interface CourseServiceInterface {
                                      Long id, Long courseStudentId,
                                      ActionApproveOrRejectRequest actionApproveOrRejectRequest);
 
-    CourseInformationResponse getOneCourseApiPublic(Long courseId);
+    CourseInformationResponse getOneCourseApiPublic(Long courseId, String accessToken);
 
     void deleteTimeTable(Long timetableId,
                          Long courseId,
@@ -73,5 +73,5 @@ public interface CourseServiceInterface {
     void handleStudentRejectRegisterCourse(Long courseId, String accessToken);
 
 
-    ListStudentInCourseResponse getListStudentInOneCourse(Long courseId,String accessToken, String studentId, String studentName, Integer page, Integer limit);
+    ListStudentInCourseResponse getListStudentInOneCourse(Long courseId, String accessToken, String studentId, String studentName, Integer page, Integer limit);
 }

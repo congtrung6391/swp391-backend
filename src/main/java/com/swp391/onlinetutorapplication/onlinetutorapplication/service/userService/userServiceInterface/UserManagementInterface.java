@@ -39,4 +39,6 @@ public interface UserManagementInterface {
 
     //    Object publicSearchUser(String name);
     TutorListResponse publicSearchTutor(String name, Integer page, Integer limit);
+
+    TutorListResponse getListTutorOrderByRating(Integer page, Integer limit);
 }
