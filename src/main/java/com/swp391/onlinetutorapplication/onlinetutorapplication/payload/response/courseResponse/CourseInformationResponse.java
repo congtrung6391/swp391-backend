@@ -24,6 +24,7 @@ public class CourseInformationResponse {
     private int length;
     private Boolean publicStatus;
     private Boolean learningStatus;
+    private Boolean registered = false;
     private Subject subject;
     private CourseTutorInformation tutor;
     @JsonInclude(JsonInclude.Include.NON_NULL)
