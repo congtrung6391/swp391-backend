@@ -179,7 +179,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
         return courseInformationResponse;
     }
 
-    public CourseInformationResponse getOneCourseApiPublic(Long courseId) {
+    public CourseInformationResponse getOneCourseApiPublic(Long courseId, String accessToken) {
         Course course = courseRepository.findByIdAndPublicStatusIsTrue(courseId)
                 .orElseThrow(() -> {
                     throw new NoSuchElementException("Course not found");
@@ -188,20 +188,57 @@ public class CourseServiceImplement implements CourseServiceInterface {
 //            throw new IllegalArgumentException("You are not allowed to see this content");
 //        }
         CourseInformationResponse courseInformationResponse = new CourseInformationResponse(course);
+
+
+        if (accessToken != null) {
+            accessToken = accessToken.replaceAll("Bearer ", "");
+            User user = userRepository.findByAuthorizationToken(accessToken).
+                    orElseThrow(() -> {
+                        throw new IllegalArgumentException("Your token is expired. Please log in again");
+                    });
+            if (user.getRoles().iterator().next().getUserRole().name().equals("STUDENT")) {
+                CourseStudent courseStudent = courseStudentRepository.findByCourseAndStudent(course, user);
+                if (courseStudent != null) {
+                    courseInformationResponse.setRegistered(true);
+                } else {
+                    courseInformationResponse.setRegistered(false);
+                }
+            } else {
+                courseInformationResponse.setRegistered(false);
+            }
+        }
         courseInformationResponse.setTutor(course.getTutor());
+
         return courseInformationResponse;
     }
 
 
     @Override
     public CourseListResponse getAllCourseInformationForStudent(PublicCourseSearchCriteria publicCourseSearchCriteria,
-                                                                CoursePage coursePage) {
+                                                                CoursePage coursePage, String accessToken) {
         Page<Course> listAllCourse = publicCourseCriteriaRepository.findWithFilter(coursePage, publicCourseSearchCriteria);
         List<CourseInformationResponse> allCourseApi = new ArrayList<>();
         List<Course> list = listAllCourse.getContent();
         if (!list.isEmpty()) {
             for (Course course : list) {
                 CourseInformationResponse response = new CourseInformationResponse(course);
+                if (accessToken != null) {
+                    accessToken = accessToken.replaceAll("Bearer ", "");
+                    User user = userRepository.findByAuthorizationToken(accessToken).
+                            orElseThrow(() -> {
+                                throw new IllegalArgumentException("Your token is expired. Please log in again");
+                            });
+                    if (user.getRoles().iterator().next().getUserRole().name().equals("STUDENT")) {
+                        CourseStudent courseStudent = courseStudentRepository.findByCourseAndStudent(course, user);
+                        if (courseStudent != null) {
+                            response.setRegistered(true);
+                        } else {
+                            response.setRegistered(false);
+                        }
+                    } else {
+                        response.setRegistered(false);
+                    }
+                }
                 response.setTutor(course.getTutor());
                 allCourseApi.add(response);
             }
@@ -271,7 +308,7 @@ public class CourseServiceImplement implements CourseServiceInterface {
         }
         CourseStudent courseStudent = courseStudentRepository.findById(courseStudentId).get();
 
-        if(courseStudent.getStatus()==false){
+        if (courseStudent.getStatus() == false) {
             throw new IllegalArgumentException("You rejected this student");
         }
 

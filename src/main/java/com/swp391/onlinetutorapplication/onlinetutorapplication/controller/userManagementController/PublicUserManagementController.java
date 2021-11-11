@@ -1,6 +1,5 @@
 package com.swp391.onlinetutorapplication.onlinetutorapplication.controller.userManagementController;
 
-import com.swp391.onlinetutorapplication.onlinetutorapplication.model.rating.Rate;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.ratingRequest.AddRatingRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.ratingRequest.UpdateRatingRequest;
@@ -12,8 +11,6 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.ErrorMessageResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.responseMessage.SuccessfulMessageResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.TutorListResponse;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserInformationResponse;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserUpdateResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.ratingService.ratingServiceInterface.RatingServiceInterface;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceInterface.UserManagementInterface;
@@ -24,8 +21,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
 import java.util.NoSuchElementException;
+
 @RestController
 @RequestMapping("/api/public")
 public class PublicUserManagementController {
@@ -46,28 +43,28 @@ public class PublicUserManagementController {
                                         @Valid @RequestBody UpdateProfileRequest updateProfileRequest) {
         try {
             User user = userManagement.updateUser(accessToken, id, updateProfileRequest);
-            if(user == null) {
+            if (user == null) {
                 return ResponseEntity.badRequest().body(new ErrorMessageResponse("Update failed"));
-            }else {
+            } else {
                 return ResponseEntity.ok().body(new UserUpdateResponse(user));
             }
-        }catch (NoSuchElementException ex) {
+        } catch (NoSuchElementException ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
-        }catch (IllegalArgumentException ex) {
+        } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(ex.getMessage()));
         }
     }
 
-        @PutMapping("/user/{id}/change-password")
+    @PutMapping("/user/{id}/change-password")
     @PreAuthorize("hasAuthority('SUPER_ADMIN') or hasAuthority('ADMIN') or hasAuthority('TUTOR') or hasAuthority('STUDENT')")
     public ResponseEntity<?> updateUserPassword(@RequestHeader(name = "Authorization") String accessToken,
-                                            @PathVariable("id") Long id,
-                                            @Valid @RequestBody PasswordUpdateRequest request) {
+                                                @PathVariable("id") Long id,
+                                                @Valid @RequestBody PasswordUpdateRequest request) {
         try {
             User user = userManagement.updateUserPassword(accessToken, id, request);
-            if(user == null) {
+            if (user == null) {
                 return ResponseEntity.badRequest().body(new SuccessfulMessageResponse("Update failed!"));
-            }else {
+            } else {
                 return ResponseEntity.ok().body(new MessageResponse("Password has been updated."));
             }
         } catch (Exception ex) {
@@ -88,26 +85,30 @@ public class PublicUserManagementController {
     public ResponseEntity<?> getListTutor(
             @RequestParam(required = false) String name,
             @RequestParam(name = "page", required = false) Integer page,
-            @RequestParam(name = "limit", required = false) Integer limit
+            @RequestParam(name = "limit", required = false) Integer limit,
+            @RequestParam(name = "order", required = false) String order
     ) {
         try {
-            if (page == null || page<1) {
+            if (page == null || page < 1) {
                 page = 1;
             }
             if (limit == null) {
                 limit = 20;
             }
-            if(name != null){
-                TutorListResponse list = userManagement.publicSearchTutor(name,page,limit);
+            if (name != null) {
+                TutorListResponse list = userManagement.publicSearchTutor(name, page, limit);
                 return ResponseEntity.ok().body(list);
             }
-            TutorListResponse listResponse = userManagement.getListTutor(page,limit);
+            if (order != null && order.equals("rating")) {
+                TutorListResponse listResponse = userManagement.getListTutorOrderByRating(page, limit);
+                return ResponseEntity.ok().body(listResponse);
+            }
+            TutorListResponse listResponse = userManagement.getListTutor(page, limit);
             return ResponseEntity.ok().body(listResponse);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-
 
 
     @GetMapping("/user/{tutorId}/rating")
@@ -116,17 +117,17 @@ public class PublicUserManagementController {
                                                      @RequestParam(name = "page", required = false) Integer page,
                                                      @RequestParam(name = "limit", required = false) Integer limit) {
         try {
-            if (page == null || page<1) {
+            if (page == null || page < 1) {
                 page = 1;
             }
             if (limit == null) {
                 limit = 20;
             }
-            if(subjectId == null){
-                RatingListResponse rateList = ratingService.getAllRating(tutorId,page,limit);
+            if (subjectId == null) {
+                RatingListResponse rateList = ratingService.getAllRating(tutorId, page, limit);
                 return ResponseEntity.ok().body(rateList);
             }
-            RatingListResponse rateList = ratingService.getTutorRatingBySubject(tutorId, subjectId,page,limit);
+            RatingListResponse rateList = ratingService.getTutorRatingBySubject(tutorId, subjectId, page, limit);
             return ResponseEntity.ok().body(rateList);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
@@ -160,13 +161,13 @@ public class PublicUserManagementController {
 
     @DeleteMapping("/user/{tutorId}/rating/{ratingId}")
     @PreAuthorize("hasAuthority('SUPER_ADMIN') or hasAuthority('STUDENT') or hasAuthority('ADMIN')")
-    public ResponseEntity<?> deleteRating(@RequestHeader(name = "Authorization")String accessToken,
+    public ResponseEntity<?> deleteRating(@RequestHeader(name = "Authorization") String accessToken,
                                           @PathVariable(name = "tutorId") Long tutorId,
-                                          @PathVariable(name = "ratingId") Long ratingId){
-        try{
-            ratingService.deleteRating(accessToken,tutorId,ratingId);
+                                          @PathVariable(name = "ratingId") Long ratingId) {
+        try {
+            ratingService.deleteRating(accessToken, tutorId, ratingId);
             return ResponseEntity.ok().body(new SuccessfulMessageResponse("Delete rating successful"));
-        }catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ErrorMessageResponse(e.getMessage()));
         }
     }
