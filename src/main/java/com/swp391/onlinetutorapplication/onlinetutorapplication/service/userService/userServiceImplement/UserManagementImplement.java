@@ -11,7 +11,6 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserProfileResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.role.RoleRepository;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.repository.user.UserRepository;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.service.ratingService.ratingServiceImplement.RatingServiceImplement;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.ratingService.ratingServiceInterface.RatingServiceInterface;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.service.userService.userServiceInterface.UserManagementInterface;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -311,6 +309,30 @@ public class UserManagementImplement implements UserManagementInterface {
         }
         TutorListResponse response = new TutorListResponse(responseList);
         response.setTotalUser(users.getTotalElements());
+        return response;
+    }
+
+    @Override
+    public TutorListResponse getListTutorOrderByRating(Integer page, Integer limit, String order) {
+        Pageable pageable = PageRequest.of(page-1,limit);
+        Page<Long> tutorId = null;
+        if(order.equals("rating")) {
+            tutorId = userRepository.sortingTutorByRating(pageable);
+        }else if(order.equals("number-rating")) {
+            tutorId = userRepository.sortingTutorByNumberRating(pageable);
+        }else {
+            return getListTutor(page,limit);
+        }
+        List<UserInformationResponse> responseList = new ArrayList<>();
+        for(Long id : tutorId.getContent()){
+            User tutor = userRepository.findByIdAndStatusIsTrue(id).get();
+            UserInformationResponse info = new UserInformationResponse(tutor);
+            info.setAvgRate(ratingService.getAvgRating(tutor,null));
+            info.setTotalRate(ratingService.getTotalRate(tutor));
+            responseList.add(info);
+        }
+        TutorListResponse response = new TutorListResponse(responseList);
+        response.setTotalUser(tutorId.getTotalElements());
         return response;
     }
 }

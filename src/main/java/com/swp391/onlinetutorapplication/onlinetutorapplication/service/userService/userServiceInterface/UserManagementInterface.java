@@ -5,11 +5,8 @@ import com.swp391.onlinetutorapplication.onlinetutorapplication.model.user.User;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.PasswordUpdateRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.request.userRequest.UpdateProfileRequest;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.TutorListResponse;
-import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserInformationResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserListResponse;
 import com.swp391.onlinetutorapplication.onlinetutorapplication.payload.response.userResponse.UserProfileResponse;
-
-import java.util.List;
 
 public interface UserManagementInterface {
     User getUser(String username);
@@ -39,4 +36,6 @@ public interface UserManagementInterface {
 
     //    Object publicSearchUser(String name);
     TutorListResponse publicSearchTutor(String name, Integer page, Integer limit);
+
+    TutorListResponse getListTutorOrderByRating(Integer page, Integer limit, String order);
 }
