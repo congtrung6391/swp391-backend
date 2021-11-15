@@ -332,6 +332,7 @@ public class UserManagementImplement implements UserManagementInterface {
             responseList.add(info);
         }
         TutorListResponse response = new TutorListResponse(responseList);
+        response.setTotalUser(tutorId.getTotalElements());
         return response;
     }
 }
