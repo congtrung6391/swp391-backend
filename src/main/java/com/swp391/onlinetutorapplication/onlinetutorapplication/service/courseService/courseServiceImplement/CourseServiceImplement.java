@@ -110,7 +110,13 @@ public class CourseServiceImplement implements CourseServiceInterface {
             Page<Course> courses = courseRepository.findByStudentRole(user, pageable);
             for (Course course : courses.getContent()) {
                 CourseInformationResponse info = new CourseInformationResponse(course);
-                info.setLearningStatus(courseStudentRepository.findByCourseAndStudent(course, user).getLearningStatus());
+                CourseStudent courseStudent = courseStudentRepository.findByCourseAndStudent(course, user);
+                info.setLearningStatus(courseStudent.getLearningStatus());
+                if(courseStudent.getLearningStatus() == false && courseStudent.getStatus() == false){
+                    info.setRejected(true);
+                }else{
+                    info.setRejected(false);
+                }
                 info.setTutor(course.getTutor());
                 allCourseApi.add(info);
             }

@@ -20,12 +20,13 @@ import java.util.NoSuchElementException;
 @RestController
 @RequestMapping("/api/admin")
 
-public class AdminUserManagementController {
+public class    AdminUserManagementController {
     @Autowired
     private UserServiceInterface userService;
 
     @Autowired
     private UserManagementInterface userManagement;
+
     @Autowired
     private RatingServiceInterface ratingService;
 
