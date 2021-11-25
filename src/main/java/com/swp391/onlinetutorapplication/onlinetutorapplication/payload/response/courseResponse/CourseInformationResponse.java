@@ -29,7 +29,8 @@ public class CourseInformationResponse {
     private CourseTutorInformation tutor;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private CourseStudentInformation student;
-
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private boolean rejected;
     public CourseInformationResponse(Course course) {
         this.id = course.getId();
         this.courseName = course.getCourseName();
