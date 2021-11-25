@@ -108,7 +108,6 @@ public class AnswerServiceImplement implements AnswerServiceInterface {
         Role role2 = roleRepository.findByUserRole(ERole.ADMIN).get();
 
         if (user == answer.getUser() || user.getRoles().contains(role) || user.getRoles().contains(role2)) {
-
             answer.setStatus(false);
             answerRepository.save(answer);
         } else {
