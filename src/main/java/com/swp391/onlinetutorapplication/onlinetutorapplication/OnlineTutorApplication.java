@@ -25,7 +25,7 @@ public class OnlineTutorApplication {
 			@Override
 			public void addCorsMappings(CorsRegistry registry) {
 				registry.addMapping("/api/**")
-						.allowedOrigins(corsOrigin)
+						// .allowedOrigins(corsOrigin)
 						.allowedMethods("GET", "POST", "PUT", "DELETE");
 			}
 		};
